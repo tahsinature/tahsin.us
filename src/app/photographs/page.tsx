@@ -1,9 +1,19 @@
-import React from "react";
+import Head from "next/head";
 
-const Page = () => {
+import Gallery from "@/components/Gallery/Gallery";
+import services from "@/services";
+
+const Page = async () => {
+  const photosFromServer = await services.gallery.getImages();
+
   return (
-    <div>
-      <h1>Gallery</h1>
+    <div className="pb-10">
+      <Head>
+        <title>Gallery</title>
+        <meta name="description" content="Tahsin Photography" />
+      </Head>
+
+      <Gallery photosFromServer={photosFromServer} />
     </div>
   );
 };

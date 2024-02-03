@@ -9,3 +9,14 @@ export type WorkPlace = {
   location: string;
   specialization: string;
 };
+
+export type Image = {
+  id: string;
+  src: string;
+  alt: string;
+  caption: string;
+  location: string;
+  width: number;
+  height: number;
+  likeCount: number;
+};
