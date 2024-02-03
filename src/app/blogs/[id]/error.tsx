@@ -1,7 +1,6 @@
 "use client";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Terminal } from "lucide-react";
 import { AlertCircle } from "lucide-react";
 
 const NotFound = () => {
