@@ -2,7 +2,9 @@ export type Language = { id: string; name: string; subOnLang: string; subOnEng?:
 
 export type WorkPlace = {
   id: string;
-  timeRange: string;
+  show: boolean;
+  start: string;
+  end: string;
   company: string;
   position: string;
   logo: string;
@@ -46,7 +48,7 @@ export type Tag = {
 export type NotionORMSchema = {
   properties: {
     [key: string]: {
-      type: "title" | "rich_text" | "files" | "relation";
+      type: "title" | "rich_text" | "files" | "relation" | "checkbox";
       subType?: "url" | "external";
     };
   };
