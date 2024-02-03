@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import clsx from "clsx";
 
-import NavBar from "@/components/NavBar";
-import { Providers } from "@/app/provers";
 import "./globals.css";
+import NavBar from "@/components/NavBar/NavBar";
+import { Providers } from "@/app/provers";
+import Footer from "@/components/Footer/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,10 +21,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={clsx(inter.className, "min-h-screen")}>
+      <body className={clsx(inter.className)}>
         <Providers>
-          <NavBar />
-          {children}
+          <div className="min-h-[100dvh] flex flex-col">
+            <NavBar />
+            <div className="container py-5 grow">{children}</div>
+            <Footer />
+          </div>
         </Providers>
       </body>
     </html>

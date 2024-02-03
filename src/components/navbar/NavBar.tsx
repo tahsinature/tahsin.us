@@ -4,7 +4,7 @@ import Link from "next/link";
 import clsx from "clsx";
 import { usePathname } from "next/navigation";
 
-import CommandMenu from "@/components/command-menu";
+import CommandMenu from "@/components/CommandMenu/CommandMenu";
 import { MobileSheet } from "@/components/NavBar/MobileSheet";
 import MyAvatar from "@/components/NavBar/MyAvatar";
 import ThemeToggle from "@/components/NavBar/ThemeToggle";
