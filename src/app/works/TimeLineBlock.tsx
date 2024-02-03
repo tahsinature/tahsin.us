@@ -2,7 +2,6 @@ import { TableIcon, CalendarIcon } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import Tags from "@/components/Blog/Tags";
-import services from "@/services";
 import { WorkPlace } from "@/types";
 import Image from "next/image";
 
@@ -19,7 +18,9 @@ const TimeLineBlock = async ({ workplace }: { workplace: WorkPlace }) => {
         </div>
         <div className="flex items-center">
           <CalendarIcon size={"12"} className="mr-1" />
-          <p className="text-sm">{workplace.timeRange}</p>
+          <p className="text-sm">
+            {workplace.start} - {workplace.end}
+          </p>
         </div>
       </div>
 

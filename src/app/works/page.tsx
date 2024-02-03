@@ -6,8 +6,6 @@ import TimeLineBlock from "@/app/works/TimeLineBlock";
 import { Button } from "@/components/ui/button";
 import clsx from "clsx";
 
-// import { Badge, Avatar, Button } from "@nextui-org/react";
-
 export const metadata: Metadata = {
   title: "Works | tahsin.us",
   description: "Tahsin's work experiences",
@@ -22,7 +20,7 @@ const Page = async () => {
         <li key={work.id}>
           <div className="timeline-middle">
             <Button variant={"ghost"}>
-              <Briefcase className={clsx({ "text-green-400": work.timeRange.toLowerCase().includes("present") })} />
+              <Briefcase className={clsx({ "text-green-400": work.end.toLowerCase().includes("present") })} />
             </Button>
           </div>
           <div className={`timeline-${index % 2 === 0 ? "start" : "end"}`} style={{ marginBottom: "2rem", marginTop: "1rem" }}>
