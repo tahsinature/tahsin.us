@@ -4,6 +4,8 @@ import { database_ids, notion } from "@/lib/notion";
 import { Blog, Tag } from "@/types";
 
 export const getAllArticles = async (): Promise<Blog[]> => {
+  const tags = await getTags();
+
   const response = await notion.databases
     .query({ database_id: database_ids.blog })
     .then((response) => {
@@ -11,16 +13,20 @@ export const getAllArticles = async (): Promise<Blog[]> => {
         console.warn("WARNING: Database has more results than returned");
       }
 
-      return response.results.map((page: any) => ({
-        id: page.id,
-        coverImage: _.get(page, "properties.Cover.files[0].file.url", ""),
-        title: _.get(page, "properties.Name.title[0].text.content", ""),
-        description: _.get(page, "properties.Description.rich_text[0].text.content", ""),
-        links: _.get(page, "properties.Links.files", []).map((link: any) => link.external.url),
-        created: page.created_time,
-        lastEdited: page.last_edited_time,
-        tagsIds: _.get(page, "properties.Tags.relation", []).map((tag: any) => tag.id),
-      }));
+      return response.results.map((page: any) => {
+        const tagsIds = _.get(page, "properties.Tags.relation", []).map((tag: any) => tag.id);
+
+        return {
+          id: page.id,
+          coverImage: _.get(page, "properties.Cover.files[0].file.url", ""),
+          title: _.get(page, "properties.Name.title[0].text.content", ""),
+          description: _.get(page, "properties.Description.rich_text[0].text.content", ""),
+          links: _.get(page, "properties.Links.files", []).map((link: any) => link.external.url),
+          created: page.created_time,
+          lastEdited: page.last_edited_time,
+          tags: tags.filter((tag) => tagsIds.includes(tag.id)),
+        };
+      });
     })
     .catch((err) => {
       console.error(err.message);
@@ -33,7 +39,11 @@ export const getAllArticles = async (): Promise<Blog[]> => {
 };
 
 export const getArticle = async (id: string): Promise<Blog> => {
+  const tags = await getTags();
+
   const response = await notion.pages.retrieve({ page_id: id }).then((page) => {
+    const tagsIds = _.get(page, "properties.Tags.relation", []).map((tag: any) => tag.id);
+
     return {
       id: page.id,
       coverImage: _.get(page, "properties.Cover.files[0].file.url", ""),
@@ -42,14 +52,14 @@ export const getArticle = async (id: string): Promise<Blog> => {
       links: _.get(page, "properties.Links.files", []).map((link: any) => link.external.url),
       created: (page as any).created_time,
       lastEdited: (page as any).last_edited_time,
-      tagsIds: _.get(page, "properties.Tags.relation", []).map((tag: any) => tag.id),
+      tags: tags.filter((tag) => tagsIds.includes(tag.id)),
     };
   });
 
   return response;
 };
 
-export const getTags = async (): Promise<Tag[]> => {
+export const getTags = async (ids?: string[]): Promise<Tag[]> => {
   return notion.databases
     .query({ database_id: database_ids.tags })
     .then((response) => {
@@ -57,14 +67,16 @@ export const getTags = async (): Promise<Tag[]> => {
         console.warn("WARNING: Database has more results than returned");
       }
 
-      return response.results.map((page: any) => ({
-        id: page.id,
-        name: _.get(page, "properties.Name.title[0].text.content", ""),
-        description: _.get(page, "properties.Description.rich_text[0].text.content", ""),
-        logo: _.get(page, "properties.Logo.files[0].file.url", ""),
-        extension: _.get(page, "properties.Extension.rich_text[0].text.content", ""),
-        wikiLink: _.get(page, "properties.Wiki.files[0].external.url", ""),
-      }));
+      return response.results
+        .map((page: any) => ({
+          id: page.id,
+          name: _.get(page, "properties.Name.title[0].text.content", ""),
+          description: _.get(page, "properties.Description.rich_text[0].text.content", ""),
+          logo: _.get(page, "properties.Logo.files[0].file.url", ""),
+          extension: _.get(page, "properties.Extension.rich_text[0].text.content", ""),
+          wikiLink: _.get(page, "properties.Wiki.files[0].external.url", ""),
+        }))
+        .filter((tag) => (ids ? ids.includes(tag.id) : true));
     })
     .catch((err) => {
       console.error(err.message);

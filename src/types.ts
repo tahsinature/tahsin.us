@@ -29,7 +29,7 @@ export type Blog = {
   links: string[];
   created: string;
   lastEdited: string;
-  tagsIds: string[];
+  tags: Tag[];
 };
 
 export type Tag = {
