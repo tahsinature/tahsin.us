@@ -4,6 +4,7 @@ import { Twitter, Instagram, Facebook, Youtube, GitHub, Mail } from "react-feath
 import Signature from "@/components/Footer/Signature";
 import { Button } from "@/components/ui/button";
 import DropDownNew from "@/app/testpage/playground/DropDownNew";
+import Image from "next/image";
 
 const borderColor = {
   light: "border-gray-200",
@@ -29,8 +30,8 @@ const Footer = () => {
             </div>
           </div>
 
-          <div className="sm:mt-auto mt-2 mb-6 sm:w-auto w-full">
-            <h1 className="text-medium sm:text-right text-center sm:block hidden">Let&apos;s keep in touch!</h1>
+          <div className="sm:mt-auto mt-2 mb-3 sm:w-auto w-full">
+            {/* <h1 className="text-medium sm:text-right text-center sm:block hidden">Let&apos;s keep in touch!</h1> */}
             <ul className=" flex justify-center md:gap-2 gap-4">
               <Button className="py-1 px-2" size={"sm"} variant={"ghost"}>
                 <GitHub size={"1rem"} />
@@ -48,10 +49,13 @@ const Footer = () => {
                 <Twitter size={"1rem"} />
               </Button>
             </ul>
-            <Button className="mt-2 w-full" variant={"outline"}>
-              <Mail size={"1rem"} className="mr-2" />
-              Email
-            </Button>
+            <Link href="mailto:hello@tahsin.us">
+              <Button className="w-full sm:mt-2 mt-5" variant={"outline"}>
+                <Mail size={"1rem"} className="mr-2" />
+                Email
+              </Button>
+            </Link>
+            <Image src="/favicon.ico" alt="hero" width={500} height={500} className="w-[50px] h-[50px] object-cover mt-3 m-auto border-solid border-2  duration-1000 hover:border-gray-400 border-transparent rounded-[50px]" />
           </div>
         </div>
 
