@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   description: "Mohammad Tahsin | Personal website | I am a software engineer, I love to code and learn new things.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
