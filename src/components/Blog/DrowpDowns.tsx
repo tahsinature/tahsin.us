@@ -3,6 +3,10 @@
 import React from "react";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Input, Button, DropdownTrigger, Dropdown, DropdownMenu, DropdownItem, Chip, User, Pagination, Selection, ChipProps, SortDescriptor } from "@nextui-org/react";
 import { ChevronDown } from "lucide-react";
+import { Tag } from "@/types";
+import { getDummyTags } from "@/lib/dummy";
+
+const tags: Tag[] = Array.from({ length: 10 }, (_, i) => getDummyTags({}));
 
 const columns = [
   { name: "ID", uid: "id", sortable: true },
@@ -49,10 +53,10 @@ const DrowpDowns = () => {
               Tags
             </Button>
           </DropdownTrigger>
-          <DropdownMenu disallowEmptySelection aria-label="Table Columns" closeOnSelect={false} selectedKeys={new Set(["name", "role", "status", "actions"])} selectionMode="multiple" onSelectionChange={() => console.log("onSelectionChange")}>
-            {columns.map((column) => (
-              <DropdownItem key={column.uid} className="capitalize">
-                {capitalize(column.name)}
+          <DropdownMenu disallowEmptySelection aria-label="Table Columns" closeOnSelect={false} selectedKeys={new Set(["name", "role", "status", "actions"])} selectionMode="multiple" onSelectionChange={() => console.log("tag selected")}>
+            {tags.map((tag) => (
+              <DropdownItem key={tag.id} className="capitalize">
+                {tag.name}
               </DropdownItem>
             ))}
           </DropdownMenu>
