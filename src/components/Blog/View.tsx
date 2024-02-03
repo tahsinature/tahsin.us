@@ -3,10 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Card, Image, CardFooter, CardBody } from "@nextui-org/react";
+import { CameraIcon } from "lucide-react";
 
 import { Blog } from "@/types";
 import ViewSwitch from "@/components/Blog/ViewSwitch";
 import DrowpDowns from "@/components/Blog/DrowpDowns";
+import DropDownNew from "@/app/testpage/playground/DropDownNew";
+import TagFilterDropdown from "@/components/Blog/TagFilterDropdown";
 
 const GalleryView = ({ blogs }: { blogs: Blog[] }) => {
   return (
@@ -72,13 +75,58 @@ const viewMap: { [key: string]: ({ blogs }: { blogs: Blog[] }) => JSX.Element } 
 const View = ({ blogs }: { blogs: Blog[] }) => {
   const [currentView, setCurrentView] = useState<string | number>("gallery");
 
+  const tags = [
+    {
+      label: "nodejs",
+      value: "nodejs",
+      icon: "https://file.notion.so/f/f/39736541-4683-4541-a0ce-7c750ba2f5d8/a071cefb-9a2b-4000-b699-953bc9b000fe/favicon.png?id=389ca6e3-cc3c-4ac5-ae72-86c74f2a9aa4&table=block&spaceId=39736541-4683-4541-a0ce-7c750ba2f5d8&expirationTimestamp=1706572800000&signature=ftTs-9psd9vD2l4muk7UbPwPYCBFOfUQYEK5nuq7psQ&downloadName=favicon.png",
+    },
+    { label: "react", value: "react" },
+    { label: "nextjs", value: "nextjs" },
+    { label: "typescript", value: "typescript" },
+    { label: "javascript", value: "javascript" },
+    { label: "tailwindcss", value: "tailwindcss" },
+    { label: "css", value: "css" },
+    { label: "html", value: "html" },
+    { label: "webdev", value: "webdev" },
+    { label: "dev", value: "dev" },
+    { label: "programming", value: "programming" },
+    { label: "software", value: "software" },
+    { label: "technology", value: "technology" },
+    { label: "web", value: "web" },
+    { label: "blog", value: "blog" },
+    { label: "tutorial", value: "tutorial" },
+    { label: "howto", value: "howto" },
+    { label: "guide", value: "guide" },
+    { label: "beginner", value: "beginner" },
+    { label: "intermediate", value: "intermediate" },
+    { label: "advanced", value: "advanced" },
+    { label: "tips", value: "tips" },
+    { label: "tricks", value: "tricks" },
+    { label: "advice", value: "advice" },
+    { label: "opinion", value: "opinion" },
+    { label: "thoughts", value: "thoughts" },
+    { label: "experience", value: "experience" },
+    { label: "story", value: "story" },
+    { label: "personal", value: "personal" },
+    { label: "lifestyle", value: "lifestyle" },
+    { label: "travel", value: "travel" },
+    { label: "food", value: "food" },
+    { label: "health", value: "health" },
+    { label: "fitness", value: "fitness" },
+    { label: "finance", value: "finance" },
+    { label: "money", value: "money" },
+    { label: "investing", value: "investing" },
+  ];
+
   return (
     <>
-      <div className="flex flex-row items-center">
+      <div className="flex flex-row items-center justify-between">
         <ViewSwitch onSelectionChange={(viewName) => setCurrentView(viewName)} />
-        <DrowpDowns />
+
+        <TagFilterDropdown options={tags} title="Tags" />
       </div>
-      {viewMap[currentView]({ blogs })}
+      <div className="mt-5">{viewMap[currentView]({ blogs })}</div>
     </>
   );
 };
