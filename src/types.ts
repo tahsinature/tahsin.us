@@ -20,3 +20,23 @@ export type Image = {
   height: number;
   likeCount: number;
 };
+
+export type Blog = {
+  id: string;
+  title: string;
+  description: string;
+  coverImage: string;
+  links: string[];
+  created: string;
+  lastEdited: string;
+  tagsIds: string[];
+};
+
+export type Tag = {
+  id: string;
+  name: string;
+  logo: string;
+  extension: string;
+  wikiLink: string;
+  description: string;
+};

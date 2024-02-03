@@ -60,6 +60,7 @@ export const getTags = async (): Promise<Tag[]> => {
       return response.results.map((page: any) => ({
         id: page.id,
         name: _.get(page, "properties.Name.title[0].text.content", ""),
+        description: _.get(page, "properties.Description.rich_text[0].text.content", ""),
         logo: _.get(page, "properties.Logo.files[0].file.url", ""),
         extension: _.get(page, "properties.Extension.rich_text[0].text.content", ""),
         wikiLink: _.get(page, "properties.Wiki.files[0].external.url", ""),
