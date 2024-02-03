@@ -1,4 +1,11 @@
+import { Metadata } from "next";
+
 import services from "@/services";
+
+export const metadata: Metadata = {
+  title: "Works | tahsin.us",
+  description: "Tahsin's work experiences",
+};
 
 const Page = async () => {
   const data = await services.work.getWorkPlaces();
