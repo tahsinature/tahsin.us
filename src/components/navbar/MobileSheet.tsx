@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import MyAvatar from "@/components/NavBar/MyAvatar";
 import { navItems } from "@/components/NavBar/data";
 import clsx from "clsx";
+import Signature from "@/components/Footer/Signature";
 
 export function MobileSheet() {
   const pathname = usePathname();
@@ -46,23 +47,10 @@ export function MobileSheet() {
                 CARFAX
               </a>
             </small>
-          </div>
-          <div className="flex justify-between">
-            <div className="flex">
-              <Link href="https://github.com/tahsinature" target="_blank" rel="noreferrer">
-                <GithubIcon />
-              </Link>
-              <Link href="https://github.com/tahsinature" target="_blank" rel="noreferrer">
-                <GithubIcon />
-              </Link>
-              <Link href="https://github.com/tahsinature" target="_blank" rel="noreferrer">
-                <GithubIcon />
-              </Link>
-            </div>
-            <div>Sign</div>
+            <Signature scale={50} className="mt-5" />
           </div>
 
-          <div className="mt-8 text-gray-600">
+          <div className="mt-2 text-gray-600">
             <small>All rights reserved © Tahsin {new Date().getFullYear()}</small>
           </div>
         </div>
