@@ -26,6 +26,7 @@ export const queryFromDB = async (schema: NotionORMSchema, database_id: string) 
     Object.keys(schema.properties).forEach((key) => {
       const property = schema.properties[key];
       const dbProperty = item.properties[key];
+
       if (!dbProperty) return;
 
       if (property.type === "title") {
@@ -40,6 +41,8 @@ export const queryFromDB = async (schema: NotionORMSchema, database_id: string) 
         }
       } else if (property.type === "relation") {
         finalItem[key] = _.get(item, `properties.${key}.relation`).map((item: any) => item.id);
+      } else if (property.type === "checkbox") {
+        finalItem[key] = _.get(item, `properties.${key}.checkbox`);
       }
     });
 
