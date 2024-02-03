@@ -1,12 +1,26 @@
-import React, { Suspense } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
+import fs from "fs";
+import { Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button } from "@nextui-org/react";
 
-const Page = async () => {
+const Page = () => {
+  const currentDir = fs.readdirSync("./src/app/testpage");
+  const totalPath = currentDir.map((path) => {
+    return path.replace(".tsx", "");
+  });
+
   return (
-    <div>
-      <h1>TestPage</h1>
-      <hr />
-    </div>
+    <Navbar>
+      <NavbarContent className="flex flex-wrap gap-4" justify="center">
+        {totalPath.map((path) => {
+          return (
+            <NavbarItem key={path}>
+              <Link color="foreground" href={`/testpage/${path}`}>
+                {path}
+              </Link>
+            </NavbarItem>
+          );
+        })}
+      </NavbarContent>
+    </Navbar>
   );
 };
 
