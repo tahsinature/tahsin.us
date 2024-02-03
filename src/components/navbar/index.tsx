@@ -6,8 +6,8 @@ import CommandMenu from "@/components/command-menu";
 
 const navs = [
   { name: "Blogs", href: "/blogs" },
-  { name: "Works", href: "/works" },
   { name: "Tools", href: "/tools" },
+  { name: "Works", href: "/works" },
   { name: "Photographs", href: "/photographs" },
 ];
 
