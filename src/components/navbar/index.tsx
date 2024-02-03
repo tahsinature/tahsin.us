@@ -1,14 +1,16 @@
 import Link from "next/link";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import ThemeToggle from "@/components/theme-toggle/theme-toggle";
 import CommandMenu from "@/components/command-menu";
+import { MobileSheet } from "@/components/NavBar/MobileSheet";
+import MyAvatar from "@/components/NavBar/MyAvatar";
+import ThemeToggle from "@/components/NavBar/ThemeToggle";
 
 const navs = [
+  { name: "Works", href: "/works" },
   { name: "Blogs", href: "/blogs" },
   { name: "Tools", href: "/tools" },
-  { name: "Works", href: "/works" },
   { name: "Photographs", href: "/photographs" },
+  { name: "Test", href: "/testpage" },
 ];
 
 export default function NavBar() {
@@ -16,13 +18,13 @@ export default function NavBar() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
         <div className="mr-4 flex items-center">
-          <div>
+          <div className="hidden md:flex">
             <Link href="/">
-              <Avatar>
-                <AvatarImage src="https://github.com/tahsinature.png" />
-                <AvatarFallback>MT</AvatarFallback>
-              </Avatar>
+              <MyAvatar />
             </Link>
+          </div>
+          <div className="md:hidden">
+            <MobileSheet />
           </div>
 
           <div className="hidden md:flex items-center gap-6 text-sm ml-[2rem]">
@@ -32,6 +34,10 @@ export default function NavBar() {
               </Link>
             ))}
           </div>
+
+          {/* <SheetTrigger asChild>
+            <Button variant="outline">Open</Button>
+          </SheetTrigger> */}
         </div>
 
         {/* <button
