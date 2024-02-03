@@ -10,20 +10,16 @@ import services from "@/services";
 
 const getBlock = (image: ImageType) => {
   return (
-    <>
-      <div>
-        <div className={`group relative cursor-pointer`}>
-          <div className="overflow-hidden">
-            <Image className="rounded-[1px] transition ease-in-out delay-150 duration-700 group-hover:opacity-50 group-hover:scale-110" src={image.src} width={image.width} height={image.height} alt={image.caption} />
-          </div>
-          <div className="opacity-0 group-hover:opacity-100 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-2xl text-white font-primary font-bold">
-            <div className="flex flex-row items-center gap-2">
-              <HeartIcon /> {image.likeCount}
-            </div>
-          </div>
+    <div className="group relative cursor-pointer">
+      <div className="overflow-hidden">
+        <Image className="rounded-[1px] transition ease-in-out delay-150 duration-700 group-hover:opacity-50 group-hover:scale-110" src={image.src} width={image.width} height={image.height} alt={image.caption} />
+      </div>
+      <div className="opacity-0 group-hover:opacity-100 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-2xl text-white font-primary font-bold">
+        <div className="flex flex-row items-center gap-2">
+          <HeartIcon /> {image.likeCount}
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
