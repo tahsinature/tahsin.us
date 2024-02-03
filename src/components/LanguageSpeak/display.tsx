@@ -70,6 +70,7 @@ const Display = (props: { languages: Language[] }) => {
 
   return (
     <>
+      <p>test</p>
       <div className="h-[8rem] pt-5 ml-10">{showLanguage && <Effect mainText={language.subOnLang} trnaslationText={language.subOnEng} onDone={() => refreshLanguage({})} />}</div>
 
       <div className={classes.Line}>

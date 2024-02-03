@@ -7,7 +7,7 @@ import services from "@/services";
 
 const fira_sans = Fira_Sans({ subsets: ["latin"], weight: ["400", "700"] });
 
-const HumanLanguages = async () => {
+const LanguageSpeak = async () => {
   const dummyData = await services.language.getSpeakingLanguage();
 
   return (
@@ -17,4 +17,4 @@ const HumanLanguages = async () => {
   );
 };
 
-export default HumanLanguages;
+export default LanguageSpeak;

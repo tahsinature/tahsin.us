@@ -32,9 +32,7 @@ export default function NavBar() {
       <div className="container flex h-14 max-w-screen-2xl items-center">
         <div className="mr-4 flex items-center">
           <div className="hidden md:flex">
-            <Link href="/">
-              <MyAvatar />
-            </Link>
+            <MyAvatar />
           </div>
           <div className="md:hidden">
             <MobileSheet />
