@@ -7,8 +7,6 @@ import { CameraIcon } from "lucide-react";
 
 import { Blog } from "@/types";
 import ViewSwitch from "@/components/Blog/ViewSwitch";
-import DrowpDowns from "@/components/Blog/DrowpDowns";
-import DropDownNew from "@/app/testpage/playground/DropDownNew";
 import TagFilterDropdown from "@/components/Blog/TagFilterDropdown";
 
 const GalleryView = ({ blogs }: { blogs: Blog[] }) => {
