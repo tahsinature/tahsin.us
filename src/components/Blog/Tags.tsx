@@ -17,7 +17,12 @@ const TagHoverCard = ({ tag }: { tag: Tag }) => {
     <HoverCard open={isOpen} onOpenChange={setIsOpen}>
       <HoverCardTrigger asChild>
         <div onClick={() => setIsOpen(true)}>
-          <Chip radius="sm" className={clsx("cursor-pointer transition-all", { "border-green-800": isOpen })} variant="bordered" avatar={<Avatar name={tag.extension} size="sm" src={tag.logo} style={{ width: 15, height: 15 }} />}>
+          <Chip
+            radius="sm"
+            className={clsx("cursor-pointer transition-all", { "border-green-800": isOpen })}
+            variant="bordered"
+            avatar={<Avatar name={tag.extension} size="sm" src={tag.logo} style={{ width: 15, height: 15, backgroundColor: "transparent" }} />}
+          >
             <small>{tag.name}</small>
           </Chip>
         </div>
@@ -26,7 +31,7 @@ const TagHoverCard = ({ tag }: { tag: Tag }) => {
       <HoverCardContent className="w-80">
         <div className={clsx("flex space-x-4 z-50")}>
           <AvatarShadCN>
-            <AvatarImage src={tag.logo} width={20} height={20} />
+            <AvatarImage src={tag.logo} width={20} height={20} className="object-cover" />
             <AvatarFallback>{tag.extension}</AvatarFallback>
           </AvatarShadCN>
           <div className="space-y-1 grow">

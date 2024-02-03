@@ -48,7 +48,7 @@ export const getWorkPlaces = async (): Promise<WorkPlace[]> => {
       specialization,
       start: item.Start,
       end: item.End,
-      url: item.URL,
+      url: item.URL[0],
       description: item.Description,
     };
   });
