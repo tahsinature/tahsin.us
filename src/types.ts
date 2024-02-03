@@ -31,25 +31,34 @@ export type Blog = {
   description: string;
   coverImage: string;
   links: string[];
+  date: { start: string; end: string | null };
+  tags: Tag[];
   created: string;
   lastEdited: string;
-  tags: Tag[];
 };
 
 export type Tag = {
   id: string;
   name: string;
-  logo: string;
+  logos: string[];
   extension: string;
-  wikiLink: string;
+  wikiLinks: string[];
   description: string;
+};
+
+export type ProgrammingLanguage = {
+  id: string;
+  name: string;
+  code: string;
+  logo: string;
 };
 
 export type NotionORMSchema = {
   properties: {
     [key: string]: {
-      type: "title" | "rich_text" | "files" | "relation" | "checkbox" | "unique_id";
+      type: "title" | "rich_text" | "files" | "relation" | "checkbox" | "unique_id" | "number" | "date";
       subType?: "url" | "external";
+      transformKey?: string;
     };
   };
 };
