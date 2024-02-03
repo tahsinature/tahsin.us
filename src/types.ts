@@ -1,13 +1,15 @@
 export type Language = { id: string; name: string; subOnLang: string; subOnEng?: string };
 
 export type WorkPlace = {
+  id: string;
   timeRange: string;
   company: string;
   position: string;
   logo: string;
   url: string;
   location: string;
-  specialization: string;
+  specialization: Tag[];
+  description?: string;
 };
 
 export type Image = {
@@ -39,4 +41,13 @@ export type Tag = {
   extension: string;
   wikiLink: string;
   description: string;
+};
+
+export type NotionORMSchema = {
+  properties: {
+    [key: string]: {
+      type: "title" | "rich_text" | "files" | "relation";
+      subType?: "url" | "external";
+    };
+  };
 };
