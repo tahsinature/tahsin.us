@@ -28,7 +28,7 @@ const Blog = async ({ params }: { params: { id: string } }) => {
                   </div>
                   <p className="ml-1 text-xs">{moment(articleData.created).fromNow()}</p>
                 </div>
-                <Tags tagIds={articleData.tagsIds} />
+                <Tags tags={articleData.tags} />
               </div>
             </div>
           </CardHeader>

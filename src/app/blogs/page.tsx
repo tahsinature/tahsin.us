@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 
 export default async function Page() {
   const blogs = await services.blog.getAllArticles();
+
   return (
     <div className="container pb-5">
       <View blogs={blogs} />
