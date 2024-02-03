@@ -48,8 +48,14 @@ export type Tag = {
 export type NotionORMSchema = {
   properties: {
     [key: string]: {
-      type: "title" | "rich_text" | "files" | "relation" | "checkbox";
+      type: "title" | "rich_text" | "files" | "relation" | "checkbox" | "unique_id";
       subType?: "url" | "external";
     };
   };
+};
+
+export type TempImage = {
+  imageID: number;
+  name: string;
+  urls: string[];
 };
