@@ -1,0 +1,26 @@
+.Line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  .LineSingleLang {
+    display: flex;
+    p {
+      cursor: pointer;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+      border-radius: 4px;
+      &:hover {
+        background-color: rgba(105, 105, 105, 0.158);
+      }
+      transition: all 0.3s;
+      &.Active {
+        transform: scale(1.1);
+        color: #19a974;
+      }
+    }
+    span {
+      margin-left: 1rem;
+      margin-right: 1rem;
+    }
+  }
+}
