@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  const blogs = await services.blog.getAllArticles();
+  const blogs = await services.blog.getArticles();
 
   return (
     <div className="container pb-5">

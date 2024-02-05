@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   description: "Mohammad Tahsin | Personal website | I am a software engineer, I love to code and learn new things.",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -25,7 +25,7 @@ export default async function RootLayout({
         <Providers>
           <div className="min-h-[100dvh] flex flex-col">
             <NavBar />
-            <div className="container py-5 grow">{children}</div>
+            <div className="container py-5 grow flex flex-col">{children}</div>
             <Footer />
           </div>
         </Providers>
