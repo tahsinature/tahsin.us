@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Card, Image, CardFooter, CardBody } from "@nextui-org/react";
-import { CameraIcon } from "lucide-react";
 
 import { Blog } from "@/types";
 import ViewSwitch from "@/components/Blog/ViewSwitch";
@@ -30,44 +29,43 @@ const GalleryView = ({ blogs }: { blogs: Blog[] }) => {
   );
 };
 
-const TableView = ({ blogs }: { blogs: Blog[] }) => {
+const YearView = ({ blogs }: { blogs: Blog[] }) => {
+  const groupedByYear: any = blogs.reduce((acc, blog) => {
+    const year = new Date(blog.date.start).getFullYear();
+    if (!acc[year]) {
+      acc[year] = [];
+    }
+    acc[year].push(blog);
+    return acc;
+  }, {} as { [key: number]: Blog[] });
+
   return (
     <div className="w-full">
-      <Card className="dark:bg-default-50 bg-yellow-400">
-        <CardBody>
-          <p className="dark:text-yellow-400">This view is under development.</p>
-        </CardBody>
-      </Card>
       <hr className="mt-3 mb-8" />
-      <table className="w-full">
-        <thead>
-          <tr>
-            <th className="text-left">Title</th>
-            <th className="text-left">Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {blogs.map((blog) => (
-            <tr key={blog.id}>
-              <td className="text-left">
-                <div className="py-2 hover:bg-gray-100 dark:hover:bg-default-100 cursor-pointer">
-                  <Link href={`/blogs/${blog.id}`} key={blog.id} className="flex flex-row items-center space-x-2">
-                    <p className="text-sm">{blog.title}</p>
-                  </Link>
+      {Object.keys(groupedByYear).map((year: string) => (
+        <div key={year} className="mb-7">
+          <h2 className="text-2xl font-bold">{year}</h2>
+          <div className="grid lg:grid-cols-4 grid-cols-1 gap-5">
+            {groupedByYear[year].map((blog: any) => (
+              <Link href={`/blogs/${blog.id}`} key={blog.id}>
+                <div className="flex flex-row items-center hover:bg-black/10 rounded-md cursor-pointer p-1">
+                  <Image radius="none" removeWrapper alt={`${blog.title} background`} className="w-[20px] h-[20px] object-cover" src={blog.coverImage} />
+                  <div className="ml-3">
+                    <small>{blog.title}</small>
+                  </div>
                 </div>
-              </td>
-              <td className="text-left">{blog.lastEdited}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              </Link>
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
 
 const viewMap: { [key: string]: ({ blogs }: { blogs: Blog[] }) => JSX.Element } = {
   gallery: ({ blogs }: { blogs: Blog[] }) => <GalleryView blogs={blogs} />,
-  table: ({ blogs }: { blogs: Blog[] }) => <TableView blogs={blogs} />,
+  year: ({ blogs }: { blogs: Blog[] }) => <YearView blogs={blogs} />,
 };
 
 const View = ({ blogs }: { blogs: Blog[] }) => {

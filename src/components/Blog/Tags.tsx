@@ -21,7 +21,7 @@ const TagHoverCard = ({ tag }: { tag: Tag }) => {
             radius="sm"
             className={clsx("cursor-pointer transition-all", { "border-green-800": isOpen })}
             variant="bordered"
-            avatar={<Avatar name={tag.extension} size="sm" src={tag.logo} style={{ width: 15, height: 15, backgroundColor: "transparent" }} />}
+            avatar={<Avatar name={tag.extension} size="sm" src={tag.logos[0]} style={{ width: 15, height: 15, backgroundColor: "transparent" }} />}
           >
             <small>{tag.name}</small>
           </Chip>
@@ -31,13 +31,13 @@ const TagHoverCard = ({ tag }: { tag: Tag }) => {
       <HoverCardContent className="w-80">
         <div className={clsx("flex space-x-4 z-50")}>
           <AvatarShadCN>
-            <AvatarImage src={tag.logo} width={20} height={20} className="object-cover" />
+            <AvatarImage src={tag.logos[0]} width={20} height={20} className="object-cover" />
             <AvatarFallback>{tag.extension}</AvatarFallback>
           </AvatarShadCN>
           <div className="space-y-1 grow">
             <h4 className="font-semibold mb-2">{tag.name}</h4>
             <p className="text-sm">{tag.description}</p>
-            <Link href={tag.wikiLink} target="_blank">
+            <Link href={tag.wikiLinks[0]} target="_blank">
               <Button size="sm" className="py-0.5 px-10 w-full mt-2" variant={"outline"}>
                 <small>Learn More</small>
               </Button>
