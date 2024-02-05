@@ -12,9 +12,9 @@ export const getDummyTags = ({ id = Math.random().toString() }): Tag => {
   return {
     id,
     name: "next.js",
-    logo: "https://www.svgrepo.com/show/354113/nextjs-icon.svg",
+    logos: "https://www.svgrepo.com/show/354113/nextjs-icon.svg",
     extension: "N",
-    wikiLink: "https://en.wikipedia.org/wiki/Next.js",
+    wikiLinks: "https://en.wikipedia.org/wiki/Next.js",
     description: "Next.js is an open-source development framework built on top of Node.js.",
   };
 };
