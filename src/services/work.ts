@@ -1,7 +1,9 @@
 import moment from "moment";
+
 import { database_ids, queryFromDB } from "@/lib/notion";
 import { NotionORMSchema, WorkPlace } from "@/types";
 import { getTags } from "@/services/blog";
+import { sortArrayByDate } from "@/lib/datetime";
 
 const schema: NotionORMSchema = {
   properties: {
@@ -21,6 +23,7 @@ const schema: NotionORMSchema = {
 
 export const getWorkPlaces = async (): Promise<WorkPlace[]> => {
   const tags = await getTags();
+
   const result = (await queryFromDB(schema, database_ids.work))
     .filter((item) => item.Show)
     .map((item) => {
@@ -28,14 +31,9 @@ export const getWorkPlaces = async (): Promise<WorkPlace[]> => {
       const endTime = item.End ? moment(item.End).format("MMM YYYY") : "Present";
 
       return { ...item, Start: startTime, End: endTime };
-    })
-    .sort((a, b) => {
-      if (a.End === "Present") return -1;
-      if (b.End === "Present") return 1;
-      return moment(b.End).diff(moment(a.End));
     });
 
-  return result.map((item) => {
+  return sortArrayByDate(result, "Start").map((item) => {
     const tagsIds = item.Tags.map((tagId: string) => tagId);
     const specialization = tags.filter((tag) => tagsIds.includes(tag.id));
     return {
