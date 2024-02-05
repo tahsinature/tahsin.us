@@ -46,10 +46,18 @@ export type Tag = {
   description: string;
 };
 
+export type Tool = {
+  id: string;
+  categoryName: string;
+  tags: Tag[];
+};
+
 export type ProgrammingLanguage = {
   id: string;
   name: string;
   code: string;
+  output: string;
+  program: string;
   logo: string;
 };
 
