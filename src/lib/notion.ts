@@ -16,6 +16,7 @@ export const database_ids = {
   toolsIUse: "1e7e2155cabb40d5bc8df166a452b2f5",
   programmingLanguage: "f7f3f6416d914904b9fd3bdc4e99cf1d",
   tempImage: "40498135f89643caa330401a143a9aa3",
+  projects: "bb34c467725d4a539e54df8d415d5fa4",
 };
 
 export const queryFromDB = async (schema: NotionORMSchema, database_id: string) => {
@@ -51,6 +52,8 @@ export const queryFromDB = async (schema: NotionORMSchema, database_id: string) 
         finalItem[finalKey] = _.get(item, `properties.${key}.unique_id.number`);
       } else if (property.type === "date") {
         finalItem[finalKey] = { start: _.get(item, `properties.${key}.date.start`), end: _.get(item, `properties.${key}.date.end`) };
+      } else if (property.type === "number") {
+        finalItem[finalKey] = _.get(item, `properties.${key}.number`);
       }
     });
 
