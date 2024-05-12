@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ["source.unsplash.com", "picsum.photos", "prod-files-secure.s3.us-west-2.amazonaws.com", "prod-files-secure.s3.us-west-1.amazonaws.com"],
+    remotePatterns: [{ hostname: "source.unsplash.com" }, { hostname: "picsum.photos" }, { hostname: "prod-files-secure.s3.us-west-1.amazonaws.com" }, { hostname: "prod-files-secure.s3.us-west-2.amazonaws.com" }],
   },
 };
 
