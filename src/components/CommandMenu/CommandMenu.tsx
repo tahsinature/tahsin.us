@@ -3,9 +3,25 @@
 import * as React from "react";
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export default function CommandMenu() {
   const [open, setOpen] = React.useState(false);
+  const router = useRouter();
+
+  const dict = {
+    GOTO_HOME: () => router.push("/"),
+    GOTO_WORKS: () => router.push("/works"),
+    GOTO_BLOGS: () => router.push("/blogs"),
+    GOTO_TOOLS: () => router.push("/tools"),
+    GOTO_OPENSOURCE: () => router.push("/open-source"),
+    GOTO_GALLERY: () => router.push("/photographs"),
+  };
+
+  const handleSelect = (commandFn: (typeof dict)[keyof typeof dict]) => () => {
+    setOpen(false);
+    return commandFn();
+  };
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -24,10 +40,13 @@ export default function CommandMenu() {
         <CommandInput placeholder="Type a command or search..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading="Suggestions">
-            <CommandItem>Calendar</CommandItem>
-            <CommandItem>Search Emoji</CommandItem>
-            <CommandItem>Calculator</CommandItem>
+          <CommandGroup>
+            <CommandItem onSelect={handleSelect(dict.GOTO_HOME)}>Home</CommandItem>
+            <CommandItem onSelect={handleSelect(dict.GOTO_WORKS)}>Works</CommandItem>
+            <CommandItem onSelect={handleSelect(dict.GOTO_BLOGS)}>Blogs</CommandItem>
+            <CommandItem onSelect={handleSelect(dict.GOTO_BLOGS)}>Tools</CommandItem>
+            <CommandItem onSelect={handleSelect(dict.GOTO_OPENSOURCE)}>Open Source</CommandItem>
+            <CommandItem onSelect={handleSelect(dict.GOTO_GALLERY)}>Photographs</CommandItem>
           </CommandGroup>
         </CommandList>
       </CommandDialog>
