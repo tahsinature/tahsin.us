@@ -10,12 +10,12 @@
 Run the app using
 
 ```bash
-bun dev
+npm run dev
 ```
 
 For production build and run
 
 ```bash
-bun run build
-bun start
+npm run build
+npm start
 ```
