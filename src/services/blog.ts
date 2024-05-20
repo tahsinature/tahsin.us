@@ -56,6 +56,10 @@ export const getArticle = async (id: string): Promise<Blog> => {
       created: (page as any).created_time,
       lastEdited: (page as any).last_edited_time,
       tags: tags.filter((tag) => tagsIds.includes(tag.id)),
+      date: {
+        start: _.get(page, "properties.Date.start", ""),
+        end: _.get(page, "properties.Date.end", ""),
+      },
     };
   });
 

@@ -24,6 +24,7 @@ const Page = async () => {
 
   return (
     <div>
+      {/* =========== Section =========== */}
       <div>
         <div className="divider mb-10">
           <h2 className="text-lg">Programming Languages</h2>
@@ -36,16 +37,7 @@ const Page = async () => {
         </div>
       </div>
 
-      <div className="mt-20">
-        <div className="mb-10">
-          <div className="divider">
-            <h2 className="text-lg">Langaugee I speak</h2>
-          </div>
-        </div>
-
-        <LanguageSpeak />
-      </div>
-
+      {/* =========== Section =========== */}
       <div className="mt-20">
         <div className="mb-10">
           <div className="divider">
@@ -54,6 +46,17 @@ const Page = async () => {
         </div>
 
         <div className="grid gap-2 sm:grid-cols-2">{tools.map((tool) => tool.tags.length > 0 && <CategoryBlock key={tool.categoryName} tool={tool} />)}</div>
+      </div>
+
+      {/* =========== Section =========== */}
+      <div className="mt-20">
+        <div className="mb-10">
+          <div className="divider">
+            <h2 className="text-lg">Language I speak</h2>
+          </div>
+        </div>
+
+        <LanguageSpeak />
       </div>
     </div>
   );

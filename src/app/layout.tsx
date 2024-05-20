@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+// import { Inter } from "next/font/google";
 import clsx from "clsx";
 
 import "./globals.css";
 import NavBar from "@/components/NavBar/NavBar";
 import { Providers } from "@/app/provers";
 import Footer from "@/components/Footer/Footer";
+import fonts from "@/lib/fonts";
 
-const inter = Inter({ subsets: ["latin"] });
+// const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "tahsin.us",
@@ -21,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={clsx(inter.className)}>
+      <body className={clsx(fonts.normalText.className)}>
         <Providers>
           <div className="min-h-[100dvh] flex flex-col">
             <NavBar />

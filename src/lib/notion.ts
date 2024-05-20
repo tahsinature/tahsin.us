@@ -44,6 +44,8 @@ export const queryFromDB = async (schema: NotionORMSchema, database_id: string) 
         } else if (property.subType === "external") {
           finalItem[finalKey] = _.get(item, `properties.${key}.files`, []).map((item: any) => item.external.url);
         }
+      } else if (property.type === "files-external-key-value") {
+        finalItem[finalKey] = _.get(item, `properties.${key}.files`, []).map((item: any) => ({ url: item.external.url, name: item.name }));
       } else if (property.type === "relation") {
         finalItem[finalKey] = _.get(item, `properties.${key}.relation`).map((item: any) => item.id);
       } else if (property.type === "checkbox") {
@@ -54,6 +56,8 @@ export const queryFromDB = async (schema: NotionORMSchema, database_id: string) 
         finalItem[finalKey] = { start: _.get(item, `properties.${key}.date.start`), end: _.get(item, `properties.${key}.date.end`) };
       } else if (property.type === "number") {
         finalItem[finalKey] = _.get(item, `properties.${key}.number`);
+      } else if (property.type === "multi_select") {
+        finalItem[finalKey] = _.get(item, `properties.${key}.multi_select`);
       }
     });
 

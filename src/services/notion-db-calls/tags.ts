@@ -6,7 +6,6 @@ const tagSchema: NotionORMSchema = {
     Name: { type: "title", transformKey: "name" },
     Description: { type: "rich_text", transformKey: "description" },
     Logo: { type: "files", subType: "url", transformKey: "logos" },
-    Extension: { type: "rich_text", transformKey: "extension" },
     Wiki: { type: "files", subType: "external", transformKey: "wikiLinks" },
   },
 };

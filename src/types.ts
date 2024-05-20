@@ -1,3 +1,12 @@
+namespace NotionTypes {
+  export namespace PropertyTypes {
+    export type KeyValueExternal = {
+      name: string;
+      url: string;
+    };
+  }
+}
+
 export type Language = { id: string; name: string; subOnLang: string; subOnEng?: string };
 
 export type WorkPlace = {
@@ -41,7 +50,6 @@ export type Tag = {
   id: string;
   name: string;
   logos: string[];
-  extension: string;
   wikiLinks: string[];
   description: string;
 };
@@ -49,6 +57,17 @@ export type Tag = {
 export type Tool = {
   id: string;
   categoryName: string;
+  tags: Tag[];
+};
+
+export type Project = {
+  id: string;
+  name: string;
+  description: string;
+  types: MultiSelect[];
+  preview: string[];
+  links: NotionTypes.PropertyTypes.KeyValueExternal[];
+  sortField: number;
   tags: Tag[];
 };
 
@@ -64,11 +83,17 @@ export type ProgrammingLanguage = {
 export type NotionORMSchema = {
   properties: {
     [key: string]: {
-      type: "title" | "rich_text" | "files" | "relation" | "checkbox" | "unique_id" | "number" | "date";
+      type: "title" | "rich_text" | "files" | "relation" | "checkbox" | "unique_id" | "number" | "date" | "multi_select" | "files-external-key-value";
       subType?: "url" | "external";
       transformKey?: string;
     };
   };
+};
+
+export type MultiSelect = {
+  id: string;
+  name: string;
+  color: string;
 };
 
 export type TempImage = {

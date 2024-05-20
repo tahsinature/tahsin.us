@@ -21,7 +21,7 @@ const TagHoverCard = ({ tag }: { tag: Tag }) => {
             radius="sm"
             className={clsx("cursor-pointer transition-all", { "border-green-800": isOpen })}
             variant="bordered"
-            avatar={<Avatar name={tag.extension} size="sm" src={tag.logos[0]} style={{ width: 15, height: 15, backgroundColor: "transparent" }} />}
+            avatar={<Avatar name={tag.name.slice(0, 1)} size="sm" src={tag.logos[0]} style={{ width: 15, height: 15, backgroundColor: "transparent" }} />}
           >
             <small>{tag.name}</small>
           </Chip>
@@ -32,7 +32,7 @@ const TagHoverCard = ({ tag }: { tag: Tag }) => {
         <div className={clsx("flex space-x-4 z-50")}>
           <AvatarShadCN>
             <AvatarImage src={tag.logos[0]} width={20} height={20} className="object-cover" />
-            <AvatarFallback>{tag.extension}</AvatarFallback>
+            <AvatarFallback>{tag.name.slice(0, 1)}</AvatarFallback>
           </AvatarShadCN>
           <div className="space-y-1 grow">
             <h4 className="font-semibold mb-2">{tag.name}</h4>

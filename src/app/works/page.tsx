@@ -2,7 +2,6 @@ import { Metadata } from "next";
 import { Briefcase } from "lucide-react";
 import clsx from "clsx";
 import { Image } from "@nextui-org/react";
-
 import services from "@/services";
 import TimeLineBlock from "@/app/works/TimeLineBlock";
 import { Button } from "@/components/ui/button";
@@ -19,7 +18,7 @@ const Page = async () => {
   const p1 = `As a FullStack developer at ${data[0].company}, every day is an adventure in code and creativity. Whether it's debugging a tricky algorithm or collaborating with my team to
   brainstorm innovative features, I'm passionate about pushing boundaries and delivering exceptional digital experiences. Welcome to my journey through the ever-evolving landscape of software development!`;
 
-  const p2 = `This is the time when I made the best decision of my life. I started to learn programming and I was so passionate about it. I used to spend 10-12 hours a day learning and practicing.`;
+  const p2 = `This is the time when I made the best decision of my life. I started to learn programming and I was so passionate about it, used to spend 10-12 hours a day learning and doing hands-on.`;
 
   return (
     <div>

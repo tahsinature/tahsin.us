@@ -11,7 +11,7 @@ import { navItems } from "@/components/NavBar/data";
 import clsx from "clsx";
 import Signature from "@/components/Footer/Signature";
 
-export function MobileSheet() {
+function MobileSheet() {
   const pathname = usePathname();
 
   return (
@@ -59,3 +59,5 @@ export function MobileSheet() {
     </Sheet>
   );
 }
+
+export default MobileSheet;

@@ -1,0 +1,64 @@
+.Holder {
+  width: max-content;
+  z-index: 0;
+  padding: 25px;
+  margin: 0 auto;
+  margin-bottom: 1rem;
+  position: relative;
+  border-width: 1px;
+  border-color: rgba(91, 91, 91, 0.054);
+}
+
+.StackImage {
+  display: block;
+  border: 2px solid #c4c4c41f;
+  border-bottom: 2px solid #c4c4c4ab;
+  border-bottom: none;
+  margin-bottom: 5px;
+  width: 150px;
+  height: 150px;
+  border-radius: 5px;
+  @screen md {
+    width: 200px;
+    height: 200px;
+  }
+  filter: grayscale(1);
+  z-index: 1;
+  opacity: 1;
+  transition: all 0.25s ease-in-out 0s;
+  font-weight: 700;
+  overflow: hidden;
+}
+
+.StackImage:nth-child(1) {
+  position: absolute;
+  margin-top: 25px;
+  margin-left: 25px;
+  opacity: 0.2;
+}
+
+.StackImage:nth-child(2) {
+  position: absolute;
+  margin-top: 75px;
+  margin-left: 75px;
+  opacity: 1;
+  filter: grayscale(50%) brightness(50%) contrast(80%);
+}
+
+.StackImage:nth-child(3) {
+  position: relative;
+  margin-top: 125px;
+  margin-left: 125px;
+  opacity: 1;
+}
+
+.StackImage:hover {
+  -webkit-filter: grayscale(0);
+  filter: grayscale(0);
+  background: rgba(0, 0, 0, 0.25);
+  opacity: 1;
+  & ~ .StackImage {
+    opacity: 0.1;
+  }
+  z-index: 5;
+}

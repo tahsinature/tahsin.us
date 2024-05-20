@@ -40,7 +40,7 @@ const Code = ({ programmingLanguage }: { programmingLanguage: ProgrammingLanguag
         <div className="mb-3 flex gap-2 flex-wrap">
           {programmingLanguage.map((l) => (
             <Button key={l.name} onClick={() => handleChange(l)} variant={"outline"} className={clsx({ "border-green-400": language && language.name === l.name }, "border-2")}>
-              <Image src={l.logo[0]} alt={l.name} width={20} height={20} className="mr-2" />
+              <Image src={l.logo[0]} alt={l.name} width={0} height={0} className="mr-2 h-[20px] w-[20px]" />
               {l.name}
             </Button>
           ))}
