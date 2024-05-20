@@ -22,4 +22,3 @@ jobs:
           context: .
           push: true
           tags: tahsinature/foo:latest
-          target: production
