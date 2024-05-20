@@ -23,12 +23,6 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-
-
-FROM base as builder
-WORKDIR /app
-COPY . .
-COPY --from=base /app/node_modules ./node_modules
 CMD ["sh", "scripts/start-prod"]
 
 
