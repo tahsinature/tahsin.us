@@ -25,7 +25,7 @@ const Signature = (props: { className?: string; scale?: number }) => {
     setSrc(sign[resolvedTheme as string]);
   }, [resolvedTheme]);
 
-  return <div className={props.className}>{src && <Image alt="Signature" height={height} src={src} width={width} />}</div>;
+  return <div className={props.className}>{src && <Image alt="Signature" height={height} src={src} width={width} priority />}</div>;
 };
 
 export default Signature;
