@@ -22,6 +22,7 @@ COPY . .
 FROM node:20.11.0-alpine3.19 as builder
 WORKDIR /app
 COPY . .
+COPY --from=base /app/node_modules ./node_modules
 RUN npm run build
 
 
