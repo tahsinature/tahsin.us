@@ -94,3 +94,5 @@ const OpenSource = async () => {
 };
 
 export default OpenSource;
+
+export const dynamic = "force-dynamic";

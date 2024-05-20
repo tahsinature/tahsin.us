@@ -11,8 +11,9 @@ export default async function Home() {
     <div className="text-center m-auto">
       <ImageStack images={images[6].urls as [string, string, string]} />
       <h1 className="text-lg font-bold">Mohammad Tahsin</h1>
-
       <p className="text-justify mt-5 text-sm">{aboutMeText}</p>
     </div>
   );
 }
+
+export const dynamic = "force-dynamic";

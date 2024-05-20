@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-
 import services from "@/services";
 import View from "@/components/Blog/View";
 
@@ -17,3 +16,5 @@ export default async function Page() {
     </div>
   );
 }
+
+export const dynamic = "force-dynamic";
