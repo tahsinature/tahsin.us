@@ -39,3 +39,6 @@ next-env.d.ts
 # Ignore testing files
 src/app/testpage/
 test.ts
+
+# Playground
+playground/

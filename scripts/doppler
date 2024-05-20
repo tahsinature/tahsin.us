@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if [ -z "$DOPPLER_TOKEN" ]; then
+  echo "DOPPLER_TOKEN is not set"
+  exit 1
+fi
+
+DOPPLER_PROJECT=tahsin-us-next
+DOPPLER_CONFIG=prd
+
+echo "Pulling secrets for $DOPPLER_PROJECT > $DOPPLER_CONFIG"
+doppler secrets -p "$DOPPLER_PROJECT" -c "$DOPPLER_CONFIG" download --no-file --format env > .env

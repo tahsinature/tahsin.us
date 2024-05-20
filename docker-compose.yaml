@@ -1,12 +1,20 @@
-version: "3.8"
+version: "3"
 
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "3003:3000"
-    volumes:
-      - .:/app
-    command: npm run dev
+  tahsinus-next:
+    container_name: tahsin.us-next
+    image: tahsinature/tahsin-us:latest
+    networks: [traefik]
+    environment:
+      DOPPLER_TOKEN: $DOPPLER_TOKEN_MY_PERSONAL
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.tahsinus-back.rule=Host(`next.tahsin.us`)
+      - traefik.http.services.tahsinus-back.loadbalancer.server.port=3000
+      - traefik.http.routers.tahsinus-back.tls=true
+      - traefik.http.routers.tahsinus-back.entrypoints=websecure
+      - traefik.http.routers.tahsinus-back.tls.certresolver=myresolver
+
+networks:
+  traefik:
+    external: true
