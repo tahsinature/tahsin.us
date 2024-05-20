@@ -11,14 +11,19 @@
 FROM node:20.11.0-alpine3.19 as base
 # RUN apk add --no-cache g++ make py3-pip libc6-compat
 WORKDIR /app
-COPY package*.json ./
 EXPOSE 3000
+
+COPY package*.json ./
+RUN npm install
+COPY . .
+
+
 
 FROM node:20.11.0-alpine3.19 as builder
 WORKDIR /app
 COPY . .
-RUN npm install
 RUN npm run build
+
 
 
 FROM node:20.11.0-alpine3.19 as production
