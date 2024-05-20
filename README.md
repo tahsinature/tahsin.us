@@ -12,3 +12,10 @@ Run the app using
 ```bash
 bun dev
 ```
+
+For production build and run
+
+```bash
+bun run build
+bun start
+```
