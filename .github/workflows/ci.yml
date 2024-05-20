@@ -6,7 +6,7 @@ on:
       - "master"
 
 jobs:
-  backend-build:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -16,7 +16,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push (Backend)
+      - name: Build and push
         uses: docker/build-push-action@v2
         with:
           context: .
