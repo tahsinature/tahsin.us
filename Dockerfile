@@ -19,7 +19,7 @@ COPY . .
 
 
 
-FROM node:20.11.0-alpine3.19 as builder
+FROM base as builder
 WORKDIR /app
 COPY . .
 COPY --from=base /app/node_modules ./node_modules
@@ -27,7 +27,7 @@ RUN npm run build
 
 
 
-FROM node:20.11.0-alpine3.19 as production
+FROM builder as production
 WORKDIR /app
 
 RUN wget -q -t3 'https://packages.doppler.com/public/cli/rsa.8004D9FF50437357.key' -O /etc/apk/keys/cli@doppler-8004D9FF50437357.rsa.pub && \
