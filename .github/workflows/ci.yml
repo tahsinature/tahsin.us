@@ -21,4 +21,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: tahsinature/foo:latest
+          tags: tahsinature/next-tahsin-us:latest
