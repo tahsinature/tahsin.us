@@ -3,7 +3,6 @@ import { Twitter, Instagram, Facebook, Youtube, GitHub, Mail } from "react-feath
 
 import Signature from "@/components/Footer/Signature";
 import { Button } from "@/components/ui/button";
-import DropDownNew from "@/app/testpage/playground/DropDownNew";
 import Image from "next/image";
 
 const borderColor = {
