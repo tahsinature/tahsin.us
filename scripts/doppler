@@ -1,7 +1,14 @@
 #!/bin/sh
 
+export DOPPLER_TOKEN="${DOPPLER_TOKEN_MY_PERSONAL:-$DOPPLER_TOKEN}"
+
 if [ -z "$DOPPLER_TOKEN" ]; then
   echo "DOPPLER_TOKEN is not set"
+  exit 1
+fi
+
+if ! command -v doppler >/dev/null 2>&1; then
+  echo "doppler CLI could not be found"
   exit 1
 fi
 
