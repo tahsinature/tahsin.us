@@ -16,7 +16,7 @@ const imagesGal: ImageType[] = [
 
 const GalleryHome = () => {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
       {imagesGal.map((image) => (
         <div key={image.src} className={clsx("aspect-square", classes.SquareBox)}>
           <Image radius="none" className="object-cover" src={image.src} alt={image.alt} />
