@@ -26,12 +26,9 @@ export type WorkPlace = {
 export type Image = {
   id: string;
   src: string;
-  alt: string;
   caption: string;
-  location: string;
   width: number;
   height: number;
-  likeCount: number;
 };
 
 export type Blog = {
