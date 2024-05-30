@@ -9,7 +9,6 @@ export const notion = new Client({
 
 export const database_ids = {
   language: "unset",
-  gallery: "unset",
   work: "a958ff8e06b54db19f173483adff89f9",
   blog: "efec0bbfb0a7436f9fca047b4efd9223",
   tags: "7e0ddc0661d7414a9051ce26db4cedea",
@@ -17,6 +16,8 @@ export const database_ids = {
   programmingLanguage: "f7f3f6416d914904b9fd3bdc4e99cf1d",
   tempImage: "40498135f89643caa330401a143a9aa3",
   projects: "bb34c467725d4a539e54df8d415d5fa4",
+  galleryHome: "3343222de3ad4e82bb7fd3bc624cf47f",
+  galleryMain: "9d89b67025dd49b9b99c218b5a81d6ce",
 };
 
 export const queryFromDB = async (schema: NotionORMSchema, database_id: string) => {
