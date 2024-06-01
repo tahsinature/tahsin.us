@@ -98,3 +98,10 @@ export type TempImage = {
   name: string;
   urls: string[];
 };
+
+export type GuestBookComment = {
+  id: string;
+  name: string;
+  date: string;
+  message: string;
+};
