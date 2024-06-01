@@ -7,6 +7,8 @@ const nextConfig = {
   images: {
     remotePatterns: [{ protocol: "https", hostname: "**" }],
   },
+
+  // https://github.com/vercel/next.js/discussions/27666
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
