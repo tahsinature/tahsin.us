@@ -5,11 +5,12 @@
 - TypeScript
 - Notion API
 
-## Libraries
+## UI Libraries
 
 - shadcn/ui
 - NextUI
 - Radix UI
+- daisyUI
 
 ## Getting Started
 

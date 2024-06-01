@@ -34,7 +34,7 @@ function GuestBookAttend() {
           toast({ variant: "destructive", title: toastMessage, description: error, duration: 15000 });
         } else {
           setComments((prev) => [data.record, ...prev]);
-          toast({ variant: "default", title: toastMessage, description: data.reply, duration: 15000 });
+          toast({ variant: "default", title: toastMessage, description: data.reply, duration: 15000, color: "#FFC44F" });
           setMessage("");
         }
       })
