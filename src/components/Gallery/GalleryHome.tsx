@@ -1,28 +1,31 @@
-import { Image as ImageType } from "@/types";
+"use client";
+
+import clsx from "clsx";
 import { Image } from "@nextui-org/react";
 import classes from "./GalleryHome.module.scss";
-import clsx from "clsx";
+import { PhotoProvider, PhotoView } from "react-photo-view";
+import "react-photo-view/dist/react-photo-view.css";
 
-const imagesGal: ImageType[] = [
-  { src: "https://picsum.photos/id/231/800/800", width: 200, height: 200, caption: "Caption", id: "1", likeCount: 0, alt: "alt", location: "location" },
-  { src: "https://picsum.photos/id/232/800/800", width: 200, height: 200, caption: "Caption", id: "1", likeCount: 0, alt: "alt", location: "location" },
-  { src: "https://picsum.photos/id/233/800/800", width: 200, height: 200, caption: "Caption", id: "1", likeCount: 0, alt: "alt", location: "location" },
-  { src: "https://picsum.photos/id/234/800/800", width: 200, height: 200, caption: "Caption", id: "1", likeCount: 0, alt: "alt", location: "location" },
-  { src: "https://picsum.photos/id/235/800/800", width: 200, height: 200, caption: "Caption", id: "1", likeCount: 0, alt: "alt", location: "location" },
-  { src: "https://picsum.photos/id/236/800/800", width: 200, height: 200, caption: "Caption", id: "1", likeCount: 0, alt: "alt", location: "location" },
-  { src: "https://picsum.photos/id/237/800/800", width: 200, height: 200, caption: "Caption", id: "1", likeCount: 0, alt: "alt", location: "location" },
-  { src: "https://picsum.photos/id/238/800/800", width: 200, height: 200, caption: "Caption", id: "1", likeCount: 0, alt: "alt", location: "location" },
-];
+type IProp = {
+  images: {
+    imageURL: string;
+    caption: string;
+  }[];
+};
 
-const GalleryHome = () => {
+const GalleryHome = (props: IProp) => {
   return (
-    <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
-      {imagesGal.map((image) => (
-        <div key={image.src} className={clsx("aspect-square", classes.SquareBox)}>
-          <Image radius="none" className="object-cover" src={image.src} alt={image.alt} />
-        </div>
-      ))}
-    </div>
+    <PhotoProvider speed={() => 800} maskOpacity={0.9}>
+      <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
+        {props.images.map((image, index) => (
+          <div key={image.imageURL} className={clsx("aspect-square", classes.SquareBox)}>
+            <PhotoView key={index} src={image.imageURL} overlay>
+              <Image radius="none" className="object-cover" src={image.imageURL} alt={image.caption} />
+            </PhotoView>
+          </div>
+        ))}
+      </div>
+    </PhotoProvider>
   );
 };
 
