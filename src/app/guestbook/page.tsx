@@ -35,3 +35,5 @@ const GuestBook = async () => {
 };
 
 export default GuestBook;
+
+export const dynamic = "force-dynamic";
