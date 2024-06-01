@@ -2,14 +2,15 @@
 
 import Link from "next/link";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, GithubIcon } from "lucide-react";
+import { Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import MyAvatar from "@/components/NavBar/MyAvatar";
 import { navItems } from "@/components/NavBar/data";
 import clsx from "clsx";
-import Signature from "@/components/Footer/Signature";
+import SignatureSVG from "@/components/SVGs/SignatureSVG";
+import fonts from "@/lib/fonts";
 
 function MobileSheet() {
   const pathname = usePathname();
@@ -27,7 +28,7 @@ function MobileSheet() {
           <MyAvatar />
         </SheetHeader>
 
-        <div className="flex flex-col mt-5 h-full">
+        <div className={clsx("flex flex-col mt-5 h-full", fonts.calculatorFont.className)}>
           {navItems.map((item) => (
             <SheetClose key={item.href} asChild className="py-2 px-3 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-500 dark:hover:text-gray-400">
               <Link href={item.href} className={clsx({ underline: item.isActiveCheck(pathname) })}>
@@ -47,7 +48,7 @@ function MobileSheet() {
                 CARFAX
               </a>
             </small>
-            <Signature scale={50} className="mt-5" />
+            <SignatureSVG className="mt-5" />
           </div>
 
           <div className="mt-2 text-gray-600">

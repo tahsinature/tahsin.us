@@ -9,6 +9,9 @@ import MobileSheet from "@/components/NavBar/MobileSheet";
 import MyAvatar from "@/components/NavBar/MyAvatar";
 import ThemeToggle from "@/components/NavBar/ThemeToggle";
 import { navItems } from "@/components/NavBar/data";
+import fonts from "@/lib/fonts";
+
+const filterNavItems = navItems.filter((ni) => ni.name.toLowerCase() !== "home");
 
 const GitHubButton = () => (
   <a target="_blank" rel="noreferrer" href="https://github.com/tahsinature">
@@ -28,18 +31,20 @@ export default function NavBar() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className={clsx("sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60", fonts.calculatorFont.className)}>
       <div className="container flex h-14 max-w-screen-2xl items-center">
         <div className="mr-4 flex items-center">
           <div className="hidden md:flex">
-            <MyAvatar />
+            <Link href={"/"}>
+              <MyAvatar />
+            </Link>
           </div>
           <div className="md:hidden">
             <MobileSheet />
           </div>
 
-          <div className="hidden md:flex items-center gap-6 text-sm ml-[2rem]">
-            {navItems.map((nav) => (
+          <div className="hidden md:flex items-center gap-6 ml-[2rem]">
+            {filterNavItems.map((nav) => (
               <Link href={nav.href} key={nav.name} className={clsx("hover:text-foreground/70", { underline: nav.isActiveCheck(pathname) })}>
                 {nav.name}
               </Link>
@@ -47,7 +52,7 @@ export default function NavBar() {
           </div>
         </div>
 
-        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+        <div className={clsx("flex flex-1 items-center justify-between space-x-2 md:justify-end")}>
           <CommandMenu />
           <GitHubButton />
           <ThemeToggle />

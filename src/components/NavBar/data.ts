@@ -5,5 +5,6 @@ export const navItems = [
   { name: "Tools", href: "/tools", isActiveCheck: (pathname: string) => pathname.startsWith("/tools") },
   { name: "Open Source", href: "/open-source", isActiveCheck: (pathname: string) => pathname.startsWith("/open-source") },
   { name: "Photographs", href: "/photographs", isActiveCheck: (pathname: string) => pathname.startsWith("/photographs") },
+  { name: "Guestbook", href: "/guestbook", isActiveCheck: (pathname: string) => pathname.startsWith("/guestbook") },
   // { name: "Test", href: "/testpage", isActiveCheck: (pathname: string) => pathname.startsWith("/testpage") },
 ];
