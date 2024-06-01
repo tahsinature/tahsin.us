@@ -3,12 +3,10 @@ import clsx from "clsx";
 import "./globals.css";
 import { Providers } from "@/app/provers";
 import fonts from "@/lib/fonts";
-// import { Inter } from "next/font/google";
 
+import { Toaster } from "@/components/ui/toaster";
 import NavBar from "@/components/NavBar/NavBar";
 import Footer from "@/components/Footer/Footer";
-
-// const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "tahsin.us",
@@ -28,6 +26,7 @@ export default function RootLayout({
             <NavBar />
             <div className="container py-5 grow flex flex-col">{children}</div>
             <Footer />
+            <Toaster />
           </div>
         </Providers>
       </body>

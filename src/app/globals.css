@@ -36,7 +36,7 @@
   }
 
   .dark {
-    --background: 205 28.6% 8.2%;
+    --background: 0, 0%, 7%;
     --foreground: 0 0% 100%;
 
     --card: 222.2 84% 4.9%;
@@ -77,12 +77,13 @@
     @apply border-border;
 
     /* disable text selection */
-    -moz-user-select: none;
+    /* -moz-user-select: none;
     -khtml-user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
-    user-select: none;
+    user-select: none; */
     color: var(--foreground);
+    scroll-behavior: smooth;
   }
 
   body {
