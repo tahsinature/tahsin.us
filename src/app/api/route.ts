@@ -1,7 +1,9 @@
+import {} from "zod";
+
 export async function POST(req: Request) {
-  const body = await req.json();
-
-  const data = { success: true };
-
-  return Response.json(data);
+  return Response.json({
+    error: null,
+    data: null,
+    message: "Hello from Root API!",
+  });
 }
