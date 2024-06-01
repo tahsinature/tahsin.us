@@ -1,6 +1,5 @@
 import { Client } from "@notionhq/client";
 import _ from "lodash";
-
 import { NotionORMSchema } from "@/types";
 
 export const notion = new Client({
@@ -18,10 +17,11 @@ export const database_ids = {
   projects: "bb34c467725d4a539e54df8d415d5fa4",
   galleryHome: "3343222de3ad4e82bb7fd3bc624cf47f",
   galleryMain: "9d89b67025dd49b9b99c218b5a81d6ce",
+  guestBook: "831c57bdae9243379317735b52e3900b",
 };
 
-export const queryFromDB = async (schema: NotionORMSchema, database_id: string) => {
-  const response = await notion.databases.query({ database_id });
+export const queryFromDB = async (schema: NotionORMSchema, database_id: string, sorts?: { property: string; direction: "ascending" | "descending" }[]) => {
+  const response = await notion.databases.query({ database_id, sorts });
 
   return response.results.map((item: any) => {
     const finalItem: any = {
