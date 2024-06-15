@@ -3,13 +3,14 @@
 import Link from "next/link";
 import clsx from "clsx";
 import { usePathname } from "next/navigation";
-
 import CommandMenu from "@/components/CommandMenu/CommandMenu";
 import MobileSheet from "@/components/NavBar/MobileSheet";
 import MyAvatar from "@/components/NavBar/MyAvatar";
 import ThemeToggle from "@/components/NavBar/ThemeToggle";
 import { navItems } from "@/components/NavBar/data";
 import fonts from "@/lib/fonts";
+import { Tabs, Tab } from "@nextui-org/tabs";
+import classes from "./NavBar.module.scss";
 
 const filterNavItems = navItems.filter((ni) => ni.name.toLowerCase() !== "home");
 
@@ -29,11 +30,12 @@ const GitHubButton = () => (
 
 export default function NavBar() {
   const pathname = usePathname();
+  const currentlySelectedTitle = filterNavItems.find((nav) => nav.isActiveCheck(pathname))?.name || "/";
 
   return (
     <header className={clsx("sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60", fonts.calculatorFont.className)}>
       <div className="container flex h-14 max-w-screen-2xl items-center">
-        <div className="mr-4 flex items-center">
+        <div className="mr-4 flex items-center overflow-x-scroll">
           <div className="hidden md:flex">
             <Link href={"/"}>
               <MyAvatar />
@@ -43,13 +45,11 @@ export default function NavBar() {
             <MobileSheet />
           </div>
 
-          <div className="hidden md:flex items-center gap-6 ml-[2rem]">
+          <Tabs aria-label="tahsin.us navbar" color="default" variant="light" radius="sm" className={clsx("ml-3 hidden md:flex", classes.Tabs)} selectedKey={currentlySelectedTitle}>
             {filterNavItems.map((nav) => (
-              <Link href={nav.href} key={nav.name} className={clsx("hover:text-foreground/70", { underline: nav.isActiveCheck(pathname) })}>
-                {nav.name}
-              </Link>
+              <Tab key={nav.name} title={<Link href={nav.href}>{nav.name}</Link>}></Tab>
             ))}
-          </div>
+          </Tabs>
         </div>
 
         <div className={clsx("flex flex-1 items-center justify-between space-x-2 md:justify-end")}>
