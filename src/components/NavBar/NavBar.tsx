@@ -11,6 +11,7 @@ import { navItems } from "@/components/NavBar/data";
 import fonts from "@/lib/fonts";
 import { Tabs, Tab } from "@nextui-org/tabs";
 import classes from "./NavBar.module.scss";
+import { useRouter } from "next/navigation";
 
 const filterNavItems = navItems.filter((ni) => ni.name.toLowerCase() !== "home");
 
@@ -30,7 +31,13 @@ const GitHubButton = () => (
 
 export default function NavBar() {
   const pathname = usePathname();
+  const router = useRouter();
   const currentlySelectedTitle = filterNavItems.find((nav) => nav.isActiveCheck(pathname))?.name || "/";
+
+  const goto = (name: string) => {
+    const path = filterNavItems.find((nav) => nav.name === name)?.href || "/";
+    router.push(path);
+  };
 
   return (
     <header className={clsx("sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60", fonts.calculatorFont.className)}>
@@ -45,9 +52,9 @@ export default function NavBar() {
             <MobileSheet />
           </div>
 
-          <Tabs aria-label="tahsin.us navbar" color="default" variant="light" radius="sm" className={clsx("ml-3 hidden md:flex", classes.Tabs)} selectedKey={currentlySelectedTitle}>
-            {filterNavItems.map((nav) => (
-              <Tab key={nav.name} title={<Link href={nav.href}>{nav.name}</Link>}></Tab>
+          <Tabs aria-label="tahsin.us navbar" color="default" variant="light" radius="sm" className={clsx("ml-3 hidden md:flex", classes.Tabs)} selectedKey={currentlySelectedTitle} onSelectionChange={(k) => goto(k.toString())}>
+            {navItems.map((nav) => (
+              <Tab key={nav.name} title={nav.name} className={clsx({ hidden: nav.href === "/" })} />
             ))}
           </Tabs>
         </div>
