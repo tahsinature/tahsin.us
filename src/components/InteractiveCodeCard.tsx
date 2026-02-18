@@ -113,10 +113,7 @@ export default function InteractiveCodeCard({ items, icon, title }: InteractiveC
                       : "bg-tag-bg text-tag-text border-border cursor-default"
                   }`}
               >
-                <span className="flex items-center gap-1">
-                  {s.name}
-                  {hasSnippet && <span className="opacity-0 group-hover/tag:opacity-100 transition-opacity text-[10px] text-accent-yellow">▶</span>}
-                </span>
+                <span className="flex items-center gap-1">{s.name}</span>
               </button>
             );
           })}
