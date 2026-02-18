@@ -1,0 +1,112 @@
+---
+title: "The 'const' Deception"
+description: "Exploring the different between assignment and mutation in JavaScript"
+category: "JavaScript"
+date: "2026-02-10"
+---
+
+# The "const" Deception
+
+Exploring the difference between _assignment_ and _mutation_ in JavaScript.
+
+This is an **intermediate-level** tutorial. I'm writing it with the assumption that you know what variables and values are in JavaScript. If you're looking for a more beginner-friendly resource, I'd suggest checking out [MDN's guide](https://developer.mozilla.org).
+
+---
+
+## Variable names as labels
+
+Let's start by establishing a mental model.
+
+![A code editor showing JavaScript variables — the foundation of how we think about assignment and mutation.](./code-editor.jpg)
+
+When I first learned JavaScript, I used to picture variables as boxes. A variable called `age` might be a cardboard box with the label "age" written on it, and inside the box would be the value, like `32`.
+
+Here's the thing, though: I think there's a better mental model.
+
+Instead of thinking of variables as _boxes_, I find it helpful to think of them as _labels_. Imagine sticking a "Hello, my name is" sticker on the value itself. The value exists in memory, and the label just points to it.
+
+```js
+let age = 32;
+// Think of "age" as a label pointing to the value 32
+
+const name = "Josh";
+// "name" is a label pointing to the string "Josh"
+```
+
+When you first hear this, it might seem like a trivial distinction. What's the difference, really? But it turns out this changes our understanding of several fundamental JavaScript concepts.
+
+## Reassigning our labels
+
+When we create a new variable, we create a label, and stick it on a value.
+
+For example, we can create a `flavour` label to use later:
+
+```js
+let flavour = "vanilla";
+
+console.log(flavour); // "vanilla"
+```
+
+This is known as **assignment**. We're assigning the label `flavour` to the value `"vanilla"`.
+
+Here we're redefining the value associated with the label. This is what I mean when I use the word **"reassignment"**:
+
+```js
+let flavour = "vanilla";
+flavour = "chocolate";
+
+console.log(flavour); // "chocolate"
+```
+
+By contrast, variables created with `const` _cannot_ be reassigned:
+
+```js
+const flavour = "vanilla";
+flavour = "chocolate"; // ❌ TypeError!
+```
+
+This is a big fundamental difference between `let` and `const`. When you create a variable with `const`, you're saying that the label will always point to the same value. It can never be re-assigned.
+
+Here's the thing, though: while the label is stuck to a particular value, **it's possible to modify that value internally**. This is known as **mutation**.
+
+For example, think about an array. Even with `const`, you can still push to the array, modify its contents, and so on:
+
+```js
+const fruits = ["apple", "banana"];
+fruits.push("cherry");
+
+console.log(fruits); // ["apple", "banana", "cherry"]
+```
+
+## Primitive data types
+
+So far, all of the examples we've used have been Objects and Arrays, but what about primitive types like strings, numbers, and booleans?
+
+![Building a mental model for how variables work in JavaScript — thinking in terms of labels rather than boxes.](./variables-mental-model.jpg)
+
+Well, here's the key insight: **primitives are immutable**. They can't be mutated. When you "change" a number, you're actually creating a brand new number and reassigning the label.
+
+You don't believe me? Let's see:
+
+```js
+let count = 5;
+count = count + 1;
+
+console.log(count); // 6
+```
+
+That looks like mutation, but it's actually _reassignment_. We're creating a new value (`6`), and re-pointing the `count` label at it. The value `5` itself hasn't changed — it's still `5`!
+
+This is why `const` works differently with primitives vs. objects. With a primitive, `const` effectively prevents any changes. With an object, `const` only prevents reassignment — the contents can still be mutated.
+
+> **Key takeaway:** `const` prevents _reassignment_, not _mutation_. For objects and arrays, the contents can still be changed even with `const`.
+
+---
+
+## Additional resources
+
+JavaScript is a wonderful-yet-confusing language, and I think it might be quite useful to explore some additional resources:
+
+- [Just JavaScript](https://justjavascript.com) by Dan Abramov — a wonderful mental-model-first approach to learning JavaScript
+- [You Don't Know JS](https://github.com/getify/You-Dont-Know-JS) — an excellent deep dive into the mechanics of JavaScript
+- The official [MDN documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/const) on `const`

@@ -1,0 +1,247 @@
+/* ═══════════════════════════════════════════════════════
+ *  Projects / Featured Works
+ * ═══════════════════════════════════════════════════════ */
+
+export type ProjectTag = "personal" | "open-source" | "work" | "side-project" | "hackathon" | "freelance";
+
+export interface Project {
+  /** Unique id */
+  id: number;
+  /** Project name */
+  title: string;
+  /** What the project is / what you did */
+  description: string;
+  /** Longer write-up (rendered below the description) */
+  writeup?: string;
+  /** Optional GitHub repo URL */
+  repoUrl?: string;
+  /** Optional live / demo URL */
+  liveUrl?: string;
+  /** Optional screenshot path (relative to public/) */
+  screenshot?: string;
+  /** Tech stack tags */
+  techStack?: string[];
+  /** Category */
+  tag: ProjectTag;
+  /** When you worked on it (free-form, e.g. "2023 – Present") */
+  period?: string;
+  /** Is this a highlighted / featured project? */
+  featured?: boolean;
+}
+
+/** Human-friendly labels for project tags */
+export const projectTagLabels: Record<ProjectTag, string> = {
+  personal: "Personal",
+  "open-source": "Open Source",
+  work: "Work",
+  "side-project": "Side Project",
+  hackathon: "Hackathon",
+  freelance: "Freelance",
+};
+
+/** Accent color classes for project tags */
+export const projectTagColors: Record<ProjectTag, string> = {
+  personal: "bg-accent-blue/15 text-accent-blue border-accent-blue/30",
+  "open-source": "bg-accent-green/15 text-accent-green border-accent-green/30",
+  work: "bg-accent-yellow/15 text-accent-yellow border-accent-yellow/30",
+  "side-project": "bg-accent-purple/15 text-accent-purple border-accent-purple/30",
+  hackathon: "bg-accent-pink/15 text-accent-pink border-accent-pink/30",
+  freelance: "bg-accent-yellow/15 text-accent-yellow border-accent-yellow/30",
+};
+
+/*
+ * ── Sample projects ──
+ *
+ * Replace with your real projects. Screenshots go in /public/screenshots/.
+ */
+export const projects: Project[] = [
+  {
+    id: 1,
+    title: "Example: Cloud-Native Deployment Platform",
+    description: "An internal platform that streamlined microservice deployments across multi-region Kubernetes clusters.",
+    writeup: "Designed the architecture from scratch, integrating Argo CD for GitOps and Prometheus/Grafana for observability. Reduced deployment times by 60%.",
+    techStack: ["Go", "Kubernetes", "Argo CD", "Terraform", "AWS"],
+    tag: "work",
+    period: "2023 – 2024",
+    featured: true,
+  },
+  {
+    id: 2,
+    title: "Example: Real-time Collaborative Editor",
+    description: "A side project exploring CRDTs for conflict-free collaborative text editing.",
+    repoUrl: "https://github.com/example/collab-editor",
+    liveUrl: "https://collab-editor.example.com",
+    screenshot: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&q=80",
+    techStack: ["TypeScript", "React", "Y.js", "WebSocket"],
+    tag: "side-project",
+    period: "2024",
+    featured: true,
+  },
+  {
+    id: 3,
+    title: "Example: CLI Task Runner",
+    description: "A fast, ergonomic task runner for monorepos with dependency-aware parallel execution.",
+    repoUrl: "https://github.com/example/taskr",
+    screenshot: "https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=800&q=80",
+    techStack: ["Rust", "Tokio"],
+    tag: "open-source",
+    period: "2024 – Present",
+  },
+];
+
+/* ═══════════════════════════════════════════════════════
+ *  Community Contributions (Activity Log)
+ *
+ *  Each entry represents a public contribution — a PR, comment, answer,
+ *  issue, talk, blog post, or any other community interaction.
+ *
+ *  Add new entries at the top (newest first).
+ * ═══════════════════════════════════════════════════════ */
+
+export type ContributionTag = "pull-request" | "comment" | "issue" | "answer" | "blog-post" | "talk" | "review" | "open-source";
+
+export type ContributionPlatform = "github" | "stackoverflow" | "dev.to" | "medium" | "youtube" | "twitter" | "other";
+
+export interface Contribution {
+  /** Auto-generated id */
+  id: number;
+  /** Short title describing the contribution */
+  title: string;
+  /** Brief description — what you did, how it helped */
+  description?: string;
+  /** Link to the contribution */
+  url: string;
+  /** ISO date string (YYYY-MM-DD) */
+  date: string;
+  /** What kind of contribution */
+  tag: ContributionTag;
+  /** Where it happened */
+  platform: ContributionPlatform;
+  /** Optional: repo or project name (e.g. "facebook/react") */
+  repo?: string;
+}
+
+/*
+ * ── Sample contributions ──
+ *
+ * Replace these with your real contributions. They're here so
+ * the page isn't empty when you first load it.
+ */
+const _contributions: Omit<Contribution, "id">[] = [
+  {
+    title: "Fixed moderate & high vulnerabilities in Amazon Pay Node.js SDK",
+    description: "Submitted a PR to upgrade axios and chai, resolving known moderate and high security vulnerabilities in Amazon's official Pay API SDK.",
+    url: "https://github.com/amzn/amazon-pay-api-sdk-nodejs/pull/22",
+    date: "2024-02-05",
+    tag: "pull-request",
+    platform: "github",
+    repo: "amzn/amazon-pay-api-sdk-nodejs",
+  },
+  {
+    title: "Requested 'Open in Browser' action for port-manager extension",
+    description: "Proposed adding a button to open a port directly in the browser — handy when juggling multiple projects and forgetting which port maps to what.",
+    url: "https://github.com/raycast/extensions/issues/10283",
+    date: "2024-01-22",
+    tag: "issue",
+    platform: "github",
+    repo: "raycast/extensions",
+  },
+  {
+    title: "Reported error when copying Commit URL in lazygit",
+    description: "Filed a bug with reproduction steps and screenshots showing the commit URL copy action crashing. Led to PR #3007 being merged within days.",
+    url: "https://github.com/jesseduffield/lazygit/issues/3002",
+    date: "2023-09-10",
+    tag: "issue",
+    platform: "github",
+    repo: "jesseduffield/lazygit",
+  },
+  {
+    title: "Commented on 'port address already in use' issue in Air",
+    description: "Contributed to a long-running discussion around Air's hot-reload leaving orphan processes, helping narrow down reproduction steps.",
+    url: "https://github.com/air-verse/air/issues/216#issuecomment-983550776",
+    date: "2021-11-25",
+    tag: "comment",
+    platform: "github",
+    repo: "air-verse/air",
+  },
+  {
+    title: "Requested ability to scan and delete unused attachments in Notable",
+    description: "Proposed a cleanup command to detect orphaned attachment files created by undo/re-paste cycles. Acknowledged as useful by the maintainer.",
+    url: "https://github.com/notable/notable/issues/1326",
+    date: "2020-09-30",
+    tag: "issue",
+    platform: "github",
+    repo: "notable/notable",
+  },
+  {
+    title: "Reported all notes getting duplicated in Clipto",
+    description: "Reported a critical duplication bug affecting 7 000+ notes. Root cause turned out to be a browser-specific sync issue; fixed in a subsequent release.",
+    url: "https://github.com/clipto-pro/Desktop/issues/60",
+    date: "2020-05-05",
+    tag: "issue",
+    platform: "github",
+    repo: "clipto-pro/Desktop",
+  },
+  {
+    title: "Requested option to disable individual shortcuts in Clipto",
+    description: "Filed a feature request to allow disabling specific keyboard shortcuts that conflicted with VS Code. Shipped in Clipto v2.4.0.",
+    url: "https://github.com/clipto-pro/Desktop/issues/43",
+    date: "2020-03-06",
+    tag: "issue",
+    platform: "github",
+    repo: "clipto-pro/Desktop",
+  },
+];
+
+/** Contributions with auto-generated IDs */
+export const contributions: Contribution[] = _contributions.map((c, i) => ({ ...c, id: i + 1 }));
+
+/** All tags that exist in the contributions list */
+export const contributionTags: ContributionTag[] = ["pull-request", "comment", "issue", "answer", "blog-post", "talk", "review", "open-source"];
+
+/** Human-friendly labels for tags */
+export const tagLabels: Record<ContributionTag, string> = {
+  "pull-request": "Pull Request",
+  comment: "Comment",
+  issue: "Issue",
+  answer: "Answer",
+  "blog-post": "Blog Post",
+  talk: "Talk",
+  review: "Review",
+  "open-source": "Open Source",
+};
+
+/** Accent color class for each tag (Tailwind) */
+export const tagColors: Record<ContributionTag, string> = {
+  "pull-request": "bg-accent-green/15 text-accent-green border-accent-green/30",
+  comment: "bg-accent-blue/15 text-accent-blue border-accent-blue/30",
+  issue: "bg-accent-pink/15 text-accent-pink border-accent-pink/30",
+  answer: "bg-accent-yellow/15 text-accent-yellow border-accent-yellow/30",
+  "blog-post": "bg-accent-purple/15 text-accent-purple border-accent-purple/30",
+  talk: "bg-accent-pink/15 text-accent-pink border-accent-pink/30",
+  review: "bg-accent-blue/15 text-accent-blue border-accent-blue/30",
+  "open-source": "bg-accent-green/15 text-accent-green border-accent-green/30",
+};
+
+/** Border-left accent for each tag */
+export const tagBorderColors: Record<ContributionTag, string> = {
+  "pull-request": "border-l-accent-green",
+  comment: "border-l-accent-blue",
+  issue: "border-l-accent-pink",
+  answer: "border-l-accent-yellow",
+  "blog-post": "border-l-accent-purple",
+  talk: "border-l-accent-pink",
+  review: "border-l-accent-blue",
+  "open-source": "border-l-accent-green",
+};
+
+/** Platform display labels */
+export const platformLabels: Record<ContributionPlatform, string> = {
+  github: "GitHub",
+  stackoverflow: "Stack Overflow",
+  "dev.to": "DEV",
+  medium: "Medium",
+  youtube: "YouTube",
+  twitter: "Twitter",
+  other: "Web",
+};

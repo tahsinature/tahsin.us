@@ -1,0 +1,279 @@
+@import "tailwindcss";
+
+/* Wotfard Font Faces */
+@font-face {
+  font-family: "Wotfard";
+  src:
+    url("./assets/fonts/wotfard-light-webfont.woff2") format("woff2"),
+    url("./assets/fonts/wotfard-light-webfont.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Wotfard";
+  src:
+    url("./assets/fonts/wotfard-lightitalic-webfont.woff2") format("woff2"),
+    url("./assets/fonts/wotfard-lightitalic-webfont.ttf") format("truetype");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Wotfard";
+  src:
+    url("./assets/fonts/wotfard-regular-webfont.woff2") format("woff2"),
+    url("./assets/fonts/wotfard-regular-webfont.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Wotfard";
+  src:
+    url("./assets/fonts/wotfard-regularitalic-webfont.woff2") format("woff2"),
+    url("./assets/fonts/wotfard-regularitalic-webfont.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Wotfard";
+  src:
+    url("./assets/fonts/wotfard-medium-webfont.woff2") format("woff2"),
+    url("./assets/fonts/wotfard-medium-webfont.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Wotfard";
+  src:
+    url("./assets/fonts/wotfard-mediumitalic-webfont.woff2") format("woff2"),
+    url("./assets/fonts/wotfard-mediumitalic-webfont.ttf") format("truetype");
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@theme {
+  --color-bg-primary: #0f1020;
+  --color-bg-secondary: #171829;
+  --color-bg-card: #1e1f35;
+  --color-bg-code: #1a1b2e;
+  --color-text-primary: #e2e4f0;
+  --color-text-secondary: #9ba0b8;
+  --color-text-muted: #6b7194;
+  --color-accent-yellow: #ffd644;
+  --color-accent-pink: #ff6b9d;
+  --color-accent-blue: #4fc3f7;
+  --color-accent-purple: #b39ddb;
+  --color-accent-green: #69f0ae;
+  --color-border: #2a2b45;
+  --color-tag-bg: #252640;
+  --color-tag-text: #b0b4d0;
+  --font-sans: "Wotfard", "Wotfard-fallback", sans-serif;
+  --font-mono: "Fira Code", "JetBrains Mono", monospace;
+}
+
+/* Light mode overrides */
+[data-theme="light"] {
+  --color-bg-primary: #f8f9fc;
+  --color-bg-secondary: #eef0f6;
+  --color-bg-card: #ffffff;
+  --color-bg-code: #f0f2f8;
+  --color-text-primary: #1a1c2e;
+  --color-text-secondary: #4a4f6a;
+  --color-text-muted: #7a7f9a;
+  --color-accent-yellow: #d4a017;
+  --color-accent-pink: #e0457b;
+  --color-accent-blue: #1e88c7;
+  --color-accent-purple: #7e57c2;
+  --color-accent-green: #2e7d50;
+  --color-border: #d8dbe8;
+  --color-tag-bg: #e8eaf0;
+  --color-tag-text: #4a4f6a;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background-color: rgba(255, 214, 68, 0.2);
+}
+
+/* Code block styling */
+pre {
+  background-color: var(--color-bg-code) !important;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 1.25rem;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+code {
+  font-family: var(--font-mono);
+}
+
+:not(pre) > code {
+  background-color: var(--color-tag-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+  font-size: 0.875em;
+  color: var(--color-accent-blue);
+}
+
+/* Scrollbar */
+/* Hide scrollbar but keep scrolling */
+html {
+  scrollbar-width: none; /* Firefox */
+}
+
+html::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
+
+/* Stats card steam animation */
+@keyframes float-up {
+  0% {
+    opacity: 0.7;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+}
+
+/* ── Interactive code terminal animations ── */
+@keyframes terminal-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes cursor-blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes code-progress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes code-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spotlight-pulse {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1.2;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes accent-bar-in {
+  from {
+    opacity: 0;
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+}
+
+/* ── Modal animations ── */
+@keyframes modal-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-backdrop-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes modal-content-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes modal-content-out {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+}
+
+@keyframes lang-fact-swap {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

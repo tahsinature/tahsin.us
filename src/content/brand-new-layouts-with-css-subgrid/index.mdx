@@ -1,0 +1,98 @@
+---
+title: "Brand New Layouts with CSS Subgrid"
+description: "Subgrid allows us to extend a grid template down the DOM tree"
+category: "CSS"
+date: "2026-01-15"
+---
+
+# Brand New Layouts with CSS Subgrid
+
+CSS Subgrid is one of the most exciting layout features to land in browsers in years. It solves a problem that has been bugging developers since CSS Grid first came out: **how do you align deeply-nested elements to a parent grid?**
+
+![CSS code on a developer's workstation — the kind of environment where these layout breakthroughs feel most impactful.](./css-code.jpg)
+
+---
+
+## The Problem
+
+Consider a typical card layout. You have a grid of cards, each containing a title, description, and a footer link. Without subgrid, aligning the footers across all cards at the same vertical position requires fixed heights or JavaScript hacks.
+
+```css
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.card {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+```
+
+This works okay for simple cases, but what if we want the _internal_ rows of each card to align with each other? That's where subgrid shines.
+
+## Enter Subgrid
+
+With subgrid, a child element can "inherit" the grid tracks from its parent. This means a card's internal rows can participate in the same row grid as its siblings:
+
+```css
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: subgrid;
+  gap: 24px;
+}
+
+.card {
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid;
+}
+```
+
+Now every card's title, body, and footer are perfectly aligned across the grid. No fixed heights, no JS, pure CSS.
+
+## Real-World Example: Product Cards
+
+Here's a practical example I use constantly. Imagine an e-commerce product grid where each card has:
+
+1. A product image
+2. A product name (variable length)
+3. A price
+4. An "Add to Cart" button
+
+![A face captured with beautiful golden-hour lighting — much like how subgrid beautifully illuminates layout solutions we couldn't see before.](./subgrid-layout.jpg)
+
+Without subgrid, the "Add to Cart" buttons would be at different vertical positions depending on how long each product name is. With subgrid, they all line up perfectly.
+
+```css
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-rows: subgrid;
+  gap: 2rem;
+}
+
+.product-card {
+  grid-row: span 4; /* image + name + price + button */
+  display: grid;
+  grid-template-rows: subgrid;
+  border: 1px solid var(--border);
+  padding: 1rem;
+}
+```
+
+## The Killer Pattern
+
+Here's the pattern I can't stop using: **subgrid for card headers and footers.**
+
+The idea is simple: define your outer grid with named rows, and let each card span those rows with subgrid. The result is perfectly aligned content across every card in the grid, regardless of content length.
+
+This is layout nirvana. It's the kind of thing we've been trying to achieve since the early days of CSS, and now it Just Works™.
+
+> **Browser support:** As of early 2026, subgrid is supported in all major browsers, including Chrome, Firefox, Safari, and Edge. It's safe to use in production!
+
+## Wrapping Up
+
+CSS Subgrid takes Grid from "pretty good" to "incredibly powerful." If you've been avoiding it because it felt too new, I'd encourage you to give it a try. The alignment problems it solves are real, and the solutions are elegant.
