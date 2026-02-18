@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { GitPullRequest, MessageSquare, AlertCircle, HelpCircle, FileText, Mic, Eye, Code2, Github, Globe, Star, ChevronDown } from "lucide-react";
 import { contributions, contributionTags, tagLabels, tagColors, projects, projectTagLabels, projectTagColors, type ContributionTag, type Contribution, type Project } from "@/data/contributions";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 /* ── Icon map for tags ── */
 const tagIcons: Record<ContributionTag, React.ReactNode> = {
@@ -179,6 +180,7 @@ function ProjectCard({ project }: { project: Project }) {
 
 /* ── Page ── */
 export default function ContributionsPage() {
+  useDocumentTitle("Contributions");
   const [activeTag, setActiveTag] = useState<ContributionTag | null>(null);
 
   /* Only show tags that have at least 1 entry */

@@ -2,6 +2,7 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Calendar, Clock } from "lucide-react";
 import { blogPosts } from "@/data/posts";
 import MDXLayout from "@/components/MDXLayout";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 // Import all MDX files from per-post folders
 const mdxModules = import.meta.glob("../content/*/index.mdx", { eager: true }) as Record<string, { default: React.ComponentType; frontmatter?: Record<string, unknown> }>;
@@ -11,6 +12,7 @@ export default function BlogPostPage() {
 
   // Find matching post data
   const post = blogPosts.find((p) => p.slug === slug);
+  useDocumentTitle("Blog");
 
   // Find matching MDX content
   const mdxKey = Object.keys(mdxModules).find((key) => key.includes(slug || "___none___"));

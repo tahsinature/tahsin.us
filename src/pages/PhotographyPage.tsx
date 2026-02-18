@@ -3,10 +3,12 @@ import { Link, useSearchParams } from "react-router-dom";
 import { Camera, MapPin, Calendar, Image, Sparkles, Globe } from "lucide-react";
 import { trips } from "@/data/trips";
 import { featuredPhotos } from "@/data/featured-photos";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 type ViewMode = "destinations" | "featured";
 
 export default function PhotographyPage() {
+  useDocumentTitle("Photography");
   const [searchParams, setSearchParams] = useSearchParams();
   const [view, setView] = useState<ViewMode>(() => {
     const v = searchParams.get("view");

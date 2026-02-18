@@ -2,10 +2,12 @@ import { useState } from "react";
 import { useParams, Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft, MapPin, Calendar, X, ChevronLeft, ChevronRight, Camera, Aperture, Focus, Gauge } from "lucide-react";
 import { trips } from "@/data/trips";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 export default function TripGalleryPage() {
   const { slug } = useParams<{ slug: string }>();
   const trip = trips.find((t) => t.slug === slug);
+  useDocumentTitle(trip?.title);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(() => {

@@ -16,8 +16,10 @@ import SpeakerIllustration from "@/components/about/SpeakerIllustration";
 import LanguagesIllustration from "@/components/about/LanguagesIllustration";
 import { workExperiences } from "@/data/about";
 import { siteConfig } from "@/config/site";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 export default function AboutPage() {
+  useDocumentTitle("About");
   const [activeLang, setActiveLang] = useState<string | null>(null);
   const handleClose = useCallback(() => setActiveLang(null), []);
 

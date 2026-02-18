@@ -3,8 +3,10 @@ import { ChevronDown } from "lucide-react";
 import BlogCard from "@/components/BlogCard";
 import Sidebar from "@/components/Sidebar";
 import { blogPosts, categories } from "@/data/posts";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 export default function BlogPage() {
+  useDocumentTitle("Blog");
   const [visibleCount, setVisibleCount] = useState(8);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 

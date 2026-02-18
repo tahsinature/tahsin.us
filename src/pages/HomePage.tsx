@@ -7,8 +7,10 @@ import { blogPosts } from "@/data/posts";
 import { featuredPhotos } from "@/data/featured-photos";
 import { workExperiences, skills, socialLinks } from "@/data/about";
 import { siteConfig } from "@/config/site";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 export default function HomePage() {
+  useDocumentTitle();
   const recentPosts = blogPosts.slice(0, 3);
   const previewPhotos = featuredPhotos.slice(0, 6);
 
