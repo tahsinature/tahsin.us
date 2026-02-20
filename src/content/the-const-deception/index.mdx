@@ -5,6 +5,8 @@ category: "JavaScript"
 date: "2026-02-10"
 ---
 
+import Mermaid from "@/components/Mermaid";
+
 # The "const" Deception
 
 Exploring the difference between _assignment_ and _mutation_ in JavaScript.
@@ -67,6 +69,31 @@ flavour = "chocolate"; // ❌ TypeError!
 
 This is a big fundamental difference between `let` and `const`. When you create a variable with `const`, you're saying that the label will always point to the same value. It can never be re-assigned.
 
+Here's a decision tree showing what happens when you try to change a variable:
+
+<Mermaid
+  chart={`flowchart TD
+    A["Trying to change a variable"] --> B{"Declared with let or const?"}
+    B -->|let| C{"What kind of change?"}
+    B -->|const| D{"What kind of change?"}
+    C -->|Reassignment| E["✅ Allowed"]
+    C -->|Mutation| F{"Primitive or Object?"}
+    D -->|Reassignment| G["❌ TypeError!"]
+    D -->|Mutation| H{"Primitive or Object?"}
+    F -->|Primitive| I["N/A — primitives are immutable"]
+    F -->|Object / Array| J["✅ Allowed"]
+    H -->|Primitive| K["N/A — primitives are immutable"]
+    H -->|Object / Array| L["✅ Allowed"]
+    style E fill:#22c55e,color:#fff
+    style G fill:#ef4444,color:#fff
+    style J fill:#22c55e,color:#fff
+    style L fill:#22c55e,color:#fff
+    style I fill:#6b7280,color:#fff
+    style K fill:#6b7280,color:#fff
+  `}
+  caption="Decision tree: what happens when you modify a let vs const variable?"
+/>
+
 Here's the thing, though: while the label is stuck to a particular value, **it's possible to modify that value internally**. This is known as **mutation**.
 
 For example, think about an array. Even with `const`, you can still push to the array, modify its contents, and so on:
@@ -100,6 +127,38 @@ That looks like mutation, but it's actually _reassignment_. We're creating a new
 This is why `const` works differently with primitives vs. objects. With a primitive, `const` effectively prevents any changes. With an object, `const` only prevents reassignment — the contents can still be mutated.
 
 > **Key takeaway:** `const` prevents _reassignment_, not _mutation_. For objects and arrays, the contents can still be changed even with `const`.
+
+Here's a visual summary of the relationship between variable declarations and values in memory:
+
+<Mermaid
+  chart={`
+graph LR
+    subgraph "Variable declarations"
+        A["const name"]
+        B["let age"]
+        C["const fruits"]
+    end
+    subgraph "Values in memory"
+        D["'Josh'"]
+        E["32"]
+        F["33"]
+        G["['apple', 'banana']"]
+    end
+    A -- "permanently bound" --> D
+    B -. "was pointing to" .-> E
+    B -- "reassigned to" --> F
+    C -- "permanently bound" --> G
+    G -- "but contents can mutate!" --> G
+    style A fill:#3b82f6,color:#fff
+    style B fill:#eab308,color:#000
+    style C fill:#3b82f6,color:#fff
+    style D fill:#1e293b,color:#e2e8f0,stroke:#4b5563
+    style E fill:#1e293b,color:#6b7280,stroke:#4b5563,stroke-dasharray: 5 5
+    style F fill:#1e293b,color:#e2e8f0,stroke:#4b5563
+    style G fill:#1e293b,color:#e2e8f0,stroke:#4b5563
+  `}
+  caption="const binds the label permanently, but the value behind it can still change internally."
+/>
 
 ---
 

@@ -8,10 +8,11 @@ import PhotographyPage from "@/pages/PhotographyPage";
 import TripGalleryPage from "@/pages/TripGalleryPage";
 import AboutPage from "@/pages/AboutPage";
 import ContributionsPage from "@/pages/ContributionsPage";
+import NotFoundPage from "@/pages/NotFoundPage";
 
 function App() {
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary">
+    <div className="min-h-screen flex flex-col bg-bg-primary text-text-primary">
       <Header />
       <Routes>
         <Route path="/" element={<HomePage />} />
@@ -21,6 +22,7 @@ function App() {
         <Route path="/post/:slug" element={<BlogPostPage />} />
         <Route path="/photography" element={<PhotographyPage />} />
         <Route path="/photography/:slug" element={<TripGalleryPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <Footer />
     </div>

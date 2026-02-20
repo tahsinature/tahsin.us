@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Mail, BookOpen, Tag } from "lucide-react";
-import { popularContent, categories, blogPosts } from "@/data/posts";
+import { categories, blogPosts } from "@/data/posts";
 import { siteConfig } from "@/config/site";
 
 interface SidebarProps {
@@ -78,14 +78,16 @@ export default function Sidebar({ activeCategory, onCategoryClick }: SidebarProp
           Popular Content
         </h3>
         <ul className="space-y-3">
-          {popularContent.map((title) => (
-            <li key={title}>
-              <Link to="/" className="text-text-secondary hover:text-text-primary transition-colors text-sm flex items-start gap-2 group">
-                <ArrowRight size={14} className="mt-1 text-text-muted group-hover:text-accent-pink transition-colors flex-shrink-0" />
-                <span>{title}</span>
-              </Link>
-            </li>
-          ))}
+          {blogPosts
+            .filter((p) => p.popular)
+            .map((post) => (
+              <li key={post.slug}>
+                <Link to={`/post/${post.slug}`} className="text-text-secondary hover:text-text-primary transition-colors text-sm flex items-start gap-2 group">
+                  <ArrowRight size={14} className="mt-1 text-text-muted group-hover:text-accent-pink transition-colors flex-shrink-0" />
+                  <span>{post.title}</span>
+                </Link>
+              </li>
+            ))}
         </ul>
       </div>
 
