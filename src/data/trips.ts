@@ -1,5 +1,5 @@
 export interface PhotoMeta {
-  camera: string;
+  camera?: string;
   lens?: string;
   focalLength?: string;
   aperture?: string;

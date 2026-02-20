@@ -4,6 +4,8 @@ import { Camera, MapPin, Calendar, Image, Sparkles, Globe } from "lucide-react";
 import { trips } from "@/data/trips";
 import { featuredPhotos } from "@/data/featured-photos";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import PhotoImage from "@/components/PhotoImage";
+import ExifMetaDisplay from "@/components/ExifMetaDisplay";
 
 type ViewMode = "destinations" | "featured";
 
@@ -94,7 +96,7 @@ export default function PhotographyPage() {
             >
               {/* Cover Image */}
               <div className="relative aspect-[4/3] overflow-hidden">
-                <img src={trip.coverImage} alt={trip.country} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                <PhotoImage src={trip.coverImage} alt={trip.country} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" aspectHint="4/3" />
                 <div className="absolute inset-0 bg-gradient-to-t from-bg-card/90 via-transparent to-transparent" />
                 <div className="absolute top-3 right-3 bg-bg-primary/70 backdrop-blur-sm text-text-secondary text-xs px-2.5 py-1 rounded flex items-center gap-1.5 border border-border/50">
                   <Image size={12} />
@@ -130,23 +132,10 @@ export default function PhotographyPage() {
                 className="w-full break-inside-avoid rounded overflow-hidden border border-border hover:border-accent-yellow/40 transition-all duration-300 group cursor-pointer block"
               >
                 <div className="relative overflow-hidden">
-                  <img src={photo.src} alt={photo.alt} className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                  <PhotoImage src={photo.src} alt={photo.alt} className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" aspectHint="4/3" />
                   <div className="absolute inset-0 bg-gradient-to-t from-bg-primary/80 via-bg-primary/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
                     <span className="text-white text-sm font-medium drop-shadow-lg mb-1">{photo.alt}</span>
-                    {photo.meta && (
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-white/70 text-[11px]">
-                        {photo.meta.location && (
-                          <span className="flex items-center gap-1">
-                            <MapPin size={10} />
-                            {photo.meta.location}
-                          </span>
-                        )}
-                        <span className="flex items-center gap-1">
-                          <Camera size={10} />
-                          {photo.meta.camera}
-                        </span>
-                      </div>
-                    )}
+                    <ExifMetaDisplay meta={photo.meta ?? null} compact />
                   </div>
                 </div>
               </button>
@@ -162,11 +151,13 @@ export default function PhotographyPage() {
 }
 
 /* Lightbox sub-component for featured photos */
-import { X, ChevronLeft, ChevronRight, Aperture, Focus, Gauge } from "lucide-react";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Photo } from "@/data/trips";
+import { useImageExif } from "@/hooks/useImageExif";
 
 function FeaturedLightbox({ photos, index, onClose, onNext, onPrev }: { photos: Photo[]; index: number; onClose: () => void; onNext: () => void; onPrev: () => void }) {
   const photo = photos[index];
+  const { meta } = useImageExif(photo.src, photo.meta);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") onClose();
@@ -211,40 +202,9 @@ function FeaturedLightbox({ photos, index, onClose, onNext, onPrev }: { photos: 
 
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center max-w-lg w-full px-4">
         <p className="text-text-primary text-sm font-medium mb-1">{photo.alt}</p>
-        {photo.meta && (
+        {meta && (
           <div className="bg-bg-card/80 backdrop-blur-sm border border-border rounded px-4 py-3 mt-2">
-            {photo.meta.location && (
-              <p className="text-text-secondary text-xs mb-2 flex items-center justify-center gap-1.5">
-                <MapPin size={12} className="text-accent-pink" />
-                {photo.meta.location}
-              </p>
-            )}
-            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-text-muted text-[11px]">
-              <span className="flex items-center gap-1">
-                <Camera size={11} className="text-accent-blue" />
-                {photo.meta.camera}
-              </span>
-              {photo.meta.lens && (
-                <span className="flex items-center gap-1">
-                  <Focus size={11} className="text-accent-purple" />
-                  {photo.meta.lens}
-                </span>
-              )}
-              {photo.meta.aperture && (
-                <span className="flex items-center gap-1">
-                  <Aperture size={11} className="text-accent-green" />
-                  {photo.meta.aperture}
-                </span>
-              )}
-              {photo.meta.shutterSpeed && (
-                <span className="flex items-center gap-1">
-                  <Gauge size={11} className="text-accent-yellow" />
-                  {photo.meta.shutterSpeed}
-                </span>
-              )}
-              {photo.meta.iso && <span>ISO {photo.meta.iso}</span>}
-              {photo.meta.focalLength && <span>{photo.meta.focalLength}</span>}
-            </div>
+            <ExifMetaDisplay meta={meta} />
           </div>
         )}
         <p className="text-text-muted text-xs mt-2">
