@@ -102,6 +102,7 @@
 
 body {
   margin: 0;
+  overflow-x: clip;
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
   font-family: var(--font-sans);
@@ -122,6 +123,7 @@ pre {
   overflow-x: auto;
   font-size: 0.875rem;
   line-height: 1.7;
+  max-width: 100%;
 }
 
 code {

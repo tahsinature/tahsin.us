@@ -32,11 +32,11 @@ export default function Header() {
           scrolled ? "bg-bg-primary/70 backdrop-blur-2xl border-b border-border/40 shadow-[0_1px_8px_rgba(0,0,0,0.15)]" : "border-b border-transparent"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between min-w-0">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group" onClick={() => setMobileOpen(false)}>
-            <Logo size={32} />
-            <span className="text-text-primary font-semibold text-lg tracking-tight group-hover:text-accent-yellow transition-colors">{siteConfig.name.full}</span>
+          <Link to="/" className="flex items-center gap-2 group min-w-0" onClick={() => setMobileOpen(false)}>
+            <Logo size={32} className="flex-shrink-0" />
+            <span className="text-text-primary font-semibold text-lg tracking-tight group-hover:text-accent-yellow transition-colors truncate">{siteConfig.name.full}</span>
           </Link>
 
           {/* Desktop Navigation */}

@@ -32,7 +32,7 @@ export default function BlogPostPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-8">
+    <div className="max-w-3xl mx-auto px-6 py-8 w-full min-w-0">
       {/* Back link */}
       <Link to="/blog" className="text-text-muted hover:text-text-primary transition-colors inline-flex items-center gap-2 text-sm mb-8">
         <ArrowLeft size={14} />
