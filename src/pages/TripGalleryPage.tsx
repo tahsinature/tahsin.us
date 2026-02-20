@@ -7,7 +7,7 @@ import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 export default function TripGalleryPage() {
   const { slug } = useParams<{ slug: string }>();
   const trip = trips.find((t) => t.slug === slug);
-  useDocumentTitle(trip?.title);
+  useDocumentTitle(trip?.country);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(() => {
