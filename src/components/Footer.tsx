@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { ArrowRight, Github, Linkedin, Mail } from "lucide-react";
 import Logo from "@/components/Logo";
 import { siteConfig } from "@/config/site";
@@ -35,23 +34,6 @@ export default function Footer() {
 
         {/* Navigation + Social */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-10">
-          <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
-            <Link to="/" className="text-text-secondary hover:text-text-primary transition-colors">
-              Home
-            </Link>
-            <Link to="/blog" className="text-text-secondary hover:text-text-primary transition-colors">
-              Blog
-            </Link>
-            <Link to="/about" className="text-text-secondary hover:text-text-primary transition-colors">
-              About
-            </Link>
-            <Link to="/photography" className="text-text-secondary hover:text-text-primary transition-colors">
-              Photography
-            </Link>
-            <Link to="/contributions" className="text-text-secondary hover:text-text-primary transition-colors">
-              Contributions
-            </Link>
-          </nav>
           <div className="flex items-center gap-3">
             <a href={socialLinks.github} target="_blank" rel="noopener noreferrer" className="text-text-muted hover:text-text-primary transition-colors" aria-label="GitHub">
               <Github size={18} />
@@ -68,7 +50,7 @@ export default function Footer() {
         {/* Bottom */}
         <div className="pt-6 border-t border-border text-center text-xs text-text-muted">
           <p>
-            © {siteConfig.startYear}–present {siteConfig.name.full}. All rights reserved.
+            © {siteConfig.startYear}–present {siteConfig.name.brand}. All rights reserved.
           </p>
         </div>
       </div>

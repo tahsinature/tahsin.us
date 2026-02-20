@@ -20,7 +20,7 @@ export const siteConfig = {
   bio: "I'm a software engineer based in London, Ontario, Canada. I have 7+ years of experience building and scaling software systems, working across startups and enterprise environments.",
   bioExtended:
     "As a specialist in backend development, cloud computing, and scalable system design, I work extensively with technologies like Python, Java, AWS, Docker, Kubernetes, and microservices architecture.",
-  tagline: "Every component and line of code matters.",
+  tagline: "Code, coffee, cameras — not always in that order.",
   heroIntro: "Hi, I'm Mohammad Tahsin, a software engineer based in London, Ontario, Canada.",
 
   /* ── Social / contact ── */
