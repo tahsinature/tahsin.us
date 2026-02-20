@@ -1,73 +1,57 @@
-# React + TypeScript + Vite
+# tahsin.us
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Personal portfolio, blog, and photography site built with React, TypeScript, Tailwind CSS, and MDX.
 
-Currently, two official plugins are available:
+> _Code, coffee, cameras — not always in that order._
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Overview
 
-## React Compiler
+This is the source code for my personal website. It features:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Blog** — Long-form articles on CSS, JavaScript, SVG, animation, and career topics, written in MDX with syntax highlighting via Shiki
+- **Photography** — Trip galleries with automatic EXIF metadata extraction
+- **Portfolio** — Work experience timeline, skills, and open-source contributions
+- **About** — Interactive bento-grid layout with illustrations
+- **Dark / light theme** — Persistent theme toggle
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+| Layer      | Technology                            |
+| ---------- | ------------------------------------- |
+| Framework  | React 19, React Router 7              |
+| Language   | TypeScript (strict mode)              |
+| Styling    | Tailwind CSS v4 (`@tailwindcss/vite`) |
+| Content    | MDX with remark/rehype plugins        |
+| Syntax     | Shiki + rehype-pretty-code            |
+| Diagrams   | Mermaid                               |
+| Build      | Vite 8                                |
+| Icons      | Lucide React                          |
+| Runtime    | Bun                                   |
+| Deployment | Kubernetes (Hono static server)       |
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## How This Site Gets Made
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```mermaid
+flowchart TD
+    A(("2018")) --> B["v1: Plain HTML & CSS"]
+    B --> C{"Good enough?"}
+    C -->|"Nope"| D["v2: jQuery everything"]
+    D --> C
+    C -->|"Still no"| E["v3: React + CRA"]
+    E --> F["v4: Gatsby because blogs need GraphQL apparently"]
+    F --> G{"Satisfied yet?"}
+    G -->|"Not even close"| H["v5: Next.js era"]
+    H --> I["v6: Complete redesign at 3 AM"]
+    I --> J["v7: Scrapped it. Started over."]
+    J --> K["v8: 'This is the one'"]
+    K --> L{"Was it the one?"}
+    L -->|"🤡"| M["v9: One more rewrite"]
+    M --> N["v10: Vite + React + MDX + Tailwind"]
+    N --> O{"Happy?"}
+    O -->|"...for now"| P(("✨ tahsin.us"))
+    O -.->|"Give it 6 months"| A
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## License
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+All rights reserved.
