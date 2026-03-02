@@ -108,11 +108,6 @@ export const trips: TripFolder[] = [
         myFav: true,
       },
       {
-        src: "https://images.unsplash.com/photo-1509225770129-c60c8b0b6fcc?w=800&q=80",
-        alt: "Icelandic highlands",
-        meta: { camera: "Nikon Z8", lens: "24-70mm f/2.8 S", focalLength: "35mm", aperture: "f/8", shutterSpeed: "1/250s", iso: "200", location: "Landmannalaugar, Highlands" },
-      },
-      {
         src: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80",
         alt: "Misty mountain landscape",
         meta: { camera: "Nikon Z8", lens: "70-200mm f/2.8 S", focalLength: "100mm", aperture: "f/5.6", shutterSpeed: "1/125s", iso: "400", location: "Snæfellsnes Peninsula" },
@@ -153,11 +148,6 @@ export const trips: TripFolder[] = [
         src: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&q=80",
         alt: "Rome Colosseum",
         meta: { camera: "Fujifilm X-T5", lens: "10-24mm f/4", focalLength: "10mm", aperture: "f/8", shutterSpeed: "1/250s", iso: "200", location: "Colosseum, Rome" },
-      },
-      {
-        src: "https://images.unsplash.com/photo-1543429776-2782f8f3cbe3?w=800&q=80",
-        alt: "Tuscan countryside",
-        meta: { camera: "Fujifilm X-T5", lens: "50-140mm f/2.8", focalLength: "90mm", aperture: "f/5.6", shutterSpeed: "1/640s", iso: "100", location: "Val d'Orcia, Tuscany" },
       },
       {
         src: "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?w=800&q=80",

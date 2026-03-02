@@ -16,7 +16,11 @@ export const useThemeStore = create<ThemeState>()(
       toggleTheme: () =>
         set((state) => {
           const next = state.theme === "dark" ? "light" : "dark";
+          document.documentElement.classList.add("theme-transitioning");
           document.documentElement.classList.toggle("dark", next === "dark");
+          setTimeout(() => {
+            document.documentElement.classList.remove("theme-transitioning");
+          }, 500);
           return { theme: next };
         }),
       setTheme: (theme) => set({ theme }),

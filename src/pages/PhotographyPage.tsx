@@ -109,14 +109,24 @@ export default function PhotographyPage() {
             <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" staggerDelay={0.08}>
               {trips.map((trip) => (
                 <StaggerItem key={trip.slug} variant="scale">
+                  <motion.div
+                    whileHover="hover"
+                    className="h-full"
+                  >
                   <Link
                     to={`/photography/${trip.slug}`}
-                    className="group relative block bg-card border border-border rounded-md overflow-hidden hover:border-primary/40 transition-all duration-300 h-full"
+                    className="group relative block bg-card border border-border rounded-md overflow-hidden hover:border-primary/40 transition-colors duration-300 h-full"
                   >
-                    <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.25 }}>
+                    <div>
                       {/* Cover Image */}
                       <div className="relative aspect-[4/3] overflow-hidden">
-                        <PhotoImage src={trip.coverImage} alt={trip.country} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" aspectHint="4/3" />
+                        <motion.div
+                          className="w-full h-full"
+                          variants={{ hover: { scale: 1.03 } }}
+                          transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+                        >
+                          <PhotoImage src={trip.coverImage} alt={trip.country} className="w-full h-full object-cover" loading="lazy" aspectHint="4/3" />
+                        </motion.div>
                         <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-transparent to-transparent" />
                         <div className="absolute top-3 right-3 bg-background/70 backdrop-blur-sm text-muted-foreground text-xs px-2.5 py-1 rounded flex items-center gap-1.5 border border-border/50">
                           <Image size={12} />
@@ -136,8 +146,9 @@ export default function PhotographyPage() {
                           {trip.date}
                         </div>
                       </div>
-                    </motion.div>
+                    </div>
                   </Link>
+                  </motion.div>
                 </StaggerItem>
               ))}
             </StaggerContainer>
@@ -161,10 +172,17 @@ export default function PhotographyPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.4, delay: index * 0.05 }}
                   onClick={() => openFeaturedLightbox(index)}
-                  className="w-full break-inside-avoid rounded overflow-hidden border border-border hover:border-primary/40 transition-all duration-300 group cursor-pointer block"
+                  className="w-full break-inside-avoid rounded overflow-hidden border border-border hover:border-primary/40 transition-colors duration-300 group cursor-pointer block"
                 >
                   <div className="relative overflow-hidden">
-                    <PhotoImage src={photo.src} alt={photo.alt} className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" aspectHint="4/3" />
+                    <motion.div
+                      className="w-full h-auto"
+                      initial={{ scale: 1 }}
+                      whileHover={{ scale: 1.03 }}
+                      transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+                    >
+                      <PhotoImage src={photo.src} alt={photo.alt} className="w-full h-auto object-cover" loading="lazy" aspectHint="4/3" />
+                    </motion.div>
                     <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
                       <span className="text-white text-sm font-medium drop-shadow-lg mb-1">{photo.alt}</span>
                       <ExifMetaDisplay meta={photo.meta ?? null} compact />

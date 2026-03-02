@@ -94,24 +94,37 @@ export default function TripGalleryPage() {
       {/* Photo Grid — Masonry-like with CSS columns */}
       <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
         {trip.photos.map((photo, index) => (
-          <motion.button
+          <motion.div
             key={index}
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
+            whileHover="hover"
             viewport={{ once: true, margin: "-30px" }}
             transition={{ duration: 0.4, delay: index * 0.04 }}
-            onClick={() => openLightbox(index)}
-            className="w-full break-inside-avoid rounded overflow-hidden border border-border hover:border-primary/40 transition-all duration-300 group cursor-pointer block"
+            className="w-full break-inside-avoid"
           >
-            <div className="relative overflow-hidden">
-              <PhotoImage src={photo.src} alt={photo.alt} className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" aspectHint="4/3" />
-              {/* Hover overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                <span className="text-white text-sm font-medium drop-shadow-lg mb-1">{photo.alt}</span>
-                <ExifMetaDisplay meta={photo.meta ?? null} compact />
+            <motion.button
+              onClick={() => openLightbox(index)}
+              className="w-full rounded overflow-hidden border border-border group cursor-pointer block"
+              variants={{ hover: { borderColor: "oklch(0.88 0.17 90 / 0.35)" } }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="relative overflow-hidden">
+                <motion.div
+                  className="w-full h-auto"
+                  variants={{ hover: { scale: 1.03 } }}
+                  transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+                >
+                  <PhotoImage src={photo.src} alt={photo.alt} className="w-full h-auto object-cover" loading="lazy" aspectHint="4/3" />
+                </motion.div>
+                {/* Hover overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+                  <span className="text-white text-sm font-medium drop-shadow-lg mb-1">{photo.alt}</span>
+                  <ExifMetaDisplay meta={photo.meta ?? null} compact />
+                </div>
               </div>
-            </div>
-          </motion.button>
+            </motion.button>
+          </motion.div>
         ))}
       </div>
 

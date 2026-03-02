@@ -23,7 +23,7 @@ export default function PhotoImage({ aspectHint = "4/3", className = "", style, 
 
       <img
         {...rest}
-        className={`${className} transition-opacity duration-500 ${loaded ? "opacity-100" : "opacity-0"}`}
+        className={`${className} ${loaded ? "opacity-100" : "opacity-0 transition-opacity duration-500"}`}
         onLoad={(e) => {
           setLoaded(true);
           rest.onLoad?.(e);
