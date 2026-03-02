@@ -1,4 +1,4 @@
-import { useState, type ImgHTMLAttributes } from "react";
+import { useState, useRef, useCallback, type ImgHTMLAttributes } from "react";
 
 interface PhotoImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   /** Aspect ratio hint for skeleton (e.g. "4/3", "3/2"). Defaults to "4/3". */
@@ -12,6 +12,13 @@ interface PhotoImageProps extends ImgHTMLAttributes<HTMLImageElement> {
 export default function PhotoImage({ aspectHint = "4/3", className = "", style, ...rest }: PhotoImageProps) {
   const [loaded, setLoaded] = useState(false);
 
+  // Handle already-cached images that fire onLoad before React attaches the handler
+  const imgRef = useCallback((node: HTMLImageElement | null) => {
+    if (node?.complete && node.naturalWidth > 0) {
+      setLoaded(true);
+    }
+  }, []);
+
   return (
     <div className="relative overflow-hidden" style={{ aspectRatio: loaded ? undefined : aspectHint, ...style }}>
       {/* Skeleton shimmer */}
@@ -23,10 +30,15 @@ export default function PhotoImage({ aspectHint = "4/3", className = "", style, 
 
       <img
         {...rest}
+        ref={imgRef}
         className={`${className} ${loaded ? "opacity-100" : "opacity-0 transition-opacity duration-500"}`}
         onLoad={(e) => {
           setLoaded(true);
           rest.onLoad?.(e);
+        }}
+        onError={() => {
+          // Show the image anyway on error so it's not permanently invisible
+          setLoaded(true);
         }}
       />
     </div>

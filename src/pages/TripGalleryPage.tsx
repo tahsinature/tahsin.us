@@ -96,11 +96,7 @@ export default function TripGalleryPage() {
         {trip.photos.map((photo, index) => (
           <motion.div
             key={index}
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
             whileHover="hover"
-            viewport={{ once: true, margin: "-30px" }}
-            transition={{ duration: 0.4, delay: index * 0.04 }}
             className="w-full break-inside-avoid"
           >
             <motion.button
