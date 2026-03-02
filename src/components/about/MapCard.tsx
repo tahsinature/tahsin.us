@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { useThemeStore } from "@/stores/useThemeStore";
 
 const MY_LOCATION = { lat: 42.98, lng: -81.25 };
 const MY_LABEL = "London, Canada";
@@ -11,9 +12,7 @@ const haversine = (lat1: number, lon1: number, lat2: number, lon2: number) => {
   const toRad = (d: number) => (d * Math.PI) / 180;
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 };
 
@@ -67,21 +66,31 @@ const demonyms: Record<string, string> = {
 };
 
 /** Small SVG marker icons */
-const createIcon = (color: string) =>
+const createIcon = (color: string, borderColor: string) =>
   L.divIcon({
     className: "",
-    html: `<div style="width:12px;height:12px;background:${color};border:2px solid white;border-radius:50%;box-shadow:0 0 6px ${color}80;"></div>`,
+    html: `<div style="width:12px;height:12px;background:${color};border:2px solid ${borderColor};border-radius:50%;box-shadow:0 0 6px ${color}80;"></div>`,
     iconSize: [12, 12],
     iconAnchor: [6, 6],
   });
 
-const myIcon = createIcon("#60a5fa");
-const userIcon = createIcon("#34d399");
+const TILE_URLS = {
+  dark: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+  light: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+};
 
 export default function MapCard() {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
+  const tileLayerRef = useRef<L.TileLayer | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const theme = useThemeStore((s) => s.theme);
+
+  // Swap tile layer when theme changes
+  useEffect(() => {
+    if (!mapInstance.current || !tileLayerRef.current) return;
+    tileLayerRef.current.setUrl(TILE_URLS[theme]);
+  }, [theme]);
 
   useEffect(() => {
     if (!mapRef.current || mapInstance.current) return;
@@ -97,16 +106,20 @@ export default function MapCard() {
 
     mapInstance.current = map;
 
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+    const tileLayer = L.tileLayer(TILE_URLS[theme], {
       maxZoom: 19,
     }).addTo(map);
+    tileLayerRef.current = tileLayer;
+
+    // Marker icons — border adapts to tile theme
+    const border = theme === "dark" ? "white" : "#1a1a2e";
+    const myIcon = createIcon("#60a5fa", border);
+    const userIcon = createIcon("#34d399", border);
 
     // My marker
-    L.marker([MY_LOCATION.lat, MY_LOCATION.lng], { icon: myIcon })
-      .addTo(map)
-      .bindPopup(`<b>🇨🇦 ${MY_LABEL}</b><br/><span style="color:#60a5fa">Tahsin's location</span>`, {
-        className: "custom-popup",
-      });
+    L.marker([MY_LOCATION.lat, MY_LOCATION.lng], { icon: myIcon }).addTo(map).bindPopup(`<b>🇨🇦 ${MY_LABEL}</b><br/><span style="color:#60a5fa">Tahsin's location</span>`, {
+      className: "custom-popup",
+    });
 
     // Try to get user location
     if (navigator.geolocation) {
@@ -114,21 +127,19 @@ export default function MapCard() {
         async (pos) => {
           const { latitude, longitude } = pos.coords;
 
-          // User marker
-          L.marker([latitude, longitude], { icon: userIcon })
-            .addTo(map)
-            .bindPopup('<b>📍 You</b>', { className: "custom-popup" });
+          // User marker (reuse icon from outer scope)
+          L.marker([latitude, longitude], { icon: userIcon }).addTo(map).bindPopup("<b>📍 You</b>", { className: "custom-popup" });
 
           // Fit bounds to show both
-          const bounds = L.latLngBounds(
-            [MY_LOCATION.lat, MY_LOCATION.lng],
-            [latitude, longitude],
-          );
+          const bounds = L.latLngBounds([MY_LOCATION.lat, MY_LOCATION.lng], [latitude, longitude]);
           map.fitBounds(bounds, { padding: [30, 30], maxZoom: 6 });
 
           // Dashed line between
           L.polyline(
-            [[MY_LOCATION.lat, MY_LOCATION.lng], [latitude, longitude]],
+            [
+              [MY_LOCATION.lat, MY_LOCATION.lng],
+              [latitude, longitude],
+            ],
             { color: "#60a5fa", weight: 1.5, dashArray: "6 4", opacity: 0.5 },
           ).addTo(map);
 
@@ -137,10 +148,7 @@ export default function MapCard() {
 
           // Reverse geocode for country
           try {
-            const res = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&zoom=3`,
-              { headers: { "Accept-Language": "en" } },
-            );
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&zoom=3`, { headers: { "Accept-Language": "en" } });
             const data = await res.json();
             const countryCode = data.address?.country_code?.toUpperCase();
             const countryName = data.address?.country;

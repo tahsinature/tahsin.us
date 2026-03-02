@@ -113,11 +113,13 @@ export function StaggerContainer({
   className = "",
   staggerDelay = 0.08,
   once = true,
+  style,
 }: {
   children: ReactNode;
   className?: string;
   staggerDelay?: number;
   once?: boolean;
+  style?: React.CSSProperties;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once, margin: "-40px" });
@@ -126,6 +128,7 @@ export function StaggerContainer({
     <motion.div
       ref={ref}
       className={className}
+      style={style}
       variants={staggerContainerVariants}
       custom={staggerDelay}
       initial="hidden"

@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { ArrowRight, Headphones, BookOpen, Zap, Server, Cloud, Sparkles } from "lucide-react";
+import { Headphones, BookOpen, Zap, Server, Cloud, Sparkles } from "lucide-react";
 import ContactCTA from "@/components/ContactCTA";
 import SocialLinks from "@/components/SocialLinks";
 import { CodeTerminalModal } from "@/components/InteractiveCodeCard";
@@ -12,8 +12,8 @@ import CatIllustration from "@/components/about/CatIllustration";
 import DogIllustration from "@/components/about/DogIllustration";
 import BookshelfIllustration from "@/components/about/BookshelfIllustration";
 import WorkspaceIllustration from "@/components/about/WorkspaceIllustration";
-import SpeakerIllustration from "@/components/about/SpeakerIllustration";
 import LanguagesIllustration from "@/components/about/LanguagesIllustration";
+import SuitcaseIllustration from "@/components/about/SuitcaseIllustration";
 import MapCard from "@/components/about/MapCard";
 import { workExperiences, skills } from "@/data/about";
 import { siteConfig } from "@/config/site";
@@ -75,21 +75,17 @@ export default function AboutPage() {
 
       {/* ─── Bento Grid ─── */}
       <section className="max-w-5xl mx-auto px-6">
-        <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-4" staggerDelay={0.07}>
-          {/* ─ Row 1 ─ */}
+        <StaggerContainer className="columns-1 sm:columns-2 md:columns-3 gap-4 space-y-4" staggerDelay={0.07}>
 
-          {/* Card: Location + Cat */}
-          <StaggerItem variant="scale">
-            <BentoCard className="flex flex-col items-center text-center gap-3">
-              <CatIllustration className="w-24 h-24" />
-              <p className="text-muted-foreground text-sm leading-relaxed">
-                Hello, fellow human! I'm based in <span className="text-foreground font-medium">{siteConfig.location}</span>.
-              </p>
+          {/* Card: Interactive Map — full width */}
+          <StaggerItem variant="scale" className="break-inside-avoid">
+            <BentoCard className="relative overflow-hidden !p-0">
+              <MapCard />
             </BentoCard>
           </StaggerItem>
 
           {/* Card: Music lover */}
-          <StaggerItem variant="scale">
+          <StaggerItem variant="scale" className="break-inside-avoid">
             <BentoCard className="flex flex-col items-center justify-center text-center gap-3">
               <div className="text-5xl">🎧</div>
               <p className="text-muted-foreground text-sm leading-relaxed">
@@ -104,7 +100,7 @@ export default function AboutPage() {
           </StaggerItem>
 
           {/* Card: Backend & Cloud */}
-          <StaggerItem variant="scale">
+          <StaggerItem variant="scale" className="break-inside-avoid">
             <BentoCard className="flex flex-col items-center justify-center text-center gap-4">
               <div className="flex gap-3 text-accent">
                 <Server size={28} />
@@ -117,17 +113,18 @@ export default function AboutPage() {
             </BentoCard>
           </StaggerItem>
 
-          {/* ─ Row 2 ─ */}
-
-          {/* Card: Interactive Map */}
-          <StaggerItem variant="scale">
-            <BentoCard className="relative overflow-hidden !p-0">
-              <MapCard />
+          {/* Card: Location + Cat */}
+          <StaggerItem variant="scale" className="break-inside-avoid">
+            <BentoCard className="flex flex-col items-center text-center gap-3">
+              <CatIllustration className="w-24 h-24" />
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Hello, fellow human! I'm based in <span className="text-foreground font-medium">{siteConfig.location}</span>.
+              </p>
             </BentoCard>
           </StaggerItem>
 
           {/* Card: Years of experience */}
-          <StaggerItem variant="scale">
+          <StaggerItem variant="scale" className="break-inside-avoid">
             <BentoCard className="flex flex-col items-center justify-center text-center gap-2">
               <p className="text-muted-foreground text-sm">I've been coding for</p>
               <p className="text-3xl font-bold text-foreground">
@@ -137,18 +134,8 @@ export default function AboutPage() {
             </BentoCard>
           </StaggerItem>
 
-          {/* Card: Bookshelf */}
-          <StaggerItem variant="scale">
-            <BentoCard className="flex flex-col items-center justify-center gap-3">
-              <BookshelfIllustration className="w-32 h-20" />
-              <p className="text-muted-foreground text-xs text-center">Avid reader. Always have a book on the go.</p>
-            </BentoCard>
-          </StaggerItem>
-
-          {/* ─ Row 3 ─ */}
-
           {/* Card: Open source & GitHub */}
-          <StaggerItem variant="scale">
+          <StaggerItem variant="scale" className="break-inside-avoid">
             <BentoCard className="flex flex-col gap-4">
               <div className="flex gap-2">
                 {["P", "y", "J", "S"].map((key) => (
@@ -171,18 +158,26 @@ export default function AboutPage() {
             </BentoCard>
           </StaggerItem>
 
-          {/* Card: Workspace */}
-          <StaggerItem variant="scale">
-            <BentoCard className="flex flex-col items-center justify-center gap-3">
-              <WorkspaceIllustration className="w-full max-w-[200px] h-auto" />
-              <p className="text-muted-foreground text-xs text-center">
-                Clean desk, dual monitors, and a <span className="text-accent">terminal always open</span>.
-              </p>
+          {/* Card: Work journey */}
+          <StaggerItem variant="scale" className="break-inside-avoid">
+            <BentoCard className="flex flex-col gap-3">
+              <SuitcaseIllustration className="w-full max-w-[140px] mx-auto h-auto" />
+              <ul className="space-y-2">
+                {workExperiences.map((job) => (
+                  <li key={job.company} className="flex items-center gap-2 text-sm">
+                    {job.country && <span className="text-base shrink-0">{job.country.flag}</span>}
+                    <span className="text-foreground">{job.company}</span>
+                    <span className="text-muted-foreground text-xs ml-auto whitespace-nowrap">
+                      {job.from}–{job.to}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </BentoCard>
           </StaggerItem>
 
           {/* Card: Scalable systems */}
-          <StaggerItem variant="scale">
+          <StaggerItem variant="scale" className="break-inside-avoid">
             <BentoCard className="flex flex-col gap-3">
               <div className="flex items-center gap-2 text-accent">
                 <Zap size={16} />
@@ -193,10 +188,25 @@ export default function AboutPage() {
             </BentoCard>
           </StaggerItem>
 
-          {/* ─ Row 4 ─ */}
+          {/* Card: Bookshelf + Workspace — side by side */}
+          <StaggerItem variant="scale" className="break-inside-avoid">
+            <BentoCard className="flex flex-col items-center justify-center gap-3">
+              <BookshelfIllustration className="w-32 h-20" />
+              <p className="text-muted-foreground text-xs text-center">Avid reader. Always have a book on the go.</p>
+            </BentoCard>
+          </StaggerItem>
+
+          <StaggerItem variant="scale" className="break-inside-avoid">
+            <BentoCard className="flex flex-col items-center justify-center gap-3">
+              <WorkspaceIllustration className="w-full max-w-[200px] h-auto" />
+              <p className="text-muted-foreground text-xs text-center">
+                Clean desk, dual monitors, and a <span className="text-accent">terminal always open</span>.
+              </p>
+            </BentoCard>
+          </StaggerItem>
 
           {/* Card: Pet lover */}
-          <StaggerItem variant="scale">
+          <StaggerItem variant="scale" className="break-inside-avoid">
             <BentoCard className="flex flex-col items-center text-center gap-3">
               <div className="flex gap-3 items-end">
                 <CatIllustration className="w-12 h-12" />
@@ -209,27 +219,8 @@ export default function AboutPage() {
             </BentoCard>
           </StaggerItem>
 
-          {/* Card: Global Experience */}
-          <StaggerItem variant="scale">
-            <BentoCard className="flex flex-col gap-3">
-              <SpeakerIllustration className="w-full max-w-[140px] mx-auto h-auto" />
-              <p className="text-muted-foreground text-sm leading-relaxed">I've worked with teams across the globe — from Southeast Asia to North America.</p>
-              <ul className="space-y-1.5">
-                {workExperiences.slice(0, 4).map((job) => (
-                  <li key={job.company} className="flex items-center gap-2 text-sm">
-                    <ArrowRight size={12} className="text-primary shrink-0" />
-                    <span className="text-foreground">{job.company}</span>
-                    <span className="text-muted-foreground text-xs ml-auto">
-                      {job.from}–{job.to}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </BentoCard>
-          </StaggerItem>
-
           {/* Card: Languages I speak */}
-          <StaggerItem variant="scale">
+          <StaggerItem variant="scale" className="break-inside-avoid">
             <BentoCard className="flex flex-col items-center justify-center gap-3">
               <LanguagesIllustration className="w-full max-w-[200px] h-auto" />
               <p className="text-muted-foreground text-sm text-center leading-relaxed">
@@ -270,7 +261,7 @@ export default function AboutPage() {
           </StaggerItem>
 
           {/* Card: Always learning */}
-          <StaggerItem variant="scale">
+          <StaggerItem variant="scale" className="break-inside-avoid">
             <BentoCard className="flex flex-col gap-3">
               <div className="flex items-center gap-2 text-primary">
                 <BookOpen size={16} />

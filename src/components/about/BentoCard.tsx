@@ -14,7 +14,7 @@ export default function BentoCard({ children, className = "", span = 1, accent }
   return (
     <motion.div
       className={`
-        bg-card border border-border rounded-lg p-6 h-full
+        bg-card border border-border rounded-lg p-6
         transition-colors duration-300 hover:border-primary/30
         ${span === 2 ? "md:col-span-2" : ""}
         ${className}
