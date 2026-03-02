@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { MapPin, ArrowRight, Headphones, BookOpen, Zap, Server, Cloud, Sparkles } from "lucide-react";
+import { ArrowRight, Headphones, BookOpen, Zap, Server, Cloud, Sparkles } from "lucide-react";
 import ContactCTA from "@/components/ContactCTA";
 import SocialLinks from "@/components/SocialLinks";
 import { CodeTerminalModal } from "@/components/InteractiveCodeCard";
@@ -14,11 +14,11 @@ import BookshelfIllustration from "@/components/about/BookshelfIllustration";
 import WorkspaceIllustration from "@/components/about/WorkspaceIllustration";
 import SpeakerIllustration from "@/components/about/SpeakerIllustration";
 import LanguagesIllustration from "@/components/about/LanguagesIllustration";
+import MapCard from "@/components/about/MapCard";
 import { workExperiences, skills } from "@/data/about";
 import { siteConfig } from "@/config/site";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { FadeIn, BlurFadeIn, SlideIn, StaggerContainer, StaggerItem, Float } from "@/components/MotionWrapper";
-import { CharacterIllustration } from "@/components/SVGs";
 
 export default function AboutPage() {
   useDocumentTitle("About");
@@ -32,10 +32,13 @@ export default function AboutPage() {
     <main className="pb-20">
       {/* ─── Hero Section ─── */}
       <section className="max-w-5xl mx-auto px-6 pt-16 pb-12 md:pt-24 md:pb-20">
-        <div className="grid md:grid-cols-[1fr_340px] gap-10 items-start">
+        <div className="grid md:grid-cols-[1fr_340px] gap-10 items-center">
           <div className="space-y-6">
             <BlurFadeIn>
-              <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight italic">Hi there! I'm {siteConfig.name.first}.</h1>
+              <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">{siteConfig.name.full}</h1>
+              <p className="text-muted-foreground text-lg mt-1">
+                {siteConfig.occupation} · {siteConfig.locationShort}
+              </p>
             </BlurFadeIn>
             <BlurFadeIn delay={0.1}>
               <p className="text-muted-foreground leading-relaxed text-base md:text-lg">{siteConfig.bio}</p>
@@ -63,20 +66,9 @@ export default function AboutPage() {
             </BlurFadeIn>
           </div>
 
-          {/* Character illustration — reuse the SVG style from the HeroBanner */}
+          {/* Portrait photo */}
           <SlideIn direction="right" delay={0.3} className="hidden md:flex justify-center">
-            <div className="relative">
-              <Float y={6} duration={4}>
-                <CharacterIllustration width="280" aria-label={`${siteConfig.name.first} illustration`} />
-              </Float>
-
-              {/* Confetti dots around the illustration */}
-              <div className="absolute -top-4 -left-8 w-3 h-3 rounded-full bg-warm opacity-60 animate-pulse" />
-              <div className="absolute top-8 -right-6 w-2 h-2 rounded-full bg-accent opacity-50 animate-pulse [animation-delay:0.5s]" />
-              <div className="absolute top-20 -left-10 w-2 h-2 rounded-full bg-primary opacity-50 animate-pulse [animation-delay:1s]" />
-              <div className="absolute -top-2 right-8 w-2 h-2 rounded-full bg-accent opacity-40 animate-pulse [animation-delay:1.5s]" />
-              <div className="absolute bottom-16 -right-8 w-3 h-3 rounded-full bg-primary opacity-50 animate-pulse [animation-delay:2s]" />
-            </div>
+            <PortraitPhoto />
           </SlideIn>
         </div>
       </section>
@@ -127,17 +119,10 @@ export default function AboutPage() {
 
           {/* ─ Row 2 ─ */}
 
-          {/* Card: Where I live */}
+          {/* Card: Interactive Map */}
           <StaggerItem variant="scale">
-            <BentoCard className="flex flex-col gap-3">
-              <div className="flex items-center gap-2 text-warm">
-                <MapPin size={16} />
-                <span className="text-xs font-semibold uppercase tracking-wider">Based in</span>
-              </div>
-              <h3 className="text-foreground text-lg font-bold">
-                {siteConfig.location} {siteConfig.locationEmoji}
-              </h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">Building software, exploring new cities, and always looking for the next adventure.</p>
+            <BentoCard className="relative overflow-hidden !p-0">
+              <MapCard />
             </BentoCard>
           </StaggerItem>
 
@@ -343,5 +328,148 @@ export default function AboutPage() {
       {/* ── Language Card Modal ── */}
       {activeHumanLang && <LanguageCardModal key={activeHumanLang} language={activeHumanLang} onClose={handleHumanLangClose} />}
     </main>
+  );
+}
+
+/* ── Portrait Photo Variants ── */
+
+/** Change this to switch between portrait styles */
+const PORTRAIT_VARIANT: "stacked-cards" | "film-strip" | "polaroid" | "gradient-ring" | "glassmorphism" = "stacked-cards";
+
+function PortraitPhoto() {
+  switch (PORTRAIT_VARIANT) {
+    case "stacked-cards":
+      return <PortraitStackedCards />;
+    case "film-strip":
+      return <PortraitFilmStrip />;
+    case "polaroid":
+      return <PortraitPolaroid />;
+    case "gradient-ring":
+      return <PortraitGradientRing />;
+    case "glassmorphism":
+      return <PortraitGlassmorphism />;
+  }
+}
+
+/** Layered cards with rotation — casual, playful depth */
+function PortraitStackedCards() {
+  return (
+    <div className="relative w-[280px]">
+      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 rotate-3 scale-[1.02]" />
+      <div className="absolute inset-0 rounded-2xl bg-card border border-border/50 -rotate-2 scale-[1.01]" />
+      <Float y={4} duration={5}>
+        <div className="relative rounded-2xl overflow-hidden border-2 border-border/30 shadow-xl">
+          <img src="/tahsin-portrait.jpg" alt={siteConfig.name.full} className="w-full aspect-[4/5] object-cover object-top" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent" />
+        </div>
+      </Float>
+      <div className="absolute -inset-4 rounded-3xl bg-primary/[0.06] blur-2xl -z-10" />
+    </div>
+  );
+}
+
+/** Film-strip style — photo with sprocket holes and frame border */
+function PortraitFilmStrip() {
+  return (
+    <div className="relative w-[280px]">
+      <Float y={4} duration={5}>
+        <div className="relative bg-foreground/90 dark:bg-foreground/80 rounded-sm p-[3px] shadow-2xl">
+          {/* Top sprocket holes */}
+          <div className="flex justify-between px-3 py-1.5">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="w-3 h-2 rounded-[1px] bg-background/30" />
+            ))}
+          </div>
+          {/* Photo */}
+          <div className="mx-2">
+            <img src="/tahsin-portrait.jpg" alt={siteConfig.name.full} className="w-full aspect-[4/5] object-cover object-top" />
+          </div>
+          {/* Bottom sprocket holes */}
+          <div className="flex justify-between px-3 py-1.5">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="w-3 h-2 rounded-[1px] bg-background/30" />
+            ))}
+          </div>
+          {/* Film frame number */}
+          <div className="absolute bottom-5 right-4 text-[9px] font-mono text-background/40 tracking-widest">25A</div>
+        </div>
+      </Float>
+      <div className="absolute -inset-4 rounded-3xl bg-accent/[0.05] blur-2xl -z-10" />
+    </div>
+  );
+}
+
+/** Polaroid — white frame with handwritten caption, slightly tilted */
+function PortraitPolaroid() {
+  return (
+    <div className="relative w-[260px]">
+      <Float y={4} duration={5}>
+        <div className="relative rotate-2 bg-white rounded-sm p-3 pb-14 shadow-[0_4px_30px_rgba(0,0,0,0.12)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.4)]">
+          {/* Photo */}
+          <img src="/tahsin-portrait.jpg" alt={siteConfig.name.full} className="w-full aspect-square object-cover object-top" />
+          {/* Handwritten caption */}
+          <p className="absolute bottom-4 left-0 right-0 text-center text-sm text-neutral-500 italic font-serif">{siteConfig.locationShort} ✦</p>
+        </div>
+      </Float>
+      {/* Tape strip */}
+      <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-6 bg-primary/15 rotate-1 rounded-sm z-10" />
+      <div className="absolute -inset-6 rounded-3xl bg-primary/[0.04] blur-2xl -z-10" />
+    </div>
+  );
+}
+
+/** Gradient ring — circular photo with animated gradient border */
+function PortraitGradientRing() {
+  return (
+    <div className="relative">
+      <Float y={4} duration={5}>
+        <div className="relative w-[240px] h-[240px]">
+          {/* Animated gradient ring */}
+          <div
+            className="absolute inset-0 rounded-full animate-[spin_8s_linear_infinite]"
+            style={{
+              background: "conic-gradient(from 0deg, var(--primary), var(--accent), var(--warm), var(--primary))",
+            }}
+          />
+          {/* Gap ring — creates the border effect */}
+          <div className="absolute inset-[3px] rounded-full bg-background" />
+          {/* Photo */}
+          <div className="absolute inset-[6px] rounded-full overflow-hidden">
+            <img src="/tahsin-portrait.jpg" alt={siteConfig.name.full} className="w-full h-full object-cover object-top" />
+          </div>
+        </div>
+      </Float>
+      {/* Soft glow */}
+      <div className="absolute -inset-8 rounded-full bg-primary/[0.06] blur-3xl -z-10" />
+    </div>
+  );
+}
+
+/** Glassmorphism — frosted glass card floating over gradient blobs */
+function PortraitGlassmorphism() {
+  return (
+    <div className="relative w-[280px]">
+      {/* Background gradient blobs */}
+      <div className="absolute -top-8 -left-8 w-40 h-40 rounded-full bg-primary/25 blur-3xl" />
+      <div className="absolute -bottom-6 -right-6 w-36 h-36 rounded-full bg-accent/20 blur-3xl" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 rounded-full bg-warm/15 blur-2xl" />
+
+      <Float y={4} duration={5}>
+        {/* Glass card */}
+        <div className="relative rounded-2xl border border-white/[0.15] dark:border-white/[0.08] bg-white/[0.12] dark:bg-white/[0.05] backdrop-blur-xl p-3 shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+          {/* Photo */}
+          <div className="rounded-xl overflow-hidden">
+            <img src="/tahsin-portrait.jpg" alt={siteConfig.name.full} className="w-full aspect-[4/5] object-cover object-top" />
+          </div>
+          {/* Glass footer strip */}
+          <div className="mt-2.5 flex items-center justify-between px-1">
+            <span className="text-xs text-foreground/60 font-medium">{siteConfig.name.first}</span>
+            <span className="text-[10px] text-foreground/30">
+              {siteConfig.locationEmoji} {siteConfig.locationShort}
+            </span>
+          </div>
+        </div>
+      </Float>
+    </div>
   );
 }

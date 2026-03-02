@@ -73,7 +73,7 @@ export const projects: Project[] = [
     id: 2,
     title: "Muslim Tools: iOS, Android, and Web Utility App",
     description: "A cross-platform app providing prayer times, Qibla direction, and Islamic calendar features. Built with React Native and deployed on both app stores and the web.",
-    liveUrl: "https://muslim-tools.tahsin.us",
+    // liveUrl: "https://muslim-tools.tahsin.us",
     screenshot: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&q=80",
     techStack: ["TypeScript", "React Native", "Hono"],
     tag: "side-project",
@@ -102,7 +102,7 @@ export const projects: Project[] = [
   {
     id: 5,
     title: "AMOD – Arakan Mayyu Organization for Development",
-    description: "Developed and maintain the website for AMOD, a community-driven organization focused on humanitarian aid and development in the Arakan region.",
+    description: "Developed and maintain the website for AMOD, a community-driven organization focused on settlement services for the new comers in Ontario, Canada.",
     liveUrl: "https://arakanmayyu.tahsin.us/",
     techStack: ["React", "Vite", "MDX", "TypeScript"],
     tag: "volunteer",

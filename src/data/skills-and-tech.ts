@@ -36,6 +36,7 @@ export const tools = [
   "gRPC",
   "GraphQL",
   "Elasticsearch",
+  "Tailscale",
 ];
 
 /** All skills combined with category attached */
