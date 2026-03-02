@@ -46,8 +46,7 @@ export default function HeroBanner() {
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               transition={{ duration: 0.8, delay: 0.5, ease: smooth }}
             >
-              Hey, I'm{" "}
-              <span className="text-primary">{siteConfig.name.first}</span>{" "}
+              Hey, I'm <span className="text-primary">{siteConfig.name.first}</span>{" "}
               <motion.span
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -65,20 +64,43 @@ export default function HeroBanner() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.7, ease: smooth }}
             >
-              {siteConfig.headline} based in {siteConfig.locationShort}.
+              {siteConfig.occupation} based in{" "}
+              <span className="relative inline-block">
+                {siteConfig.locationShort}
+                <svg
+                  className="absolute -bottom-1 left-0 w-full overflow-visible"
+                  viewBox="0 0 200 12"
+                  fill="none"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <motion.path
+                    className="stroke-primary"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    style={{ opacity: 0.6 }}
+                    initial={{ pathLength: 0, d: "M2 8 C40 2, 80 12, 120 5 C150 0, 180 10, 198 6" }}
+                    animate={{
+                      pathLength: 1,
+                      d: [
+                        "M2 8 C40 2, 80 12, 120 5 C150 0, 180 10, 198 6",
+                        "M2 6 C40 11, 80 3, 120 9 C150 12, 180 2, 198 7",
+                        "M2 9 C40 4, 80 10, 120 3 C150 8, 180 5, 198 8",
+                        "M2 8 C40 2, 80 12, 120 5 C150 0, 180 10, 198 6",
+                      ],
+                    }}
+                    transition={{
+                      pathLength: { duration: 0.8, delay: 1.2, ease: [0.25, 0.1, 0.25, 1] },
+                      d: { duration: 6, delay: 2.2, repeat: Infinity, ease: "easeInOut" },
+                    }}
+                  />
+                </svg>
+              </span>.
             </motion.p>
 
             {/* CTA buttons */}
-            <motion.div
-              className="flex flex-wrap gap-3"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.9, ease: smooth }}
-            >
-              <Link
-                to="/about"
-                className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-full font-semibold text-sm hover:brightness-110 transition-all"
-              >
+            <motion.div className="flex flex-wrap gap-3" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.9, ease: smooth }}>
+              <Link to="/about" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-full font-semibold text-sm hover:brightness-110 transition-all">
                 About me
                 <ArrowRight size={14} />
               </Link>
@@ -100,10 +122,7 @@ export default function HeroBanner() {
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5, duration: 0.6 }}
       >
-        <motion.div
-          animate={{ y: [0, 6, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        >
+        <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}>
           <ChevronDown size={20} className="text-muted-foreground" />
         </motion.div>
       </motion.div>

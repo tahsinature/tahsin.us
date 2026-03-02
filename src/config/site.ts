@@ -13,7 +13,7 @@ export const siteConfig = {
   },
 
   /* ── Bio ── */
-  headline: "Software Developer",
+  occupation: "Software Engineer",
   location: "London, Ontario, Canada",
   locationShort: "London, Ontario",
   locationEmoji: "🇨🇦",

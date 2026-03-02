@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, type ImgHTMLAttributes } from "react";
+import { useState, useCallback, type ImgHTMLAttributes } from "react";
 
 interface PhotoImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   /** Aspect ratio hint for skeleton (e.g. "4/3", "3/2"). Defaults to "4/3". */

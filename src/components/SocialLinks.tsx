@@ -1,5 +1,6 @@
 import { socialProfiles } from "@/data/social-profiles";
 import { motion } from "@/components/MotionWrapper";
+import { SocialIcon } from "@/components/SVGs";
 
 export default function SocialLinks() {
   return (
@@ -28,14 +29,11 @@ export default function SocialLinks() {
           whileHover={{ y: -2 }}
         >
           {/* Icon */}
-          <svg
-            viewBox="0 0 24 24"
+          <SocialIcon
+            d={link.icon}
             className="w-[18px] h-[18px] shrink-0 transition-colors duration-300"
-            fill="currentColor"
             style={{ color: link.color }}
-          >
-            <path d={link.icon} />
-          </svg>
+          />
 
           {/* Label + handle */}
           <div className="flex items-baseline gap-1.5">
