@@ -1,5 +1,5 @@
 import { Camera, Focus, Aperture, Gauge, MapPin } from "lucide-react";
-import type { PhotoMeta } from "@/data/trips";
+import type { PhotoMeta } from "@/data/photography";
 
 interface ExifMetaDisplayProps {
   meta: PhotoMeta | null;

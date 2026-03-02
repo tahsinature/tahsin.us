@@ -14,7 +14,7 @@ import BookshelfIllustration from "@/components/about/BookshelfIllustration";
 import WorkspaceIllustration from "@/components/about/WorkspaceIllustration";
 import SpeakerIllustration from "@/components/about/SpeakerIllustration";
 import LanguagesIllustration from "@/components/about/LanguagesIllustration";
-import { workExperiences } from "@/data/about";
+import { workExperiences, skills } from "@/data/about";
 import { siteConfig } from "@/config/site";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { FadeIn, BlurFadeIn, SlideIn, StaggerContainer, StaggerItem, Float } from "@/components/MotionWrapper";
@@ -296,7 +296,7 @@ export default function AboutPage() {
               </p>
               <p className="text-muted-foreground text-sm leading-relaxed">This blog is where I share the things I learn along the way. If something helped me, it might help you too. ✨</p>
               <div className="flex flex-wrap gap-1.5 pt-1">
-                {siteConfig.skills.slice(0, 8).map((skill) => {
+                {skills.slice(0, 8).map((skill) => {
                   const hasSnippet = !!snippetsByLabel[skill.name];
                   return hasSnippet ? (
                     <button

@@ -2,7 +2,7 @@ import { useEffect, useCallback, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ChevronLeft, ChevronRight, X, MapPin, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { Photo } from "@/data/trips";
+import type { Photo } from "@/data/photography";
 import { useImageExif } from "@/hooks/useImageExif";
 import ExifMetaDisplay from "@/components/ExifMetaDisplay";
 

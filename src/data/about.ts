@@ -1,25 +1,9 @@
 import { siteConfig } from "@/config/site";
 
-export interface WorkExperience {
-  company: string;
-  role: string;
-  from: string;
-  to: string;
-  description: string;
-  logo?: string;
-  url?: string;
-  country?: { flag: string; name: string };
-}
+export type { WorkExperience } from "@/data/work";
+export { workExperiences } from "@/data/work";
 
-export interface Skill {
-  name: string;
-  category: "language" | "framework" | "tool";
-}
+export type { Skill } from "@/data/skills-and-tech";
+export { skills, languages, frameworks, tools } from "@/data/skills-and-tech";
 
-/**
- * All personal data is sourced from siteConfig.
- * These re-exports keep existing imports working.
- */
-export const workExperiences: WorkExperience[] = [...siteConfig.workExperiences];
-export const skills: Skill[] = siteConfig.skills;
 export const socialLinks = siteConfig.social;

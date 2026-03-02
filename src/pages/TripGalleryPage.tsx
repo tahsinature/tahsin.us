@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft, MapPin, Calendar } from "lucide-react";
-import { trips } from "@/data/trips";
+import { trips } from "@/data/photography";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import PhotoImage from "@/components/PhotoImage";
 import ExifMetaDisplay from "@/components/ExifMetaDisplay";

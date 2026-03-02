@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import exifr from "exifr";
-import type { PhotoMeta } from "@/data/trips";
+import type { PhotoMeta } from "@/data/photography";
 
 /**
  * Reads EXIF metadata from an image URL and merges it with any manually-provided meta.

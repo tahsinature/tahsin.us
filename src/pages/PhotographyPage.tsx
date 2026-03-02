@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Camera, MapPin, Calendar, Image, Sparkles, Globe } from "lucide-react";
-import { trips } from "@/data/trips";
-import { favPhotos } from "@/data/fav-photos";
+import { trips, favPhotos } from "@/data/photography";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import PhotoImage from "@/components/PhotoImage";
 import ExifMetaDisplay from "@/components/ExifMetaDisplay";

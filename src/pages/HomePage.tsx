@@ -6,7 +6,7 @@ import InteractiveCodeCard from "@/components/InteractiveCodeCard";
 import PhotoLightbox from "@/components/PhotoLightbox";
 import { FadeIn, StaggerContainer, StaggerItem, motion } from "@/components/MotionWrapper";
 import { blogPosts } from "@/data/posts";
-import { favPhotos } from "@/data/fav-photos";
+import { favPhotos } from "@/data/photography";
 import { workExperiences, skills, socialLinks } from "@/data/about";
 import { siteConfig } from "@/config/site";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
@@ -198,7 +198,7 @@ function SectionLabel({ icon, label }: { icon: React.ReactNode; label: string })
   );
 }
 
-function PhotoCard({ photo, index, onOpen }: { photo: import("@/data/trips").Photo; index: number; onOpen: (index: number) => void }) {
+function PhotoCard({ photo, index, onOpen }: { photo: import("@/data/photography").Photo; index: number; onOpen: (index: number) => void }) {
   // Mobile: two-tap (tap to reveal, tap fullscreen to open)
   // Desktop: hover reveals, click anywhere opens lightbox
   const [revealed, setRevealed] = useState(false);
@@ -255,7 +255,7 @@ function PhotoCard({ photo, index, onOpen }: { photo: import("@/data/trips").Pho
           scale: active ? 1.05 : 1,
           filter: active ? "grayscale(0%)" : "grayscale(100%)",
         }}
-        transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+        transition={{ duration: 1.2, ease: [0.25, 0.1, 0.25, 1] }}
         loading="lazy"
       />
 
@@ -264,13 +264,13 @@ function PhotoCard({ photo, index, onOpen }: { photo: import("@/data/trips").Pho
         className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent flex items-end p-3"
         initial={false}
         animate={{ opacity: active ? 1 : 0 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
       >
         <motion.div
           className="flex flex-col gap-1"
           initial={false}
           animate={{ y: active ? 0 : 8, opacity: active ? 1 : 0 }}
-          transition={{ duration: 0.4, ease: "easeOut", delay: 0.05 }}
+          transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
         >
           <span className="text-white text-xs font-medium drop-shadow-lg flex items-center gap-1">
             <MapPin size={10} />

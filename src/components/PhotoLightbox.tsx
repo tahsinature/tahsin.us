@@ -4,7 +4,7 @@ import { AnimatePresence } from "motion/react";
 import { motion } from "@/components/MotionWrapper";
 import ExifMetaDisplay from "@/components/ExifMetaDisplay";
 import { useImageExif } from "@/hooks/useImageExif";
-import type { Photo } from "@/data/trips";
+import type { Photo } from "@/data/photography";
 
 interface PhotoLightboxProps {
   photos: Photo[];

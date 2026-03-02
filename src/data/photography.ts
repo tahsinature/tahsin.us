@@ -278,3 +278,6 @@ export const trips: TripFolder[] = [
     ],
   },
 ];
+
+/** All photos marked as `myFav` across every trip, flattened into a single array. */
+export const favPhotos = trips.flatMap((trip) => trip.photos.filter((p) => p.myFav));
