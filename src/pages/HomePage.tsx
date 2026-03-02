@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Briefcase, MapPin, ExternalLink, Mail, Github, Twitter, Linkedin, Camera, BookOpen, Code2, Layers, Wrench, Clock, Building2, Cpu, Headphones, User, Maximize2 } from "lucide-react";
+import { ArrowRight, Briefcase, MapPin, ExternalLink, Mail, Github, Twitter, Linkedin, Camera, BookOpen, Code2, Layers, Wrench, User, Maximize2 } from "lucide-react";
 import HeroBanner from "@/components/HeroBanner";
 import InteractiveCodeCard from "@/components/InteractiveCodeCard";
 import PhotoLightbox from "@/components/PhotoLightbox";
@@ -24,13 +24,13 @@ export default function HomePage() {
       <main className="max-w-5xl mx-auto px-6 relative z-10 space-y-24 pb-8">
         {/* ─── About Me ─── */}
         <section id="about">
-          <div className="grid md:grid-cols-[1fr_260px] gap-10 items-start">
+          <div className="grid md:grid-cols-[1fr_280px] gap-10 items-start">
             <FadeIn>
               <div className="space-y-4">
                 <SectionLabel icon={<User size={14} />} label="About Me" />
-                <p className="text-muted-foreground leading-relaxed">{siteConfig.bio}</p>
-                <p className="text-muted-foreground leading-relaxed">{siteConfig.bioExtended}</p>
-                <div className="flex gap-3 pt-2">
+                <p className="text-muted-foreground leading-relaxed text-[15px]">{siteConfig.bio}</p>
+                <p className="text-muted-foreground leading-relaxed text-[15px]">{siteConfig.bioExtended}</p>
+                <div className="flex flex-wrap gap-3 pt-2">
                   <SocialPill href={socialLinks.github} icon={<Github size={15} />} label="GitHub" />
                   {socialLinks.twitter && <SocialPill href={socialLinks.twitter} icon={<Twitter size={15} />} label="Twitter" />}
                   <SocialPill href={socialLinks.linkedin} icon={<Linkedin size={15} />} label="LinkedIn" />
@@ -39,9 +39,9 @@ export default function HomePage() {
               </div>
             </FadeIn>
 
-            {/* Quick stats card */}
+            {/* Location illustration */}
             <FadeIn delay={0.2}>
-              <StatsCard />
+              <LocationCard />
             </FadeIn>
           </div>
         </section>
@@ -283,121 +283,28 @@ function PhotoCard({ photo, index, onOpen }: { photo: import("@/data/trips").Pho
   );
 }
 
-function useCountUp(end: number, duration = 1200) {
-  const [count, setCount] = useState(0);
-  const [started, setStarted] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setStarted(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.5 },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!started) return;
-    const steps = 30;
-    const increment = end / steps;
-    let current = 0;
-    const interval = setInterval(() => {
-      current += increment;
-      if (current >= end) {
-        setCount(end);
-        clearInterval(interval);
-      } else setCount(Math.floor(current));
-    }, duration / steps);
-    return () => clearInterval(interval);
-  }, [started, end, duration]);
-
-  return { count, ref };
-}
-
-function StatsCard() {
-  const years = new Date().getFullYear() - siteConfig.startYear;
-  const companies = siteConfig.workExperiences.length;
-  const tools = siteConfig.skills.length;
-
-  const yearsCounter = useCountUp(years);
-  const companiesCounter = useCountUp(companies, 800);
-  const toolsCounter = useCountUp(tools, 1000);
-
-  const [musicHover, setMusicHover] = useState(false);
-  const [noteTick, setNoteTick] = useState(0);
-
-  useEffect(() => {
-    const id = setInterval(() => setNoteTick((t) => t + 1), 2000);
-    return () => clearInterval(id);
-  }, []);
-
-  const stats = [
-    {
-      icon: <Clock size={18} />,
-      label: "Years of experience",
-      value: `${yearsCounter.count}+`,
-      ref: yearsCounter.ref,
-      color: "text-primary",
-      barColor: "bg-primary",
-      barWidth: `${Math.min((years / 15) * 100, 100)}%`,
-    },
-    {
-      icon: <Building2 size={18} />,
-      label: "Companies worked at",
-      value: `${companiesCounter.count}`,
-      ref: companiesCounter.ref,
-      color: "text-accent",
-      barColor: "bg-accent",
-      barWidth: `${(companies / 8) * 100}%`,
-    },
-    {
-      icon: <Cpu size={18} />,
-      label: "Languages & tools",
-      value: `${toolsCounter.count}+`,
-      ref: toolsCounter.ref,
-      color: "text-accent",
-      barColor: "bg-accent",
-      barWidth: `${Math.min((tools / 20) * 100, 100)}%`,
-    },
-  ];
-
+function LocationCard() {
   return (
-    <div className="bg-card border border-border rounded-lg p-5 space-y-3">
-      {stats.map((stat) => (
-        <div key={stat.label} ref={stat.ref} className="group cursor-default">
-          <div className="flex items-center gap-3 mb-1.5">
-            <div className={`${stat.color} transition-transform group-hover:scale-125 group-hover:rotate-12 duration-300`}>{stat.icon}</div>
-            <span className="text-muted-foreground text-sm flex-1">{stat.label}</span>
-            <span className={`font-bold text-lg tabular-nums ${stat.color} transition-all group-hover:scale-110 duration-300`}>{stat.value}</span>
-          </div>
-          <div className="h-1 rounded-full bg-secondary overflow-hidden ml-[30px]">
-            <div className={`h-full rounded-full ${stat.barColor} opacity-60 transition-all duration-1000 ease-out group-hover:opacity-100`} style={{ width: stat.barWidth }} />
-          </div>
-        </div>
-      ))}
+    <div className="hidden md:flex flex-col items-center justify-center rounded-xl border border-border/40 bg-card/30 p-8 h-full min-h-[200px] relative overflow-hidden">
+      {/* Decorative concentric rings */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="w-40 h-40 rounded-full border border-border/20" />
+        <div className="absolute w-28 h-28 rounded-full border border-border/15" />
+        <div className="absolute w-16 h-16 rounded-full border border-border/10" />
+      </div>
 
-      {/* Music row — special interactive one */}
-      <div className="group cursor-pointer select-none" onMouseEnter={() => setMusicHover(true)} onMouseLeave={() => setMusicHover(false)}>
-        <div className="flex items-center gap-3">
-          <div className={`text-warm transition-all duration-300 ${musicHover ? "scale-125 -rotate-12" : ""}`}>
-            <Headphones size={18} />
-          </div>
-          <span className="text-muted-foreground text-sm flex-1">Hours of music while coding</span>
-          <span className="relative font-bold text-lg text-warm">
-            {musicHover ? "🎵🎵🎵" : "∞"}
-            {/* Animated note */}
-            <span key={noteTick} className="absolute -top-3 right-0 text-[10px] opacity-0 animate-[float-up_2s_ease-out_infinite] pointer-events-none">
-              🎶
-            </span>
-          </span>
+      {/* Pin + label */}
+      <div className="relative flex flex-col items-center gap-3">
+        <motion.div
+          className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary"
+          animate={{ y: [0, -4, 0] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <MapPin size={22} />
+        </motion.div>
+        <div className="text-center">
+          <p className="text-foreground font-semibold text-sm">{siteConfig.locationShort}</p>
+          <p className="text-muted-foreground/60 text-xs mt-0.5">{siteConfig.locationEmoji} Canada</p>
         </div>
       </div>
     </div>
