@@ -142,7 +142,7 @@ function LanguageCardModalInner({ lang, onClose }: { lang: LanguageData; onClose
       {/* Modal shell */}
       <div
         className={`relative w-full max-w-lg max-h-[90vh] flex flex-col
-          bg-bg-card border border-border rounded-2xl overflow-hidden
+          bg-card border border-border rounded-2xl overflow-hidden
           shadow-[0_0_80px_rgba(0,0,0,0.3),0_20px_60px_rgba(0,0,0,0.35)]
           ${closing ? "animate-[modal-content-out_0.2s_ease-in_forwards]" : "animate-[modal-content-in_0.3s_ease-out_forwards]"}`}
         role="dialog"
@@ -154,11 +154,11 @@ function LanguageCardModalInner({ lang, onClose }: { lang: LanguageData; onClose
           <div className="flex items-center gap-3">
             <span className="text-2xl">{lang.flag}</span>
             <div>
-              <h3 className="text-text-primary text-sm font-bold flex items-center gap-2">
+              <h3 className="text-foreground text-sm font-bold flex items-center gap-2">
                 {lang.label}
-                <span className="text-text-muted font-normal text-xs">/ {lang.englishName}</span>
+                <span className="text-muted-foreground font-normal text-xs">/ {lang.englishName}</span>
               </h3>
-              <p className="text-text-muted text-[10px] flex items-center gap-1">
+              <p className="text-muted-foreground text-[10px] flex items-center gap-1">
                 <Globe size={9} />
                 {lang.script}
                 <span className="mx-1">·</span>
@@ -167,7 +167,7 @@ function LanguageCardModalInner({ lang, onClose }: { lang: LanguageData; onClose
               </p>
             </div>
           </div>
-          <button onClick={animatedClose} className="text-text-muted/50 hover:text-text-primary transition-colors cursor-pointer p-1" aria-label="Close">
+          <button onClick={animatedClose} className="text-muted-foreground/50 hover:text-foreground transition-colors cursor-pointer p-1" aria-label="Close">
             <X size={16} />
           </button>
         </div>
@@ -181,7 +181,7 @@ function LanguageCardModalInner({ lang, onClose }: { lang: LanguageData; onClose
         <div className="flex-1 overflow-y-auto px-5 py-6">
           {/* Context label */}
           {phrase.context && (
-            <p className="text-text-muted text-[11px] uppercase tracking-widest mb-4 animate-[code-fade-in_0.4s_ease-out_both]" key={`ctx-${phraseIndex}`}>
+            <p className="text-muted-foreground text-[11px] uppercase tracking-widest mb-4 animate-[code-fade-in_0.4s_ease-out_both]" key={`ctx-${phraseIndex}`}>
               {phrase.context}
             </p>
           )}
@@ -189,7 +189,7 @@ function LanguageCardModalInner({ lang, onClose }: { lang: LanguageData; onClose
           {/* Native text */}
           <div className="min-h-[4rem] mb-5" key={`native-${phraseIndex}`}>
             {(phase === "typing-native" || phase === "pause" || phase === "typing-english" || phase === "done") && (
-              <p className="text-xl sm:text-2xl font-semibold leading-relaxed text-text-primary" style={{ color: lang.color }}>
+              <p className="text-xl sm:text-2xl font-semibold leading-relaxed text-foreground" style={{ color: lang.color }}>
                 {native.displayed}
                 {phase === "typing-native" && (
                   <span className="inline-block w-[2px] h-[1.2em] ml-[2px] align-middle animate-[cursor-blink_1s_step-end_infinite]" style={{ backgroundColor: lang.color }} />
@@ -212,9 +212,9 @@ function LanguageCardModalInner({ lang, onClose }: { lang: LanguageData; onClose
           {/* English translation */}
           <div className="min-h-[3rem]" key={`eng-${phraseIndex}`}>
             {(phase === "typing-english" || phase === "done") && (
-              <p className="text-base sm:text-lg text-text-secondary leading-relaxed italic">
+              <p className="text-base sm:text-lg text-muted-foreground leading-relaxed italic">
                 "{english.displayed}"
-                {phase === "typing-english" && <span className="inline-block w-[2px] h-[1em] bg-text-secondary ml-[2px] align-middle animate-[cursor-blink_1s_step-end_infinite]" />}
+                {phase === "typing-english" && <span className="inline-block w-[2px] h-[1em] bg-muted-foreground ml-[2px] align-middle animate-[cursor-blink_1s_step-end_infinite]" />}
               </p>
             )}
           </div>
@@ -222,11 +222,11 @@ function LanguageCardModalInner({ lang, onClose }: { lang: LanguageData; onClose
           {/* Pronunciation guide (toggle) */}
           {phase === "done" && lang.englishName !== "English" && (
             <div className="mt-4 animate-[code-fade-in_0.3s_ease-out_both]">
-              <button onClick={() => setShowPronunciation((v) => !v)} className="flex items-center gap-1.5 text-[11px] text-text-muted hover:text-text-secondary transition-colors cursor-pointer">
+              <button onClick={() => setShowPronunciation((v) => !v)} className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-muted-foreground transition-colors cursor-pointer">
                 <Volume2 size={12} style={{ color: lang.color }} />
                 {showPronunciation ? "Hide" : "Show"} pronunciation
               </button>
-              {showPronunciation && <p className="text-sm text-text-muted font-mono mt-2 pl-5 animate-[code-fade-in_0.25s_ease-out_both]">{phrase.pronunciation}</p>}
+              {showPronunciation && <p className="text-sm text-muted-foreground font-mono mt-2 pl-5 animate-[code-fade-in_0.25s_ease-out_both]">{phrase.pronunciation}</p>}
             </div>
           )}
         </div>
@@ -236,7 +236,7 @@ function LanguageCardModalInner({ lang, onClose }: { lang: LanguageData; onClose
           <div className="px-5 py-3 border-t border-border animate-[code-fade-in_0.4s_ease-out_both] shrink-0" style={{ backgroundColor: `${lang.color}08` }}>
             <div className="flex items-start gap-2">
               <Lightbulb size={13} className="shrink-0 mt-0.5" style={{ color: lang.color }} />
-              <p key={factIndex} className="text-xs text-text-secondary leading-relaxed animate-[lang-fact-swap_0.4s_ease-out_both]">
+              <p key={factIndex} className="text-xs text-muted-foreground leading-relaxed animate-[lang-fact-swap_0.4s_ease-out_both]">
                 {lang.facts[factIndex]}
               </p>
             </div>
@@ -245,7 +245,7 @@ function LanguageCardModalInner({ lang, onClose }: { lang: LanguageData; onClose
 
         {/* ── Footer / Navigation ── */}
         <div className="flex items-center justify-between px-5 py-3 border-t border-border shrink-0">
-          <button onClick={() => goToPhrase(-1)} className="flex items-center gap-1 text-xs text-text-muted hover:text-text-primary transition-colors cursor-pointer">
+          <button onClick={() => goToPhrase(-1)} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
             <ChevronLeft size={14} />
             Prev
           </button>
@@ -260,14 +260,14 @@ function LanguageCardModalInner({ lang, onClose }: { lang: LanguageData; onClose
                   setPhase("intro");
                   setShowPronunciation(false);
                 }}
-                className={`w-1.5 h-1.5 rounded-full transition-all duration-300 cursor-pointer ${i === phraseIndex ? "scale-125" : "bg-text-muted/30 hover:bg-text-muted/50"}`}
+                className={`w-1.5 h-1.5 rounded-full transition-all duration-300 cursor-pointer ${i === phraseIndex ? "scale-125" : "bg-muted-foreground/30 hover:bg-muted-foreground/50"}`}
                 style={i === phraseIndex ? { backgroundColor: lang.color } : undefined}
                 aria-label={`Phrase ${i + 1}`}
               />
             ))}
           </div>
 
-          <button onClick={() => goToPhrase(1)} className="flex items-center gap-1 text-xs text-text-muted hover:text-text-primary transition-colors cursor-pointer">
+          <button onClick={() => goToPhrase(1)} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
             Next
             <ChevronRight size={14} />
           </button>

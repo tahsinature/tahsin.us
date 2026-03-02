@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
-import { createPortal } from "react-dom";
-import { Link } from "react-router-dom";
-import { Sun, Moon, Menu, X } from "lucide-react";
-import { useTheme } from "@/context/ThemeContext";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { motion, useScroll, useMotionValueEvent } from "motion/react";
+import { cn } from "@/lib/utils";
 import Logo from "@/components/Logo";
 import { siteConfig } from "@/config/site";
+import { Container } from "@/components/shared/Container";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { MobileNavTrigger } from "@/components/layout/MobileNavTrigger";
 
 const NAV_ITEMS = [
   { label: "Blog", to: "/blog" },
@@ -14,89 +16,122 @@ const NAV_ITEMS = [
 ];
 
 export default function Header() {
-  const { theme, toggleTheme } = useTheme();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
+  const { scrollY } = useScroll();
+  const navRef = useRef<HTMLElement>(null);
+  const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+  const [pillStyle, setPillStyle] = useState<{ left: number; width: number } | null>(null);
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    setScrolled(latest > 20);
+  });
+
+  const isActive = (to: string) => {
+    if (to === "/blog")
+      return (
+        location.pathname === "/blog" ||
+        location.pathname.startsWith("/post/")
+      );
+    if (to === "/photography")
+      return location.pathname.startsWith("/photography");
+    if (to === "/contributions")
+      return location.pathname === "/contributions";
+    return location.pathname === to;
+  };
+
+  const activeIndex = NAV_ITEMS.findIndex((item) => isActive(item.to));
+
+  const measurePill = useCallback(() => {
+    if (activeIndex === -1 || !navRef.current) {
+      setPillStyle(null);
+      return;
+    }
+    const el = itemRefs.current[activeIndex];
+    if (!el || !navRef.current) return;
+    const navRect = navRef.current.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    setPillStyle({
+      left: elRect.left - navRect.left,
+      width: elRect.width,
+    });
+  }, [activeIndex]);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    measurePill();
+  }, [measurePill]);
 
   return (
-    <>
-      <header
-        className={`sticky top-0 z-50 transition-all duration-500 ${
-          scrolled ? "bg-bg-primary/70 backdrop-blur-2xl border-b border-border/40 shadow-[0_1px_8px_rgba(0,0,0,0.15)]" : "border-b border-transparent"
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between min-w-0">
+    <motion.header
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      className={cn(
+        "sticky top-0 z-50 w-full backdrop-blur-xl transition-all duration-300",
+        scrolled
+          ? "bg-background/80 shadow-[0_1px_12px_rgba(0,0,0,0.04)] border-b border-border/50 dark:shadow-[0_1px_12px_rgba(0,0,0,0.2)]"
+          : "bg-background/60",
+      )}
+    >
+      <Container>
+        <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group min-w-0" onClick={() => setMobileOpen(false)}>
-            <Logo size={32} className="flex-shrink-0" />
-            <span className="text-text-primary font-semibold text-lg tracking-tight group-hover:text-accent-yellow transition-colors truncate">{siteConfig.name.full}</span>
+          <Link
+            to="/"
+            className="flex items-center gap-2.5 shrink-0 group"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          >
+            <motion.div
+              whileHover={{ rotate: 12 }}
+              transition={{ type: "spring", stiffness: 300, damping: 15 }}
+            >
+              <Logo size={32} className="flex-shrink-0" />
+            </motion.div>
+            <span className="font-semibold text-lg tracking-tight group-hover:text-primary transition-colors duration-300">
+              {siteConfig.name.brand}
+            </span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
-            {NAV_ITEMS.map((item) => (
-              <Link key={item.label} to={item.to} className="text-text-secondary hover:text-text-primary transition-colors text-sm font-medium">
-                {item.label}
-              </Link>
-            ))}
+          {/* Desktop Nav — Segmented Control */}
+          <nav
+            ref={navRef}
+            className="hidden md:flex items-center gap-0.5 rounded-xl bg-muted/50 p-1 ring-1 ring-border/20 relative"
+          >
+            {/* Sliding pill */}
+            {pillStyle && (
+              <motion.span
+                className="absolute top-1 bottom-1 rounded-lg bg-background shadow-sm ring-1 ring-border/30"
+                animate={{ left: pillStyle.left, width: pillStyle.width }}
+                transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
+              />
+            )}
+            {NAV_ITEMS.map((item, i) => {
+              const active = isActive(item.to);
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  ref={(el) => { itemRefs.current[i] = el; }}
+                  className={cn(
+                    "relative z-10 px-4 py-1.5 text-sm font-medium transition-colors rounded-lg",
+                    active
+                      ? "text-foreground"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
           </nav>
 
-          {/* Right icons */}
-          <div className="flex items-center gap-4">
-            <button onClick={toggleTheme} className="text-text-secondary hover:text-text-primary transition-colors" aria-label="Toggle theme">
-              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
-            {/* Mobile menu toggle */}
-            <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden text-text-secondary hover:text-text-primary transition-colors" aria-label="Toggle menu">
-              {mobileOpen ? <X size={22} /> : <Menu size={22} />}
-            </button>
+          {/* Actions */}
+          <div className="flex items-center gap-2.5">
+            <ThemeToggle />
+            <MobileNavTrigger />
           </div>
         </div>
-
-        {/* Mobile Navigation Drawer */}
-        <nav
-          className={`md:hidden overflow-hidden border-t border-border bg-bg-primary/95 backdrop-blur-md transition-all duration-300 ease-out ${
-            mobileOpen ? "max-h-60 opacity-100" : "max-h-0 opacity-0 border-transparent"
-          }`}
-        >
-          <div className="px-6 py-4 flex flex-col gap-1">
-            {NAV_ITEMS.map((item, i) => (
-              <Link
-                key={item.label}
-                to={item.to}
-                onClick={() => setMobileOpen(false)}
-                className="text-text-secondary hover:text-text-primary hover:bg-bg-card transition-all text-base font-medium px-3 py-3 rounded-md"
-                style={{
-                  transitionDelay: mobileOpen ? `${i * 50}ms` : "0ms",
-                  opacity: mobileOpen ? 1 : 0,
-                  transform: mobileOpen ? "translateY(0)" : "translateY(-8px)",
-                  transition: "opacity 300ms ease, transform 300ms ease",
-                }}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </div>
-        </nav>
-      </header>
-
-      {/* Backdrop overlay — portaled to body so it covers everything */}
-      {createPortal(
-        <div
-          className={`md:hidden fixed inset-0 z-40 transition-all duration-300 ease-out ${
-            mobileOpen ? "bg-black/15 backdrop-blur-[2px] pointer-events-auto" : "bg-transparent backdrop-blur-0 pointer-events-none"
-          }`}
-          onClick={() => setMobileOpen(false)}
-        />,
-        document.body,
-      )}
-    </>
+      </Container>
+    </motion.header>
   );
 }

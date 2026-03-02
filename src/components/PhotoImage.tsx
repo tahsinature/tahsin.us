@@ -16,7 +16,7 @@ export default function PhotoImage({ aspectHint = "4/3", className = "", style, 
     <div className="relative overflow-hidden" style={{ aspectRatio: loaded ? undefined : aspectHint, ...style }}>
       {/* Skeleton shimmer */}
       {!loaded && (
-        <div className="absolute inset-0 bg-bg-card animate-pulse">
+        <div className="absolute inset-0 bg-card animate-pulse">
           <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/[0.04] to-transparent" />
         </div>
       )}

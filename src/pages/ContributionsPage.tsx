@@ -2,6 +2,8 @@ import { useState, useMemo } from "react";
 import { GitPullRequest, MessageSquare, AlertCircle, HelpCircle, FileText, Mic, Eye, Code2, Github, Globe, Star, ChevronDown } from "lucide-react";
 import { contributions, contributionTags, tagLabels, tagColors, projects, projectTagLabels, projectTagColors, type ContributionTag, type Contribution, type Project } from "@/data/contributions";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { FadeIn, StaggerContainer, StaggerItem, motion } from "@/components/MotionWrapper";
+import { AnimatePresence } from "motion/react";
 
 /* ── Icon map for tags ── */
 const tagIcons: Record<ContributionTag, React.ReactNode> = {
@@ -43,15 +45,15 @@ function ContributionCard({ c, isLast }: { c: Contribution; isLast: boolean }) {
       <div className="flex flex-col items-center pt-2">
         <div
           className={`
-            w-2 h-2 rounded-full shrink-0 ring-2 ring-bg-primary
-            ${c.tag === "pull-request" ? "bg-accent-green" : ""}
-            ${c.tag === "comment" ? "bg-accent-blue" : ""}
-            ${c.tag === "issue" ? "bg-accent-pink" : ""}
-            ${c.tag === "answer" ? "bg-accent-yellow" : ""}
-            ${c.tag === "blog-post" ? "bg-accent-purple" : ""}
-            ${c.tag === "talk" ? "bg-accent-pink" : ""}
-            ${c.tag === "review" ? "bg-accent-blue" : ""}
-            ${c.tag === "open-source" ? "bg-accent-green" : ""}
+            w-2 h-2 rounded-full shrink-0 ring-2 ring-background
+            ${c.tag === "pull-request" ? "bg-accent" : ""}
+            ${c.tag === "comment" ? "bg-accent" : ""}
+            ${c.tag === "issue" ? "bg-warm" : ""}
+            ${c.tag === "answer" ? "bg-primary" : ""}
+            ${c.tag === "blog-post" ? "bg-primary" : ""}
+            ${c.tag === "talk" ? "bg-warm" : ""}
+            ${c.tag === "review" ? "bg-accent" : ""}
+            ${c.tag === "open-source" ? "bg-accent" : ""}
           `}
         />
         {!isLast && <div className="w-px flex-1 bg-border/40 mt-1" />}
@@ -59,7 +61,7 @@ function ContributionCard({ c, isLast }: { c: Contribution; isLast: boolean }) {
 
       {/* Row content */}
       <div className="flex-1 pb-4 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 min-w-0">
-        <a href={c.url} target="_blank" rel="noopener noreferrer" className="text-text-primary text-sm font-medium hover:text-accent-yellow transition-colors truncate max-w-full">
+        <a href={c.url} target="_blank" rel="noopener noreferrer" className="text-foreground text-sm font-medium hover:text-primary transition-colors truncate max-w-full">
           {c.title}
         </a>
         <span className="flex items-center gap-1.5 shrink-0">
@@ -67,8 +69,8 @@ function ContributionCard({ c, isLast }: { c: Contribution; isLast: boolean }) {
             {tagIcons[c.tag]}
             {tagLabels[c.tag]}
           </span>
-          {c.repo && <span className="text-text-muted text-[11px] font-mono">{c.repo}</span>}
-          <span className="text-text-muted text-[11px] tabular-nums" title={formatDate(c.date)}>
+          {c.repo && <span className="text-muted-foreground text-[11px] font-mono">{c.repo}</span>}
+          <span className="text-muted-foreground text-[11px] tabular-nums" title={formatDate(c.date)}>
             {relativeDate(c.date)}
           </span>
         </span>
@@ -82,13 +84,14 @@ function ProjectCard({ project }: { project: Project }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div
+    <motion.div
       className={`
-        group bg-bg-card border border-border rounded-xl overflow-hidden
-        transition-all duration-300 hover:border-accent-yellow/30 hover:-translate-y-1
+        group bg-card border border-border rounded-xl overflow-hidden h-full
+        transition-all duration-300 hover:border-primary/30
         hover:shadow-[0_8px_30px_rgba(0,0,0,0.18)]
-        ${project.featured ? "md:col-span-2" : ""}
       `}
+      whileHover={{ y: -4 }}
+      transition={{ duration: 0.25 }}
     >
       {/* Screenshot */}
       {project.screenshot && (
@@ -99,7 +102,7 @@ function ProjectCard({ project }: { project: Project }) {
             className="w-full h-48 md:h-56 object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
             loading="lazy"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-bg-card/90 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-transparent to-transparent" />
         </div>
       )}
 
@@ -108,29 +111,41 @@ function ProjectCard({ project }: { project: Project }) {
         <div className="flex items-center gap-2 mb-3">
           <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full border ${projectTagColors[project.tag]}`}>{projectTagLabels[project.tag]}</span>
           {project.featured && (
-            <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-accent-yellow/15 text-accent-yellow border border-accent-yellow/30">
+            <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30">
               <Star size={10} fill="currentColor" />
               Featured
             </span>
           )}
-          {project.period && <span className="ml-auto text-text-muted text-xs tabular-nums">{project.period}</span>}
+          {project.period && <span className="ml-auto text-muted-foreground text-xs tabular-nums">{project.period}</span>}
         </div>
 
         {/* Title */}
-        <h3 className="text-text-primary font-bold text-lg mb-2 leading-tight">{project.title}</h3>
+        <h3 className="text-foreground font-bold text-lg mb-2 leading-tight">{project.title}</h3>
 
         {/* Description */}
-        <p className="text-text-secondary text-sm leading-relaxed mb-3">{project.description}</p>
+        <p className="text-muted-foreground text-sm leading-relaxed mb-3">{project.description}</p>
 
         {/* Expandable writeup */}
         {project.writeup && (
           <>
-            <div className={`overflow-hidden transition-all duration-300 ${expanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}>
-              <p className="text-text-secondary text-sm leading-relaxed mb-3 border-l-2 border-accent-yellow/30 pl-3">{project.writeup}</p>
-            </div>
-            <button onClick={() => setExpanded(!expanded)} className="inline-flex items-center gap-1 text-xs text-text-muted hover:text-accent-yellow transition-colors mb-3">
+            <AnimatePresence>
+              {expanded && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="overflow-hidden"
+                >
+                  <p className="text-muted-foreground text-sm leading-relaxed mb-3 border-l-2 border-primary/30 pl-3">{project.writeup}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <button onClick={() => setExpanded(!expanded)} className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors mb-3">
               {expanded ? "Show less" : "Read more"}
-              <ChevronDown size={12} className={`transition-transform duration-200 ${expanded ? "rotate-180" : ""}`} />
+              <motion.span animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                <ChevronDown size={12} />
+              </motion.span>
             </button>
           </>
         )}
@@ -139,7 +154,7 @@ function ProjectCard({ project }: { project: Project }) {
         {project.techStack && project.techStack.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-4">
             {project.techStack.map((tech) => (
-              <span key={tech} className="text-xs bg-bg-secondary border border-border rounded px-2 py-0.5 text-text-secondary">
+              <span key={tech} className="text-xs bg-secondary border border-border rounded px-2 py-0.5 text-muted-foreground">
                 {tech}
               </span>
             ))}
@@ -153,8 +168,8 @@ function ProjectCard({ project }: { project: Project }) {
               href={project.repoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-text-secondary
-                         hover:text-text-primary transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground
+                         hover:text-foreground transition-colors"
             >
               <Github size={14} />
               Source
@@ -165,8 +180,8 @@ function ProjectCard({ project }: { project: Project }) {
               href={project.liveUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-text-secondary
-                         hover:text-text-primary transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground
+                         hover:text-foreground transition-colors"
             >
               <Globe size={14} />
               Live
@@ -174,7 +189,7 @@ function ProjectCard({ project }: { project: Project }) {
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -203,93 +218,117 @@ export default function ContributionsPage() {
     <main className="pb-20">
       {/* ─── Hero ─── */}
       <section className="max-w-5xl mx-auto px-6 pt-16 pb-10 md:pt-24 md:pb-14">
-        <h1 className="text-3xl md:text-4xl font-bold text-text-primary mb-3">Community &amp; Work</h1>
-        <p className="text-text-secondary max-w-2xl leading-relaxed text-base md:text-lg">Projects I've built, open-source work I've contributed to, and a running log of community interactions.</p>
+        <FadeIn>
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">Community &amp; Work</h1>
+        </FadeIn>
+        <FadeIn delay={0.1}>
+          <p className="text-muted-foreground max-w-2xl leading-relaxed text-base md:text-lg">Projects I've built, open-source work I've contributed to, and a running log of community interactions.</p>
+        </FadeIn>
       </section>
 
-      {/* ═══════════════════════════════════════════
-       *  Featured Projects / Works
-       * ═══════════════════════════════════════════ */}
+      {/* Featured Projects / Works */}
       {projects.length > 0 && (
         <section className="max-w-5xl mx-auto px-6 mb-16">
-          <div className="flex items-center gap-3 mb-8">
-            <h2 className="text-accent-yellow uppercase tracking-[0.2em] text-xs font-bold">Projects &amp; Works</h2>
-            <div className="flex-1 h-px bg-border" />
-            <span className="text-text-muted text-xs">
-              {projects.length} project{projects.length !== 1 ? "s" : ""}
-            </span>
-          </div>
+          <FadeIn>
+            <div className="flex items-center gap-3 mb-8">
+              <h2 className="text-primary uppercase tracking-[0.2em] text-xs font-bold">Projects &amp; Works</h2>
+              <div className="flex-1 h-px bg-border" />
+              <span className="text-muted-foreground text-xs">
+                {projects.length} project{projects.length !== 1 ? "s" : ""}
+              </span>
+            </div>
+          </FadeIn>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-5" staggerDelay={0.1}>
             {projects.map((p) => (
-              <ProjectCard key={p.id} project={p} />
+              <StaggerItem key={p.id} variant="scale" className={p.featured ? "md:col-span-2" : ""}>
+                <ProjectCard project={p} />
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         </section>
       )}
 
-      {/* ═══════════════════════════════════════════
-       *  Activity Log (existing contributions timeline)
-       * ═══════════════════════════════════════════ */}
+      {/* Activity Log */}
       <section className="max-w-4xl mx-auto px-6">
-        <div className="flex items-center gap-3 mb-8">
-          <h2 className="text-accent-yellow uppercase tracking-[0.2em] text-xs font-bold">Activity Log</h2>
-          <div className="flex-1 h-px bg-border" />
-        </div>
+        <FadeIn>
+          <div className="flex items-center gap-3 mb-8">
+            <h2 className="text-primary uppercase tracking-[0.2em] text-xs font-bold">Activity Log</h2>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+        </FadeIn>
 
-        <p className="text-text-secondary text-sm leading-relaxed mb-8 max-w-2xl">Pull requests, code reviews, bug reports, answers, and other community interactions.</p>
+        <FadeIn delay={0.1}>
+          <p className="text-muted-foreground text-sm leading-relaxed mb-8 max-w-2xl">Pull requests, code reviews, bug reports, answers, and other community interactions.</p>
+        </FadeIn>
 
         {/* Filters */}
-        <div className="flex flex-wrap gap-2 mb-10">
-          <button
-            onClick={() => setActiveTag(null)}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-              activeTag === null ? "bg-accent-yellow/15 border-accent-yellow/40 text-accent-yellow" : "bg-tag-bg border-border text-tag-text hover:text-text-primary hover:border-accent-yellow/30"
-            }`}
-          >
-            All
-            <span className="ml-1.5 text-text-muted">{contributions.length}</span>
-          </button>
-          {availableTags.map((tag) => {
-            const count = contributions.filter((c) => c.tag === tag).length;
-            return (
-              <button
-                key={tag}
-                onClick={() => setActiveTag(activeTag === tag ? null : tag)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                  activeTag === tag ? tagColors[tag] : "bg-tag-bg border-border text-tag-text hover:text-text-primary hover:border-accent-yellow/30"
-                }`}
-              >
-                {tagIcons[tag]}
-                {tagLabels[tag]}
-                <span className="text-text-muted">{count}</span>
-              </button>
-            );
-          })}
-        </div>
+        <FadeIn delay={0.15}>
+          <div className="flex flex-wrap gap-2 mb-10">
+            <motion.button
+              onClick={() => setActiveTag(null)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                activeTag === null ? "bg-primary/15 border-primary/40 text-primary" : "bg-secondary border-border text-secondary-foreground hover:text-foreground hover:border-primary/30"
+              }`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              All
+              <span className="ml-1.5 text-muted-foreground">{contributions.length}</span>
+            </motion.button>
+            {availableTags.map((tag) => {
+              const count = contributions.filter((c) => c.tag === tag).length;
+              return (
+                <motion.button
+                  key={tag}
+                  onClick={() => setActiveTag(activeTag === tag ? null : tag)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                    activeTag === tag ? tagColors[tag] : "bg-secondary border-border text-secondary-foreground hover:text-foreground hover:border-primary/30"
+                  }`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {tagIcons[tag]}
+                  {tagLabels[tag]}
+                  <span className="text-muted-foreground">{count}</span>
+                </motion.button>
+              );
+            })}
+          </div>
+        </FadeIn>
 
         {/* Timeline feed */}
         {grouped.length === 0 ? (
-          <p className="text-text-muted py-16 text-center text-sm">No contributions found.</p>
+          <p className="text-muted-foreground py-16 text-center text-sm">No contributions found.</p>
         ) : (
           grouped.map(([year, items]) => (
-            <div key={year} className="mb-10">
-              {/* Year header */}
-              <div className="flex items-center gap-3 mb-6">
-                <span className="text-text-primary font-bold text-lg tabular-nums">{year}</span>
-                <div className="flex-1 h-px bg-border" />
-                <span className="text-text-muted text-xs">
-                  {items.length} contribution{items.length !== 1 ? "s" : ""}
-                </span>
-              </div>
+            <FadeIn key={year}>
+              <div className="mb-10">
+                {/* Year header */}
+                <div className="flex items-center gap-3 mb-6">
+                  <span className="text-foreground font-bold text-lg tabular-nums">{year}</span>
+                  <div className="flex-1 h-px bg-border" />
+                  <span className="text-muted-foreground text-xs">
+                    {items.length} contribution{items.length !== 1 ? "s" : ""}
+                  </span>
+                </div>
 
-              {/* Cards */}
-              <div className="ml-1">
-                {items.map((c, i) => (
-                  <ContributionCard key={c.id} c={c} isLast={i === items.length - 1} />
-                ))}
+                {/* Cards */}
+                <div className="ml-1">
+                  {items.map((c, i) => (
+                    <motion.div
+                      key={c.id}
+                      initial={{ opacity: 0, x: -10 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true, margin: "-20px" }}
+                      transition={{ duration: 0.3, delay: i * 0.03 }}
+                    >
+                      <ContributionCard c={c} isLast={i === items.length - 1} />
+                    </motion.div>
+                  ))}
+                </div>
               </div>
-            </div>
+            </FadeIn>
           ))
         )}
       </section>

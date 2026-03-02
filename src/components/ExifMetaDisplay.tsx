@@ -38,34 +38,34 @@ export default function ExifMetaDisplay({ meta, compact = false }: ExifMetaDispl
   return (
     <>
       {meta.location && (
-        <p className="text-text-secondary text-xs mb-2 flex items-center justify-center gap-1.5">
-          <MapPin size={12} className="text-accent-pink" />
+        <p className="text-muted-foreground text-xs mb-2 flex items-center justify-center gap-1.5">
+          <MapPin size={12} className="text-warm" />
           {meta.location}
         </p>
       )}
       {hasAnyTechnical && (
-        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-text-muted text-[11px]">
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-muted-foreground text-[11px]">
           {meta.camera && (
             <span className="flex items-center gap-1">
-              <Camera size={11} className="text-accent-blue" />
+              <Camera size={11} className="text-accent" />
               {meta.camera}
             </span>
           )}
           {meta.lens && (
             <span className="flex items-center gap-1">
-              <Focus size={11} className="text-accent-purple" />
+              <Focus size={11} className="text-primary" />
               {meta.lens}
             </span>
           )}
           {meta.aperture && (
             <span className="flex items-center gap-1">
-              <Aperture size={11} className="text-accent-green" />
+              <Aperture size={11} className="text-accent" />
               {meta.aperture}
             </span>
           )}
           {meta.shutterSpeed && (
             <span className="flex items-center gap-1">
-              <Gauge size={11} className="text-accent-yellow" />
+              <Gauge size={11} className="text-primary" />
               {meta.shutterSpeed}
             </span>
           )}

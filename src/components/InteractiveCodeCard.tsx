@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import { X, ChevronRight, Sparkles, RotateCcw } from "lucide-react";
 import { codeToTokens, type ThemedToken, type BundledLanguage } from "shiki";
-import { useTheme } from "@/context/ThemeContext";
+import { useThemeStore } from "@/stores/useThemeStore";
 import { snippetsByLabel, type CodeSnippet } from "@/data/code-snippets";
 
 // ── Shiki theme mapping ─────────────────────────────────────────
@@ -94,10 +94,10 @@ export default function InteractiveCodeCard({ items, icon, title }: InteractiveC
   return (
     <>
       {/* ── Card (always rendered at fixed size) ── */}
-      <div className="bg-bg-card border border-border rounded p-5">
+      <div className="bg-card border border-border rounded p-5 h-full">
         <div className="flex items-center gap-2 mb-4">
           {icon}
-          <h3 className="text-text-primary font-semibold text-sm">{title}</h3>
+          <h3 className="text-foreground font-semibold text-sm">{title}</h3>
         </div>
         <div className="flex flex-wrap gap-2">
           {items.map((s) => {
@@ -109,8 +109,8 @@ export default function InteractiveCodeCard({ items, icon, title }: InteractiveC
                 className={`group/tag px-2.5 py-1 rounded-sm text-xs border transition-all duration-200
                   ${
                     hasSnippet
-                      ? "bg-tag-bg text-tag-text border-border hover:border-accent-yellow/60 hover:text-accent-yellow hover:bg-accent-yellow/5 cursor-pointer"
-                      : "bg-tag-bg text-tag-text border-border cursor-default"
+                      ? "bg-secondary text-secondary-foreground border-border hover:border-primary/60 hover:text-primary hover:bg-primary/5 cursor-pointer"
+                      : "bg-secondary text-secondary-foreground border-border cursor-default"
                   }`}
               >
                 <span className="flex items-center gap-1">{s.name}</span>
@@ -118,7 +118,7 @@ export default function InteractiveCodeCard({ items, icon, title }: InteractiveC
             );
           })}
         </div>
-        <p className="text-text-muted text-[10px] mt-3 flex items-center gap-1">
+        <p className="text-muted-foreground text-[10px] mt-3 flex items-center gap-1">
           <Sparkles size={10} className="animate-pulse" />
           Click a language to see it in action
         </p>
@@ -137,7 +137,7 @@ export interface CodeTerminalModalProps {
 }
 
 export function CodeTerminalModal({ activeLang, onClose }: CodeTerminalModalProps) {
-  const { theme } = useTheme();
+  const theme = useThemeStore((s) => s.theme);
   const snippet = snippetsByLabel[activeLang];
 
   const { chars: coloredChars, ready } = useShikiHighlight(snippet, theme);
@@ -252,7 +252,7 @@ export function CodeTerminalModal({ activeLang, onClose }: CodeTerminalModalProp
       {/* Modal shell */}
       <div
         className={`relative w-full max-w-lg max-h-[85vh] flex flex-col
-          bg-bg-code border border-border rounded-xl overflow-hidden
+          bg-code-bg border border-border rounded-xl overflow-hidden
           shadow-[0_0_60px_rgba(0,0,0,0.25),0_20px_60px_rgba(0,0,0,0.3)]
           ${closing ? "animate-[modal-content-out_0.2s_ease-in_forwards]" : "animate-[modal-content-in_0.3s_ease-out_forwards]"}`}
         role="dialog"
@@ -268,22 +268,22 @@ export function CodeTerminalModal({ activeLang, onClose }: CodeTerminalModalProp
         />
 
         {/* ── Title bar ── */}
-        <div className="relative z-20 flex items-center justify-between px-4 py-2.5 bg-bg-secondary border-b border-border shrink-0">
+        <div className="relative z-20 flex items-center justify-between px-4 py-2.5 bg-secondary border-b border-border shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="flex gap-1.5">
               <button onClick={animatedClose} className="w-3 h-3 rounded-full bg-[#ff5f57] hover:brightness-125 transition-all cursor-pointer" aria-label="Close terminal" />
               <span className="w-3 h-3 rounded-full bg-[#febc2e]" />
               <span className={`w-3 h-3 rounded-full transition-all duration-500 ${phase === "done" ? "bg-[#28c840] shadow-[0_0_6px_#28c840]" : "bg-[#28c840]/50"}`} />
             </div>
-            <span className="text-text-muted text-xs font-mono ml-1">{snippet?.file}</span>
+            <span className="text-muted-foreground text-xs font-mono ml-1">{snippet?.file}</span>
           </div>
           <div className="flex items-center gap-1">
             {phase === "done" && (
-              <button onClick={replay} className="text-text-muted/50 hover:text-accent-yellow transition-colors cursor-pointer p-1" aria-label="Replay" title="Replay">
+              <button onClick={replay} className="text-muted-foreground/50 hover:text-primary transition-colors cursor-pointer p-1" aria-label="Replay" title="Replay">
                 <RotateCcw size={13} />
               </button>
             )}
-            <button onClick={animatedClose} className="text-text-muted/50 hover:text-text-primary transition-colors cursor-pointer p-1" aria-label="Close">
+            <button onClick={animatedClose} className="text-muted-foreground/50 hover:text-foreground transition-colors cursor-pointer p-1" aria-label="Close">
               <X size={14} />
             </button>
           </div>
@@ -292,18 +292,19 @@ export function CodeTerminalModal({ activeLang, onClose }: CodeTerminalModalProp
         {/* ── Loading spinner ── */}
         {phase === "loading" && (
           <div className="flex items-center justify-center py-12">
-            <div className="w-5 h-5 border-2 border-accent-yellow/30 border-t-accent-yellow rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
           </div>
         )}
 
         {/* ── Code area (scrollable) ── */}
         {phase !== "loading" && (
           <div ref={codeAreaRef} className={`relative z-20 px-4 py-3 min-h-[120px] overflow-y-auto flex-1 transition-all duration-700 ${phase === "done" ? "opacity-40 blur-[0.3px]" : ""}`}>
+
             <pre className="font-mono text-xs sm:text-[13px] leading-[1.7] m-0 p-0 bg-transparent border-none overflow-x-auto">
               <code>
                 {lines.map((line, i) => (
                   <div key={i} className="flex">
-                    <span className="text-text-muted/25 select-none w-6 text-right pr-3 shrink-0 text-[11px] leading-[1.7]">{i + 1}</span>
+                    <span className="text-muted-foreground/25 select-none w-6 text-right pr-3 shrink-0 text-[11px] leading-[1.7]">{i + 1}</span>
                     <span>
                       {groupChars(line).map((group, j) => (
                         <span key={j} style={{ color: group.color }}>
@@ -311,9 +312,7 @@ export function CodeTerminalModal({ activeLang, onClose }: CodeTerminalModalProp
                         </span>
                       ))}
                       {/* Blinking block cursor at end of last line */}
-                      {i === lines.length - 1 && phase === "typing" && (
-                        <span className="inline-block w-[7px] h-[15px] bg-accent-yellow ml-[1px] align-middle animate-[cursor-blink_1s_step-end_infinite]" />
-                      )}
+                      {i === lines.length - 1 && phase === "typing" && <span className="inline-block w-[7px] h-[15px] bg-primary ml-[1px] align-middle animate-[cursor-blink_1s_step-end_infinite]" />}
                     </span>
                   </div>
                 ))}
@@ -324,7 +323,7 @@ export function CodeTerminalModal({ activeLang, onClose }: CodeTerminalModalProp
 
         {/* ── Output area ── */}
         {(phase === "running" || phase === "done") && (
-          <div className="relative z-20 border-t border-border px-4 py-3 bg-bg-primary shrink-0 overflow-hidden">
+          <div className="relative z-20 border-t border-border px-4 py-3 bg-background shrink-0 overflow-hidden">
             {/* Spotlight glow */}
             {phase === "done" && (
               <div
@@ -337,34 +336,34 @@ export function CodeTerminalModal({ activeLang, onClose }: CodeTerminalModalProp
             {/* Accent bar */}
             {phase === "done" && (
               <div
-                className="absolute left-0 top-0 bottom-0 w-[1px] animate-[accent-bar-in_0.5s_ease-out_0.2s_both] bg-accent-green/60"
-                style={{ background: "linear-gradient(to bottom, transparent 0%, var(--color-accent-green) 20%, var(--color-accent-green) 70%, transparent 100%)" }}
+                className="absolute left-0 top-0 bottom-0 w-[1px] animate-[accent-bar-in_0.5s_ease-out_0.2s_both] bg-accent/60"
+                style={{ background: "linear-gradient(to bottom, transparent 0%, var(--color-accent) 20%, var(--color-accent) 70%, transparent 100%)" }}
               />
             )}
             {/* Run command */}
-            <div className="flex items-center gap-1.5 text-xs font-mono text-text-muted/50 mb-2">
-              <ChevronRight size={11} className="text-accent-green/60" />
+            <div className="flex items-center gap-1.5 text-xs font-mono text-muted-foreground/50 mb-2">
+              <ChevronRight size={11} className="text-accent/60" />
               <span>{snippet?.runCmd}</span>
             </div>
 
             {/* Progress bar (visible during "running" phase) */}
             {phase === "running" && (
-              <div className="h-[3px] rounded-full bg-bg-secondary overflow-hidden mt-1 mb-1">
-                <div className="h-full bg-accent-green/60 rounded-full animate-[code-progress_0.7s_ease-in-out_forwards]" />
+              <div className="h-[3px] rounded-full bg-secondary overflow-hidden mt-1 mb-1">
+                <div className="h-full bg-accent/60 rounded-full animate-[code-progress_0.7s_ease-in-out_forwards]" />
               </div>
             )}
 
             {/* Output lines */}
             {snippet?.output.slice(0, visibleOutputLines).map((line, i) => (
-              <div key={i} className="text-accent-green text-xs sm:text-[13px] font-mono pl-5 animate-[code-fade-in_0.25s_ease-out_both]" style={{ animationDelay: `${i * 60}ms` }}>
+              <div key={i} className="text-accent text-xs sm:text-[13px] font-mono pl-5 animate-[code-fade-in_0.25s_ease-out_both]" style={{ animationDelay: `${i * 60}ms` }}>
                 {line}
               </div>
             ))}
 
             {/* Done indicator */}
             {phase === "done" && visibleOutputLines >= (snippet?.output.length ?? 0) && (
-              <div className="flex items-center gap-1.5 text-[11px] font-mono text-text-muted/30 mt-2.5 animate-[code-fade-in_0.3s_ease-out_both]">
-                <span className="text-accent-green/40">✓</span>
+              <div className="flex items-center gap-1.5 text-[11px] font-mono text-muted-foreground/30 mt-2.5 animate-[code-fade-in_0.3s_ease-out_both]">
+                <span className="text-accent/40">✓</span>
                 <span>Process exited with code 0</span>
               </div>
             )}

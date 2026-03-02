@@ -98,4 +98,18 @@ export const siteConfig = {
   startYear: 2019,
   /** Show the newsletter signup form in the sidebar */
   enableNewsletter: false,
+
+  /* ── Maintenance mode ── */
+  maintenance: {
+    /** Set to true to show maintenance page instead of the normal site */
+    enabled: true,
+    /** Heading displayed on the maintenance page */
+    title: "Under Maintenance",
+    /** Body text displayed below the heading */
+    message: "Shipping core improvements across the stack. The interface will return soon.",
+    /** Show social links (GitHub, LinkedIn, email) */
+    showSocials: true,
+    /** Allow visitors to toggle dark/light theme */
+    showThemeToggle: true,
+  },
 };

@@ -1,7 +1,11 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect } from "react";
+import { siteConfig } from "@/config/site";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import ScrollToTop from "@/components/ScrollToTop";
+import { MobileNavOverlay } from "@/components/layout/MobileNavOverlay";
+import MaintenancePage from "@/pages/MaintenancePage";
 import HomePage from "@/pages/HomePage";
 import BlogPage from "@/pages/BlogPage";
 import BlogPostPage from "@/pages/BlogPostPage";
@@ -12,20 +16,41 @@ import ContributionsPage from "@/pages/ContributionsPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 
 function App() {
+  const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
+  if (siteConfig.maintenance.enabled) {
+    return <MaintenancePage />;
+  }
+
   return (
-    <div className="min-h-screen flex flex-col bg-bg-primary text-text-primary overflow-x-clip max-w-[100vw]">
-      <ScrollToTop />
+    <div className="min-h-screen flex flex-col bg-background text-foreground max-w-[100vw]">
       <Header />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/contributions" element={<ContributionsPage />} />
-        <Route path="/blog" element={<BlogPage />} />
-        <Route path="/post/:slug" element={<BlogPostPage />} />
-        <Route path="/photography" element={<PhotographyPage />} />
-        <Route path="/photography/:slug" element={<TripGalleryPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+      <MobileNavOverlay />
+      <AnimatePresence mode="wait">
+        <motion.main
+          key={location.pathname}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
+          className="flex-1"
+        >
+          <Routes location={location}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/contributions" element={<ContributionsPage />} />
+            <Route path="/blog" element={<BlogPage />} />
+            <Route path="/post/:slug" element={<BlogPostPage />} />
+            <Route path="/photography" element={<PhotographyPage />} />
+            <Route path="/photography/:slug" element={<TripGalleryPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </motion.main>
+      </AnimatePresence>
       <Footer />
     </div>
   );

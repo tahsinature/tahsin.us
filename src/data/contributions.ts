@@ -41,12 +41,12 @@ export const projectTagLabels: Record<ProjectTag, string> = {
 
 /** Accent color classes for project tags */
 export const projectTagColors: Record<ProjectTag, string> = {
-  personal: "bg-accent-blue/15 text-accent-blue border-accent-blue/30",
-  "open-source": "bg-accent-green/15 text-accent-green border-accent-green/30",
-  work: "bg-accent-yellow/15 text-accent-yellow border-accent-yellow/30",
-  "side-project": "bg-accent-purple/15 text-accent-purple border-accent-purple/30",
-  hackathon: "bg-accent-pink/15 text-accent-pink border-accent-pink/30",
-  freelance: "bg-accent-yellow/15 text-accent-yellow border-accent-yellow/30",
+  personal: "bg-accent/15 text-accent border-accent/30",
+  "open-source": "bg-accent/15 text-accent border-accent/30",
+  work: "bg-primary/15 text-primary border-primary/30",
+  "side-project": "bg-primary/15 text-primary border-primary/30",
+  hackathon: "bg-warm/15 text-warm border-warm/30",
+  freelance: "bg-primary/15 text-primary border-primary/30",
 };
 
 /*
@@ -213,26 +213,26 @@ export const tagLabels: Record<ContributionTag, string> = {
 
 /** Accent color class for each tag (Tailwind) */
 export const tagColors: Record<ContributionTag, string> = {
-  "pull-request": "bg-accent-green/15 text-accent-green border-accent-green/30",
-  comment: "bg-accent-blue/15 text-accent-blue border-accent-blue/30",
-  issue: "bg-accent-pink/15 text-accent-pink border-accent-pink/30",
-  answer: "bg-accent-yellow/15 text-accent-yellow border-accent-yellow/30",
-  "blog-post": "bg-accent-purple/15 text-accent-purple border-accent-purple/30",
-  talk: "bg-accent-pink/15 text-accent-pink border-accent-pink/30",
-  review: "bg-accent-blue/15 text-accent-blue border-accent-blue/30",
-  "open-source": "bg-accent-green/15 text-accent-green border-accent-green/30",
+  "pull-request": "bg-accent/15 text-accent border-accent/30",
+  comment: "bg-accent/15 text-accent border-accent/30",
+  issue: "bg-warm/15 text-warm border-warm/30",
+  answer: "bg-primary/15 text-primary border-primary/30",
+  "blog-post": "bg-primary/15 text-primary border-primary/30",
+  talk: "bg-warm/15 text-warm border-warm/30",
+  review: "bg-accent/15 text-accent border-accent/30",
+  "open-source": "bg-accent/15 text-accent border-accent/30",
 };
 
 /** Border-left accent for each tag */
 export const tagBorderColors: Record<ContributionTag, string> = {
-  "pull-request": "border-l-accent-green",
-  comment: "border-l-accent-blue",
-  issue: "border-l-accent-pink",
-  answer: "border-l-accent-yellow",
-  "blog-post": "border-l-accent-purple",
-  talk: "border-l-accent-pink",
-  review: "border-l-accent-blue",
-  "open-source": "border-l-accent-green",
+  "pull-request": "border-l-accent",
+  comment: "border-l-accent",
+  issue: "border-l-warm",
+  answer: "border-l-primary",
+  "blog-post": "border-l-primary",
+  talk: "border-l-warm",
+  review: "border-l-accent",
+  "open-source": "border-l-accent",
 };
 
 /** Platform display labels */

@@ -1,59 +1,101 @@
-import { ArrowRight, Github, Linkedin, Mail } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Github, Linkedin, Mail } from "lucide-react";
 import Logo from "@/components/Logo";
 import { siteConfig } from "@/config/site";
-import { socialLinks } from "@/data/about";
+import { Container } from "@/components/shared/Container";
+import { Separator } from "@/components/ui/separator";
+
+const NAV_ITEMS = [
+  { label: "Blog", href: "/blog" },
+  { label: "Community", href: "/contributions" },
+  { label: "Photography", href: "/photography" },
+  { label: "About", href: "/about" },
+];
+
+const SOCIAL_LINKS = [
+  { href: siteConfig.social.github, icon: Github, label: "GitHub" },
+  { href: siteConfig.social.linkedin, icon: Linkedin, label: "LinkedIn" },
+  { href: siteConfig.social.email, icon: Mail, label: "Email" },
+].filter((link) => link.href);
 
 export default function Footer() {
   return (
-    <footer className="border-t border-border mt-20">
-      <div className="max-w-7xl mx-auto px-6 pt-12 pb-8">
-        {/* Brand */}
-        <div className="flex flex-col items-center text-center mb-10">
-          <Logo size={64} className="mb-3" />
-          <h3 className="text-text-primary font-semibold text-lg">{siteConfig.name.brand}</h3>
-          <p className="text-text-muted text-sm mt-1">{siteConfig.tagline}</p>
-        </div>
-
-        {/* Newsletter */}
-        {siteConfig.enableNewsletter && (
-          <div className="max-w-xl mx-auto mb-12">
-            <p className="text-text-secondary text-sm mb-3">Want to know when I publish new content?</p>
-            <p className="text-text-muted text-xs mb-4">Enter your email to join my free newsletter</p>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                placeholder="me@example.com"
-                className="flex-1 bg-bg-card border border-border rounded px-4 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-yellow transition-colors"
-              />
-              <button className="bg-accent-yellow text-bg-primary px-4 py-2 rounded font-medium text-sm hover:brightness-110 transition-all flex items-center gap-1">
-                <ArrowRight size={16} />
-              </button>
+    <footer className="border-t border-border/40 bg-card/50 mt-20">
+      <Container className="py-12 md:py-16">
+        <div className="grid gap-8 md:grid-cols-3">
+          {/* Brand */}
+          <div className="space-y-4">
+            <Link to="/" className="flex items-center gap-2 group">
+              <Logo size={36} className="rounded-lg" />
+              <span className="font-bold text-lg">{siteConfig.name.brand}</span>
+            </Link>
+            <p className="text-sm text-muted-foreground max-w-xs">
+              {siteConfig.tagline}
+            </p>
+            <div className="flex gap-3">
+              {SOCIAL_LINKS.map((social) => (
+                <a
+                  key={social.label}
+                  href={social.href}
+                  target={social.label === "Email" ? undefined : "_blank"}
+                  rel={
+                    social.label === "Email"
+                      ? undefined
+                      : "noopener noreferrer"
+                  }
+                  aria-label={social.label}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-border/50 text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground hover:border-primary"
+                >
+                  <social.icon className="h-4 w-4" />
+                </a>
+              ))}
             </div>
           </div>
-        )}
 
-        {/* Navigation + Social */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-10">
-          <div className="flex items-center gap-3">
-            <a href={socialLinks.github} target="_blank" rel="noopener noreferrer" className="text-text-muted hover:text-text-primary transition-colors" aria-label="GitHub">
-              <Github size={18} />
-            </a>
-            <a href={socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="text-text-muted hover:text-text-primary transition-colors" aria-label="LinkedIn">
-              <Linkedin size={18} />
-            </a>
-            <a href={socialLinks.email} className="text-text-muted hover:text-text-primary transition-colors" aria-label="Email">
-              <Mail size={18} />
-            </a>
+          {/* Quick Links */}
+          <div>
+            <h3 className="font-semibold mb-4">Quick Links</h3>
+            <ul className="space-y-2">
+              {NAV_ITEMS.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    to={item.href}
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact Info */}
+          <div>
+            <h3 className="font-semibold mb-4">Get in Touch</h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li>{siteConfig.locationShort}</li>
+              <li>
+                <a
+                  href={siteConfig.social.email}
+                  className="hover:text-primary transition-colors"
+                >
+                  {siteConfig.social.email.replace("mailto:", "")}
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
 
-        {/* Bottom */}
-        <div className="pt-6 border-t border-border text-center text-xs text-text-muted">
+        <Separator className="my-8" />
+
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <p>
-            © {siteConfig.startYear}–present {siteConfig.name.brand}. All rights reserved.
+            &copy; {siteConfig.startYear}–{new Date().getFullYear()}{" "}
+            {siteConfig.name.brand}. All rights reserved.
           </p>
+          <p>{siteConfig.tagline}</p>
         </div>
-      </div>
+      </Container>
     </footer>
   );
 }

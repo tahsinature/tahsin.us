@@ -6,6 +6,8 @@ import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import PhotoImage from "@/components/PhotoImage";
 import ExifMetaDisplay from "@/components/ExifMetaDisplay";
 import { useImageExif } from "@/hooks/useImageExif";
+import { FadeIn, BlurFadeIn, motion } from "@/components/MotionWrapper";
+import { AnimatePresence } from "motion/react";
 
 export default function TripGalleryPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -21,9 +23,9 @@ export default function TripGalleryPage() {
   if (!trip) {
     return (
       <div className="max-w-3xl mx-auto px-6 py-20 text-center">
-        <h1 className="text-2xl font-bold text-text-primary mb-4">Trip not found</h1>
-        <p className="text-text-secondary mb-6">This travel folder doesn't exist yet.</p>
-        <Link to="/photography" className="text-accent-yellow hover:underline inline-flex items-center gap-2">
+        <h1 className="text-2xl font-bold text-foreground mb-4">Trip not found</h1>
+        <p className="text-muted-foreground mb-6">This travel folder doesn't exist yet.</p>
+        <Link to="/photography" className="text-primary hover:underline inline-flex items-center gap-2">
           <ArrowLeft size={16} />
           Back to Photography
         </Link>
@@ -66,48 +68,64 @@ export default function TripGalleryPage() {
   return (
     <main className="max-w-7xl mx-auto px-6 py-8">
       {/* Back link */}
-      <Link to="/photography" className="text-text-muted hover:text-text-primary transition-colors inline-flex items-center gap-2 text-sm mb-8">
-        <ArrowLeft size={14} />
-        Back to Photography
-      </Link>
+      <FadeIn>
+        <Link to="/photography" className="text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-2 text-sm mb-8">
+          <ArrowLeft size={14} />
+          Back to Photography
+        </Link>
+      </FadeIn>
 
       {/* Trip Header */}
       <header className="mb-10">
-        <div className="flex items-center gap-2 mb-2">
-          <MapPin size={18} className="text-accent-pink" />
-          <h1 className="text-3xl font-bold text-text-primary">{trip.country}</h1>
-        </div>
-        <p className="text-text-secondary text-lg mb-2">{trip.description}</p>
-        <div className="flex items-center gap-1.5 text-text-muted text-sm">
-          <Calendar size={14} />
-          {trip.date}
-          <span className="mx-2 text-border">·</span>
-          {trip.photoCount} photos
-        </div>
-        <hr className="border-border mt-6" />
+        <BlurFadeIn>
+          <div className="flex items-center gap-2 mb-2">
+            <MapPin size={18} className="text-warm" />
+            <h1 className="text-3xl font-bold text-foreground">{trip.country}</h1>
+          </div>
+        </BlurFadeIn>
+        <BlurFadeIn delay={0.1}>
+          <p className="text-muted-foreground text-lg mb-2">{trip.description}</p>
+        </BlurFadeIn>
+        <BlurFadeIn delay={0.15}>
+          <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
+            <Calendar size={14} />
+            {trip.date}
+            <span className="mx-2 text-border">·</span>
+            {trip.photoCount} photos
+          </div>
+        </BlurFadeIn>
+        <FadeIn delay={0.2}>
+          <hr className="border-border mt-6" />
+        </FadeIn>
       </header>
 
       {/* Photo Grid — Masonry-like with CSS columns */}
       <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
         {trip.photos.map((photo, index) => (
-          <button
+          <motion.button
             key={index}
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: "-30px" }}
+            transition={{ duration: 0.4, delay: index * 0.04 }}
             onClick={() => openLightbox(index)}
-            className="w-full break-inside-avoid rounded overflow-hidden border border-border hover:border-accent-yellow/40 transition-all duration-300 group cursor-pointer block"
+            className="w-full break-inside-avoid rounded overflow-hidden border border-border hover:border-primary/40 transition-all duration-300 group cursor-pointer block"
           >
             <div className="relative overflow-hidden">
               <PhotoImage src={photo.src} alt={photo.alt} className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" aspectHint="4/3" />
               {/* Hover overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-bg-primary/80 via-bg-primary/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+              <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
                 <span className="text-white text-sm font-medium drop-shadow-lg mb-1">{photo.alt}</span>
                 <ExifMetaDisplay meta={photo.meta ?? null} compact />
               </div>
             </div>
-          </button>
+          </motion.button>
         ))}
       </div>
 
-      {lightboxIndex !== null && <TripLightbox trip={trip} index={lightboxIndex} onClose={closeLightbox} onNext={goNext} onPrev={goPrev} onKeyDown={handleKeyDown} />}
+      <AnimatePresence>
+        {lightboxIndex !== null && <TripLightbox trip={trip} index={lightboxIndex} onClose={closeLightbox} onNext={goNext} onPrev={goPrev} onKeyDown={handleKeyDown} />}
+      </AnimatePresence>
     </main>
   );
 }
@@ -132,15 +150,19 @@ function TripLightbox({
   const { meta } = useImageExif(photo.src, photo.meta);
 
   return (
-    <div
-      className="fixed inset-0 z-50 bg-bg-primary/95 backdrop-blur-sm flex items-center justify-center"
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.25 }}
+      className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm flex items-center justify-center"
       onClick={onClose}
       onKeyDown={onKeyDown}
       tabIndex={0}
       role="dialog"
       aria-label="Photo lightbox"
     >
-      <button onClick={onClose} className="absolute top-6 right-6 text-text-secondary hover:text-text-primary transition-colors z-10">
+      <button onClick={onClose} className="absolute top-6 right-6 text-muted-foreground hover:text-foreground transition-colors z-10">
         <X size={24} />
       </button>
 
@@ -149,34 +171,42 @@ function TripLightbox({
           e.stopPropagation();
           onPrev();
         }}
-        className="absolute left-4 md:left-8 text-text-secondary hover:text-text-primary transition-colors z-10 bg-bg-card/50 backdrop-blur-sm p-2 rounded border border-border hover:border-accent-yellow/40"
+        className="absolute left-4 md:left-8 text-muted-foreground hover:text-foreground transition-colors z-10 bg-card/50 backdrop-blur-sm p-2 rounded border border-border hover:border-primary/40"
       >
         <ChevronLeft size={24} />
       </button>
 
-      <PhotoImage src={photo.src} alt={photo.alt} className="max-w-[90vw] max-h-[85vh] object-contain rounded" onClick={(e) => e.stopPropagation()} aspectHint="3/2" />
+      <motion.div
+        key={index}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <PhotoImage src={photo.src} alt={photo.alt} className="max-w-[90vw] max-h-[85vh] object-contain rounded" aspectHint="3/2" />
+      </motion.div>
 
       <button
         onClick={(e) => {
           e.stopPropagation();
           onNext();
         }}
-        className="absolute right-4 md:right-8 text-text-secondary hover:text-text-primary transition-colors z-10 bg-bg-card/50 backdrop-blur-sm p-2 rounded border border-border hover:border-accent-yellow/40"
+        className="absolute right-4 md:right-8 text-muted-foreground hover:text-foreground transition-colors z-10 bg-card/50 backdrop-blur-sm p-2 rounded border border-border hover:border-primary/40"
       >
         <ChevronRight size={24} />
       </button>
 
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center max-w-lg w-full px-4">
-        <p className="text-text-primary text-sm font-medium mb-1">{photo.alt}</p>
+        <p className="text-foreground text-sm font-medium mb-1">{photo.alt}</p>
         {meta && (
-          <div className="bg-bg-card/80 backdrop-blur-sm border border-border rounded px-4 py-3 mt-2">
+          <div className="bg-card/80 backdrop-blur-sm border border-border rounded px-4 py-3 mt-2">
             <ExifMetaDisplay meta={meta} />
           </div>
         )}
-        <p className="text-text-muted text-xs mt-2">
+        <p className="text-muted-foreground text-xs mt-2">
           {index + 1} / {trip.photos.length}
         </p>
       </div>
-    </div>
+    </motion.div>
   );
 }

@@ -58,7 +58,7 @@ export default function Mermaid({ chart, caption }: MermaidProps) {
   return (
     <figure className="my-10">
       <div ref={containerRef} className="rounded-lg border border-border bg-[#1e1e2e] p-6 overflow-x-auto flex justify-center [&_svg]:max-w-full" dangerouslySetInnerHTML={{ __html: svg }} />
-      {caption && <figcaption className="text-center text-text-muted text-sm mt-3 italic">{caption}</figcaption>}
+      {caption && <figcaption className="text-center text-muted-foreground text-sm mt-3 italic">{caption}</figcaption>}
     </figure>
   );
 }
