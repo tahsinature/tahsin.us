@@ -40,32 +40,40 @@ export default function BlogPage() {
       {/* Category Filter — visible only on small screens where sidebar is hidden */}
       <FadeIn delay={0.1}>
         <div className="flex flex-wrap gap-2 mb-8 lg:hidden">
-          <button
+          <motion.button
+            layout
             onClick={() => {
               setActiveCategory(null);
               setVisibleCount(8);
             }}
-            className={`px-3 py-1.5 rounded text-xs font-medium border transition-all ${
+            className={`px-3 py-1.5 rounded text-xs font-medium border transition-colors ${
               activeCategory === null ? "bg-primary/15 border-primary/40 text-primary" : "bg-secondary border-border text-secondary-foreground hover:text-foreground hover:border-primary/30"
             }`}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
           >
             All
-          </button>
+          </motion.button>
           {categories.map((cat) => {
             const count = blogPosts.filter((p) => p.category === cat).length;
             return (
-              <button
+              <motion.button
+                layout
                 key={cat}
                 onClick={() => handleCategoryClick(cat)}
-                className={`px-3 py-1.5 rounded text-xs font-medium border transition-all ${
+                className={`px-3 py-1.5 rounded text-xs font-medium border transition-colors ${
                   activeCategory === cat
                     ? "bg-primary/15 border-primary/40 text-primary"
                     : "bg-secondary border-border text-secondary-foreground hover:text-foreground hover:border-primary/30"
                 }`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
               >
                 {cat}
                 <span className="ml-1.5 text-muted-foreground">{count}</span>
-              </button>
+              </motion.button>
             );
           })}
         </div>

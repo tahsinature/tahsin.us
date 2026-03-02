@@ -4,6 +4,8 @@ import Logo from "@/components/Logo";
 import { siteConfig } from "@/config/site";
 import { Container } from "@/components/shared/Container";
 import { Separator } from "@/components/ui/separator";
+import { FadeIn } from "@/components/MotionWrapper";
+import { motion } from "motion/react";
 
 const NAV_ITEMS = [
   { label: "Blog", href: "/blog" },
@@ -22,6 +24,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-border/40 bg-card/50 mt-20">
       <Container className="py-12 md:py-16">
+        <FadeIn>
         <div className="grid gap-8 md:grid-cols-3">
           {/* Brand */}
           <div className="space-y-4">
@@ -34,7 +37,7 @@ export default function Footer() {
             </p>
             <div className="flex gap-3">
               {SOCIAL_LINKS.map((social) => (
-                <a
+                <motion.a
                   key={social.label}
                   href={social.href}
                   target={social.label === "Email" ? undefined : "_blank"}
@@ -45,9 +48,11 @@ export default function Footer() {
                   }
                   aria-label={social.label}
                   className="flex h-9 w-9 items-center justify-center rounded-lg border border-border/50 text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground hover:border-primary"
+                  whileHover={{ y: -2 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 >
                   <social.icon className="h-4 w-4" />
-                </a>
+                </motion.a>
               ))}
             </div>
           </div>
@@ -85,9 +90,11 @@ export default function Footer() {
             </ul>
           </div>
         </div>
+        </FadeIn>
 
         <Separator className="my-8" />
 
+        <FadeIn delay={0.15}>
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <p>
             &copy; {siteConfig.startYear}–{new Date().getFullYear()}{" "}
@@ -95,6 +102,7 @@ export default function Footer() {
           </p>
           <p>{siteConfig.tagline}</p>
         </div>
+        </FadeIn>
       </Container>
     </footer>
   );

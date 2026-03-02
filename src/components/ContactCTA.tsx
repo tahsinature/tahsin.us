@@ -1,9 +1,10 @@
 import { Mail, Github } from "lucide-react";
 import { socialLinks } from "@/data/about";
-import { motion } from "@/components/MotionWrapper";
+import { FadeIn, motion } from "@/components/MotionWrapper";
 
 export default function ContactCTA() {
   return (
+    <FadeIn>
     <div className="bg-gradient-to-br from-card to-secondary border border-border rounded-lg p-10 md:p-14 text-center">
       <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Let's work together</h2>
       <p className="text-muted-foreground max-w-lg mx-auto mb-6 leading-relaxed">Whether you have a project in mind, want to collaborate, or just want to say hi — my inbox is always open.</p>
@@ -32,5 +33,6 @@ export default function ContactCTA() {
         </motion.a>
       </div>
     </div>
+    </FadeIn>
   );
 }

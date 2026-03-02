@@ -1,5 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Calendar, Clock } from "lucide-react";
+import { motion, useScroll, useSpring } from "motion/react";
 import { blogPosts } from "@/data/posts";
 import MDXLayout from "@/components/MDXLayout";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
@@ -10,6 +11,8 @@ const mdxModules = import.meta.glob("../content/*/index.mdx", { eager: true }) a
 
 export default function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>();
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
 
   // Find matching post data
   const post = blogPosts.find((p) => p.slug === slug);
@@ -33,6 +36,12 @@ export default function BlogPostPage() {
   }
 
   return (
+    <>
+    {/* Reading progress bar */}
+    <motion.div
+      className="fixed top-16 left-0 right-0 h-[2px] bg-primary z-40 origin-left"
+      style={{ scaleX }}
+    />
     <div className="max-w-3xl mx-auto px-6 py-8 w-full min-w-0">
       {/* Back link */}
       <FadeIn>
@@ -122,5 +131,6 @@ export default function BlogPostPage() {
         </footer>
       </FadeIn>
     </div>
+    </>
   );
 }

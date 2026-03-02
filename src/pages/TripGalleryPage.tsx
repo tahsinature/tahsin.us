@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { useParams, Link, useSearchParams } from "react-router-dom";
-import { ArrowLeft, MapPin, Calendar, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar } from "lucide-react";
 import { trips } from "@/data/trips";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import PhotoImage from "@/components/PhotoImage";
 import ExifMetaDisplay from "@/components/ExifMetaDisplay";
-import { useImageExif } from "@/hooks/useImageExif";
+import PhotoLightbox from "@/components/PhotoLightbox";
 import { FadeIn, BlurFadeIn, motion } from "@/components/MotionWrapper";
-import { AnimatePresence } from "motion/react";
 
 export default function TripGalleryPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -56,13 +55,6 @@ export default function TripGalleryPage() {
       setLightboxIndex(prev);
       setSearchParams({ photo: String(prev) }, { replace: true });
     }
-  };
-
-  // Handle keyboard nav
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Escape") closeLightbox();
-    if (e.key === "ArrowRight") goNext();
-    if (e.key === "ArrowLeft") goPrev();
   };
 
   return (
@@ -123,90 +115,7 @@ export default function TripGalleryPage() {
         ))}
       </div>
 
-      <AnimatePresence>
-        {lightboxIndex !== null && <TripLightbox trip={trip} index={lightboxIndex} onClose={closeLightbox} onNext={goNext} onPrev={goPrev} onKeyDown={handleKeyDown} />}
-      </AnimatePresence>
+      <PhotoLightbox photos={trip.photos} index={lightboxIndex} onClose={closeLightbox} onNext={goNext} onPrev={goPrev} />
     </main>
-  );
-}
-
-/* Lightbox sub-component — uses useImageExif for runtime EXIF reading */
-function TripLightbox({
-  trip,
-  index,
-  onClose,
-  onNext,
-  onPrev,
-  onKeyDown,
-}: {
-  trip: (typeof trips)[number];
-  index: number;
-  onClose: () => void;
-  onNext: () => void;
-  onPrev: () => void;
-  onKeyDown: (e: React.KeyboardEvent) => void;
-}) {
-  const photo = trip.photos[index];
-  const { meta } = useImageExif(photo.src, photo.meta);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.25 }}
-      className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm flex items-center justify-center"
-      onClick={onClose}
-      onKeyDown={onKeyDown}
-      tabIndex={0}
-      role="dialog"
-      aria-label="Photo lightbox"
-    >
-      <button onClick={onClose} className="absolute top-6 right-6 text-muted-foreground hover:text-foreground transition-colors z-10">
-        <X size={24} />
-      </button>
-
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onPrev();
-        }}
-        className="absolute left-4 md:left-8 text-muted-foreground hover:text-foreground transition-colors z-10 bg-card/50 backdrop-blur-sm p-2 rounded border border-border hover:border-primary/40"
-      >
-        <ChevronLeft size={24} />
-      </button>
-
-      <motion.div
-        key={index}
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <PhotoImage src={photo.src} alt={photo.alt} className="max-w-[90vw] max-h-[85vh] object-contain rounded" aspectHint="3/2" />
-      </motion.div>
-
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onNext();
-        }}
-        className="absolute right-4 md:right-8 text-muted-foreground hover:text-foreground transition-colors z-10 bg-card/50 backdrop-blur-sm p-2 rounded border border-border hover:border-primary/40"
-      >
-        <ChevronRight size={24} />
-      </button>
-
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center max-w-lg w-full px-4">
-        <p className="text-foreground text-sm font-medium mb-1">{photo.alt}</p>
-        {meta && (
-          <div className="bg-card/80 backdrop-blur-sm border border-border rounded px-4 py-3 mt-2">
-            <ExifMetaDisplay meta={meta} />
-          </div>
-        )}
-        <p className="text-muted-foreground text-xs mt-2">
-          {index + 1} / {trip.photos.length}
-        </p>
-      </div>
-    </motion.div>
   );
 }

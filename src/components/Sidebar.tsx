@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Mail, BookOpen, Tag } from "lucide-react";
+import { motion } from "motion/react";
 import { categories, blogPosts } from "@/data/posts";
 import { siteConfig } from "@/config/site";
 
@@ -80,13 +81,19 @@ export default function Sidebar({ activeCategory, onCategoryClick }: SidebarProp
         <ul className="space-y-3">
           {blogPosts
             .filter((p) => p.popular)
-            .map((post) => (
-              <li key={post.slug}>
+            .map((post, i) => (
+              <motion.li
+                key={post.slug}
+                initial={{ opacity: 0, x: -10 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.3, delay: i * 0.05, ease: [0.25, 0.1, 0.25, 1] }}
+              >
                 <Link to={`/post/${post.slug}`} className="text-muted-foreground hover:text-foreground transition-colors text-sm flex items-start gap-2 group">
                   <ArrowRight size={14} className="mt-1 text-muted-foreground group-hover:text-warm transition-colors flex-shrink-0" />
                   <span>{post.title}</span>
                 </Link>
-              </li>
+              </motion.li>
             ))}
         </ul>
       </div>

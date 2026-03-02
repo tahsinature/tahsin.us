@@ -20,7 +20,8 @@ export default function BentoCard({ children, className = "", span = 1, accent }
         ${className}
       `}
       style={accent ? { borderTopColor: accent, borderTopWidth: 2 } : undefined}
-      whileHover={{ y: -3, transition: { duration: 0.25 } }}
+      whileHover={{ y: -3 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >
       {children}
     </motion.div>

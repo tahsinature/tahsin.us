@@ -100,7 +100,7 @@ export default function Header() {
             {/* Sliding pill */}
             {pillStyle && (
               <motion.span
-                className="absolute top-1 bottom-1 rounded-lg bg-background shadow-sm ring-1 ring-border/30"
+                className="absolute top-1 bottom-1 rounded-lg bg-primary/10 shadow-sm ring-1 ring-primary/25"
                 animate={{ left: pillStyle.left, width: pillStyle.width }}
                 transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
               />
@@ -115,7 +115,7 @@ export default function Header() {
                   className={cn(
                     "relative z-10 px-4 py-1.5 text-sm font-medium transition-colors rounded-lg",
                     active
-                      ? "text-foreground"
+                      ? "text-primary"
                       : "text-muted-foreground hover:text-foreground",
                   )}
                 >

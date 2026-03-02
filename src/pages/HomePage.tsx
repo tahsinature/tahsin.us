@@ -1,11 +1,12 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, Briefcase, MapPin, ExternalLink, Mail, Github, Twitter, Linkedin, Camera, BookOpen, Code2, Layers, Wrench, Clock, Building2, Cpu, Headphones, Maximize2, User } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
+import { ArrowRight, Briefcase, MapPin, ExternalLink, Mail, Github, Twitter, Linkedin, Camera, BookOpen, Code2, Layers, Wrench, Clock, Building2, Cpu, Headphones, User, Maximize2 } from "lucide-react";
 import HeroBanner from "@/components/HeroBanner";
 import InteractiveCodeCard from "@/components/InteractiveCodeCard";
+import PhotoLightbox from "@/components/PhotoLightbox";
 import { FadeIn, StaggerContainer, StaggerItem, motion } from "@/components/MotionWrapper";
 import { blogPosts } from "@/data/posts";
-import { featuredPhotos } from "@/data/featured-photos";
+import { favPhotos } from "@/data/fav-photos";
 import { workExperiences, skills, socialLinks } from "@/data/about";
 import { siteConfig } from "@/config/site";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
@@ -13,7 +14,8 @@ import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 export default function HomePage() {
   useDocumentTitle();
   const recentPosts = blogPosts.slice(0, 3);
-  const previewPhotos = featuredPhotos.slice(0, 6);
+  const previewPhotos = favPhotos.slice(0, 6);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   return (
     <>
@@ -160,12 +162,20 @@ export default function HomePage() {
           <StaggerContainer className="grid grid-cols-2 md:grid-cols-3 gap-3" staggerDelay={0.08}>
             {previewPhotos.map((photo, i) => (
               <StaggerItem key={i} variant="scale">
-                <PhotoCard photo={photo} index={i} />
+                <PhotoCard photo={photo} index={i} onOpen={setLightboxIndex} />
               </StaggerItem>
             ))}
           </StaggerContainer>
         </section>
       </main>
+
+      <PhotoLightbox
+        photos={previewPhotos}
+        index={lightboxIndex}
+        onClose={() => setLightboxIndex(null)}
+        onNext={() => setLightboxIndex((i) => Math.min((i ?? 0) + 1, previewPhotos.length - 1))}
+        onPrev={() => setLightboxIndex((i) => Math.max((i ?? 0) - 1, 0))}
+      />
     </>
   );
 }
@@ -181,89 +191,95 @@ function SectionLabel({ icon, label }: { icon: React.ReactNode; label: string })
   );
 }
 
-function PhotoCard({ photo, index }: { photo: (typeof import("@/data/featured-photos"))["featuredPhotos"][number]; index: number }) {
-  const navigate = useNavigate();
+function PhotoCard({ photo, index, onOpen }: { photo: import("@/data/trips").Photo; index: number; onOpen: (index: number) => void }) {
+  // Mobile: two-tap (tap to reveal, tap fullscreen to open)
+  // Desktop: hover reveals, click anywhere opens lightbox
   const [revealed, setRevealed] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [hovered, setHovered] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const active = revealed || hovered;
 
-  const handleClick = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      if (!revealed) {
-        setRevealed(true);
-        // Auto-hide after 4 seconds of inactivity
-        timerRef.current = setTimeout(() => setRevealed(false), 4000);
-      } else {
-        navigate(`/photography?view=featured&photo=${index}`);
+  // Close mobile reveal on outside tap
+  useEffect(() => {
+    if (!revealed) return;
+    const handleClick = (e: MouseEvent) => {
+      if (cardRef.current && !cardRef.current.contains(e.target as Node)) {
+        setRevealed(false);
       }
-    },
-    [revealed, navigate, index],
-  );
+    };
+    const raf = requestAnimationFrame(() => {
+      document.addEventListener("click", handleClick);
+    });
+    return () => {
+      cancelAnimationFrame(raf);
+      document.removeEventListener("click", handleClick);
+    };
+  }, [revealed]);
 
-  // Clear timer on unmount
-  useEffect(
-    () => () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    },
-    [],
-  );
-
-  // Reset timer on re-tap while revealed
-  const resetTimer = useCallback(() => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => setRevealed(false), 4000);
-  }, []);
+  const handleClick = () => {
+    // Desktop (hover available): click opens lightbox directly
+    if (hovered) {
+      onOpen(index);
+      return;
+    }
+    // Mobile: first tap reveals, second tap (on fullscreen btn) opens
+    if (!revealed) setRevealed(true);
+  };
 
   return (
-    <div
+    <motion.div
+      ref={cardRef}
       onClick={handleClick}
-      className={`group relative aspect-[4/3] rounded overflow-hidden border transition-all duration-300 cursor-pointer
-        ${revealed ? "border-primary/40 shadow-[0_0_20px_rgba(255,214,68,0.1)]" : "border-border hover:border-primary/40"}`}
+      onHoverStart={() => setHovered(true)}
+      onHoverEnd={() => setHovered(false)}
+      className="relative aspect-[4/3] rounded overflow-hidden border border-border cursor-pointer transition-colors duration-500 ease-out hover:border-primary/40"
+      animate={{ y: active ? -4 : 0 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >
-      <img
+      <motion.img
         src={photo.src}
         alt={photo.alt}
-        className={`w-full h-full object-cover transition-all duration-700
-          ${revealed ? "grayscale-0 scale-105" : "grayscale group-hover:grayscale-0 group-hover:scale-105"}`}
+        className="w-full h-full object-cover"
+        animate={{
+          scale: active ? 1.05 : 1,
+          filter: active ? "grayscale(0%)" : "grayscale(100%)",
+        }}
+        transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
         loading="lazy"
       />
 
-      {/* Location overlay — visible on reveal or hover */}
-      <div
-        className={`absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent transition-opacity duration-300 flex items-end p-3
-          ${revealed ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+      {/* Overlay — info + fullscreen button */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent flex items-end p-3"
+        initial={false}
+        animate={{ opacity: active ? 1 : 0 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
       >
-        <span className="text-white text-xs font-medium drop-shadow-lg flex items-center gap-1">
-          <MapPin size={10} />
-          {photo.meta?.location?.split(",")[0] || photo.alt}
-        </span>
-      </div>
-
-      {/* "Open" button — appears after reveal */}
-      {revealed && (
-        <motion.button
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.2 }}
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate(`/photography?view=featured&photo=${index}`);
-          }}
-          onMouseEnter={resetTimer}
-          className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm border border-border hover:border-primary/60 text-muted-foreground hover:text-primary rounded-full p-1.5 transition-all duration-200 cursor-pointer"
-          aria-label="View full size"
+        <motion.div
+          className="flex flex-col gap-1"
+          initial={false}
+          animate={{ y: active ? 0 : 8, opacity: active ? 1 : 0 }}
+          transition={{ duration: 0.4, ease: "easeOut", delay: 0.05 }}
         >
-          <Maximize2 size={13} />
-        </motion.button>
-      )}
+          <span className="text-white text-xs font-medium drop-shadow-lg flex items-center gap-1">
+            <MapPin size={10} />
+            {photo.meta?.location?.split(",")[0] || photo.alt}
+          </span>
+        </motion.div>
+      </motion.div>
 
-      {/* Tap hint — subtle pulse on grayscale images */}
-      {!revealed && (
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-0 pointer-events-none md:hidden">
-          <div className="w-8 h-8 rounded-full bg-white/10 animate-ping" />
-        </div>
-      )}
-    </div>
+      {/* Fullscreen button — mobile only */}
+      <motion.button
+        initial={false}
+        animate={{ opacity: revealed ? 1 : 0, scale: revealed ? 1 : 0.5 }}
+        transition={{ duration: 0.3 }}
+        onClick={(e) => { e.stopPropagation(); onOpen(index); }}
+        className="md:hidden absolute top-2 right-2 bg-background/70 backdrop-blur-sm text-foreground p-1.5 rounded border border-border/50 transition-colors cursor-pointer"
+        style={{ pointerEvents: revealed ? "auto" : "none" }}
+      >
+        <Maximize2 size={14} />
+      </motion.button>
+    </motion.div>
   );
 }
 
