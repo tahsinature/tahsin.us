@@ -8,6 +8,7 @@ export interface WorkExperience {
   description: string;
   logo?: string;
   url?: string;
+  country?: { flag: string; name: string };
 }
 
 export interface Skill {

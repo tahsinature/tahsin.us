@@ -40,6 +40,7 @@ export const siteConfig = {
       to: "Present",
       description: "Part of the engineering team focusing on developing reliable, high-performance backend services.",
       url: "https://www.carfax.com",
+      country: { flag: "🇨🇦", name: "Canada" },
     },
     {
       company: "EnPowered",
@@ -48,6 +49,7 @@ export const siteConfig = {
       to: "2023",
       description: "Worked on energy technology platform, building scalable backend services and cloud infrastructure.",
       url: "https://www.enpowered.com",
+      country: { flag: "🇨🇦", name: "Canada" },
     },
     {
       company: "Rakuten Travel Xchange",
@@ -56,6 +58,7 @@ export const siteConfig = {
       to: "2022",
       description: "Developed backend systems for the travel exchange platform serving global markets.",
       url: "https://travel.rakuten.com",
+      country: { flag: "🇸🇬", name: "Singapore" },
     },
     {
       company: "Bountie",
@@ -64,6 +67,7 @@ export const siteConfig = {
       to: "2022",
       description: "Built gaming platform features and backend services for competitive gaming ecosystem.",
       url: "https://www.facebook.com/BountieGaming/",
+      country: { flag: "🇸🇬", name: "Singapore" },
     },
     {
       company: "HaloJasa",
@@ -72,6 +76,7 @@ export const siteConfig = {
       to: "2021",
       description: "Developed on-demand services platform, working on backend APIs and system architecture.",
       url: "https://play.google.com/store/apps/details?id=halo.jasa.startup",
+      country: { flag: "🇮🇩", name: "Indonesia" },
     },
   ] as const,
 

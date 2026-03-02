@@ -88,7 +88,14 @@ export default function HomePage() {
                           </div>
                         </div>
                         <span className="text-muted-foreground text-xs bg-secondary px-2.5 py-1 rounded border border-border whitespace-nowrap">
-                          {job.from} — {job.to}
+                          {job.country && (
+                            <span className="relative mr-1.5 cursor-default group/flag">
+                              {job.country.flag}
+                              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-0.5 rounded bg-foreground text-background text-[10px] font-medium whitespace-nowrap opacity-0 group-hover/flag:opacity-100 transition-opacity duration-200 pointer-events-none">
+                                {job.country.name}
+                              </span>
+                            </span>
+                          )}{job.from} — {job.to}
                         </span>
                       </div>
                       <p className="text-muted-foreground text-sm leading-relaxed">{job.description}</p>
