@@ -110,7 +110,7 @@ export default function HomePage() {
               <InteractiveCodeCard icon={<Code2 size={16} className="text-accent" />} title="Languages" items={skills.filter((s) => s.category === "language")} />
             </StaggerItem>
             <StaggerItem variant="scale">
-              <SkillGroup icon={<Layers size={16} className="text-primary" />} title="Frameworks" items={skills.filter((s) => s.category === "framework")} />
+              <SkillGroup icon={<Layers size={16} className="text-accent" />} title="Frameworks" items={skills.filter((s) => s.category === "framework")} />
             </StaggerItem>
             <StaggerItem variant="scale">
               <SkillGroup icon={<Wrench size={16} className="text-accent" />} title="Tools" items={skills.filter((s) => s.category === "tool")} />
@@ -133,16 +133,16 @@ export default function HomePage() {
               <StaggerItem key={post.slug} variant="scale">
                 <Link
                   to={`/post/${post.slug}`}
-                  className="group block bg-card border border-border rounded p-5 hover:border-primary/30 transition-all duration-300 h-full"
+                  className="group relative block bg-card border border-border rounded p-5 hover:border-primary/30 transition-colors duration-300 h-full overflow-hidden"
                 >
                   <motion.div whileHover={{ y: -3 }} transition={{ duration: 0.2 }}>
-                    <span className="text-xs text-warm font-medium uppercase tracking-wider">{post.category}</span>
-                    <h3 className="text-foreground font-semibold mt-2 mb-2 group-hover:text-primary transition-colors leading-snug">{post.title}</h3>
+                    <h3 className="text-foreground font-semibold mb-2 group-hover:text-primary transition-colors leading-snug">{post.title}</h3>
                     <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">{post.description}</p>
-                    <span className="inline-flex items-center gap-1 text-primary text-xs font-medium mt-3 group-hover:gap-2 transition-all">
-                      Read more <ArrowRight size={12} />
-                    </span>
                   </motion.div>
+                  {/* Arrow reveal on hover */}
+                  <div className="absolute bottom-4 right-4 translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
+                    <ArrowRight size={16} className="text-primary" />
+                  </div>
                 </Link>
               </StaggerItem>
             ))}
