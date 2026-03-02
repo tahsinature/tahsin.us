@@ -2,7 +2,7 @@
  *  Projects / Featured Works
  * ═══════════════════════════════════════════════════════ */
 
-export type ProjectTag = "personal" | "open-source" | "work" | "side-project" | "hackathon" | "freelance";
+export type ProjectTag = "personal" | "open-source" | "work" | "side-project" | "hackathon" | "freelance" | "volunteer";
 
 export interface Project {
   /** Unique id */
@@ -37,6 +37,7 @@ export const projectTagLabels: Record<ProjectTag, string> = {
   "side-project": "Side Project",
   hackathon: "Hackathon",
   freelance: "Freelance",
+  volunteer: "Volunteer",
 };
 
 /** Accent color classes for project tags */
@@ -47,6 +48,7 @@ export const projectTagColors: Record<ProjectTag, string> = {
   "side-project": "bg-primary/15 text-primary border-primary/30",
   hackathon: "bg-warm/15 text-warm border-warm/30",
   freelance: "bg-primary/15 text-primary border-primary/30",
+  volunteer: "bg-warm/15 text-warm border-warm/30",
 };
 
 /*
@@ -57,35 +59,66 @@ export const projectTagColors: Record<ProjectTag, string> = {
 export const projects: Project[] = [
   {
     id: 1,
-    title: "Example: Cloud-Native Deployment Platform",
-    description: "An internal platform that streamlined microservice deployments across multi-region Kubernetes clusters.",
-    writeup: "Designed the architecture from scratch, integrating Argo CD for GitOps and Prometheus/Grafana for observability. Reduced deployment times by 60%.",
-    techStack: ["Go", "Kubernetes", "Argo CD", "Terraform", "AWS"],
-    tag: "work",
-    period: "2023 – 2024",
+    title: "Receiptly – An iOS and Android app for scanning and organizing receipts",
+    description:
+      "A cross-platform mobile app built with React Native that allows users to easily scan, categorize, and search their receipts. Integrated OCR for automatic data extraction and cloud sync for access across devices.",
+    writeup:
+      "Built as a side project to solve my own problem of managing piles of paper receipts. OpenAI API was used for extracting key information like merchant, date, and total from receipt images. The app also features a dashboard for tracking spending trends over time.",
+    techStack: ["TypeScript", "React Native", "OpenAI API", "Firebase"],
+    tag: "side-project",
+    period: "2025 – Present",
     featured: true,
   },
   {
     id: 2,
-    title: "Example: Real-time Collaborative Editor",
-    description: "A side project exploring CRDTs for conflict-free collaborative text editing.",
-    repoUrl: "https://github.com/example/collab-editor",
-    liveUrl: "https://collab-editor.example.com",
+    title: "Muslim Tools: iOS, Android, and Web Utility App",
+    description: "A cross-platform app providing prayer times, Qibla direction, and Islamic calendar features. Built with React Native and deployed on both app stores and the web.",
+    liveUrl: "https://muslim-tools.tahsin.us",
     screenshot: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&q=80",
-    techStack: ["TypeScript", "React", "Y.js", "WebSocket"],
+    techStack: ["TypeScript", "React Native", "Hono"],
     tag: "side-project",
-    period: "2024",
-    featured: true,
+    period: "2026 – Present",
   },
   {
     id: 3,
-    title: "Example: CLI Task Runner",
-    description: "A fast, ergonomic task runner for monorepos with dependency-aware parallel execution.",
-    repoUrl: "https://github.com/example/taskr",
+    title: "HardBrake: A Fast, A robust media compressor",
+    description: "A fast and efficient media compression tool built with Tauri and Rust. It supports a wide range of formats and offers a user-friendly interface for both basic and advanced users.",
+    repoUrl: "https://github.com/tahsinature/hardbrake",
     screenshot: "https://images.unsplash.com/photo-1629654297299-c8506221ca97?w=800&q=80",
-    techStack: ["Rust", "Tokio"],
+    techStack: ["Rust", "Tauri 2.0"],
     tag: "open-source",
+    period: "2021 – Present",
+  },
+  {
+    id: 4,
+    title: "CCI – Center for Cultural Integrity",
+    description: "Built and maintain the official website for CCI, a nonprofit dedicated to preserving and promoting cultural heritage and identity.",
+    liveUrl: "https://culturalintegrity.org",
+    techStack: ["React", "Vite", "MDX", "TypeScript"],
+    tag: "volunteer",
     period: "2024 – Present",
+    // featured: true,
+  },
+  {
+    id: 5,
+    title: "AMOD – Arakan Mayyu Organization for Development",
+    description: "Developed and maintain the website for AMOD, a community-driven organization focused on humanitarian aid and development in the Arakan region.",
+    liveUrl: "https://arakanmayyu.tahsin.us/",
+    techStack: ["React", "Vite", "MDX", "TypeScript"],
+    tag: "volunteer",
+    period: "2024 – Present",
+    // featured: true,
+  },
+  {
+    id: 6,
+    title: "tahsin.us – Personal Portfolio & Blog",
+    description: "My personal website and blog built from scratch. Features a photography gallery, bento-style about page, MDX-powered blog, and custom theme system.",
+    liveUrl: "https://tahsin.us",
+    repoUrl: "https://github.com/tahsinature/tahsin.us",
+    techStack: ["React", "Vite", "TypeScript", "Tailwind CSS", "MDX", "Kubernetes"],
+    tag: "personal",
+    period: "2024 – Present",
+    featured: true,
   },
 ];
 
