@@ -222,8 +222,12 @@ function PhotoCard({ photo, index, onOpen }: { photo: import("@/data/trips").Pho
       onOpen(index);
       return;
     }
-    // Mobile: first tap reveals, second tap (on fullscreen btn) opens
-    if (!revealed) setRevealed(true);
+    // Touch: first tap reveals, second tap opens lightbox
+    if (revealed) {
+      onOpen(index);
+    } else {
+      setRevealed(true);
+    }
   };
 
   return (
@@ -248,7 +252,7 @@ function PhotoCard({ photo, index, onOpen }: { photo: import("@/data/trips").Pho
         loading="lazy"
       />
 
-      {/* Overlay — info + fullscreen button */}
+      {/* Overlay — info */}
       <motion.div
         className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent flex items-end p-3"
         initial={false}
@@ -268,17 +272,16 @@ function PhotoCard({ photo, index, onOpen }: { photo: import("@/data/trips").Pho
         </motion.div>
       </motion.div>
 
-      {/* Fullscreen button — mobile only */}
-      <motion.button
+      {/* Fullscreen hint — shown on first tap (touch devices) */}
+      <motion.div
         initial={false}
-        animate={{ opacity: revealed ? 1 : 0, scale: revealed ? 1 : 0.5 }}
+        animate={{ opacity: revealed && !hovered ? 1 : 0, scale: revealed && !hovered ? 1 : 0.5 }}
         transition={{ duration: 0.3 }}
-        onClick={(e) => { e.stopPropagation(); onOpen(index); }}
-        className="md:hidden absolute top-2 right-2 bg-background/70 backdrop-blur-sm text-foreground p-1.5 rounded border border-border/50 transition-colors cursor-pointer"
-        style={{ pointerEvents: revealed ? "auto" : "none" }}
+        className="absolute top-2 right-2 bg-background/70 backdrop-blur-sm text-foreground p-1.5 rounded border border-border/50"
+        style={{ pointerEvents: "none" }}
       >
         <Maximize2 size={14} />
-      </motion.button>
+      </motion.div>
     </motion.div>
   );
 }
