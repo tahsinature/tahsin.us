@@ -1,11 +1,8 @@
 import { Link } from "react-router-dom";
 import { Github, Linkedin, Mail } from "lucide-react";
-import Logo from "@/components/Logo";
 import { siteConfig } from "@/config/site";
 import { Container } from "@/components/shared/Container";
-import { Separator } from "@/components/ui/separator";
 import { FadeIn } from "@/components/MotionWrapper";
-import { motion } from "motion/react";
 
 const NAV_ITEMS = [
   { label: "Blog", href: "/blog" },
@@ -22,87 +19,67 @@ const SOCIAL_LINKS = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-border/40 bg-card/50 mt-20">
+    <footer className="mt-24 relative">
+      {/* Top accent line */}
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
       <Container className="py-12 md:py-16">
         <FadeIn>
-        <div className="grid gap-8 md:grid-cols-3">
-          {/* Brand */}
-          <div className="space-y-4">
-            <Link to="/" className="flex items-center gap-2 group">
-              <Logo size={36} className="rounded-lg" />
-              <span className="font-bold text-lg">{siteConfig.name.brand}</span>
-            </Link>
-            <p className="text-sm text-muted-foreground max-w-xs">
-              {siteConfig.tagline}
-            </p>
-            <div className="flex gap-3">
-              {SOCIAL_LINKS.map((social) => (
-                <motion.a
-                  key={social.label}
-                  href={social.href}
-                  target={social.label === "Email" ? undefined : "_blank"}
-                  rel={
-                    social.label === "Email"
-                      ? undefined
-                      : "noopener noreferrer"
-                  }
-                  aria-label={social.label}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-border/50 text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground hover:border-primary"
-                  whileHover={{ y: -2 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                >
-                  <social.icon className="h-4 w-4" />
-                </motion.a>
-              ))}
-            </div>
-          </div>
-
-          {/* Quick Links */}
-          <div>
-            <h3 className="font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-2">
-              {NAV_ITEMS.map((item) => (
-                <li key={item.href}>
+          <div className="flex flex-col items-center text-center gap-6">
+            {/* Nav links */}
+            <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2">
+              {NAV_ITEMS.map((item, i) => (
+                <span key={item.href} className="flex items-center gap-6">
                   <Link
                     to={item.href}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
                   >
                     {item.label}
                   </Link>
-                </li>
+                  {i < NAV_ITEMS.length - 1 && (
+                    <span className="text-border hidden sm:inline">&middot;</span>
+                  )}
+                </span>
               ))}
-            </ul>
-          </div>
+            </nav>
 
-          {/* Contact Info */}
-          <div>
-            <h3 className="font-semibold mb-4">Get in Touch</h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>{siteConfig.locationShort}</li>
-              <li>
+            {/* Contact */}
+            <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-muted-foreground/60">
+              <span>{siteConfig.locationShort}</span>
+              <span className="hidden sm:inline">&middot;</span>
+              <a
+                href={siteConfig.social.email}
+                className="hover:text-foreground transition-colors duration-200"
+              >
+                {siteConfig.social.email.replace("mailto:", "")}
+              </a>
+            </div>
+
+            {/* Social icons */}
+            <div className="flex gap-1.5">
+              {SOCIAL_LINKS.map((social) => (
                 <a
-                  href={siteConfig.social.email}
-                  className="hover:text-primary transition-colors"
+                  key={social.label}
+                  href={social.href}
+                  target={social.label === "Email" ? undefined : "_blank"}
+                  rel={social.label === "Email" ? undefined : "noopener noreferrer"}
+                  aria-label={social.label}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground/50 hover:text-foreground hover:bg-muted/50 transition-all duration-200"
                 >
-                  {siteConfig.social.email.replace("mailto:", "")}
+                  <social.icon className="h-[16px] w-[16px]" />
                 </a>
-              </li>
-            </ul>
+              ))}
+            </div>
           </div>
-        </div>
         </FadeIn>
 
-        <Separator className="my-8" />
-
-        <FadeIn delay={0.15}>
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
+        {/* Bottom bar */}
+        <div className="mt-10 pt-6 border-t border-border/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground/50">
           <p>
-            &copy; {siteConfig.startYear}–{new Date().getFullYear()}{" "}
-            {siteConfig.name.brand}. All rights reserved.
+            &copy; {siteConfig.startYear}–{new Date().getFullYear()} {siteConfig.name.brand}
           </p>
-          <p>{siteConfig.tagline}</p>
+          <p>Built with care.</p>
         </div>
-        </FadeIn>
       </Container>
     </footer>
   );
