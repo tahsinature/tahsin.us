@@ -2,12 +2,29 @@ import { motion } from "motion/react";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { siteConfig } from "@/config/site";
+import HeroPattern from "@/components/HeroPatterns";
 
 const smooth = [0.25, 0.1, 0.25, 1] as const;
 
 export default function HeroBanner() {
   return (
     <div className="relative overflow-x-clip -mt-[64px]">
+      {/* ── Background pattern & gradient ── */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{ maskImage: "linear-gradient(to bottom, black 50%, transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, black 50%, transparent 100%)" }}
+      >
+        {/* Pattern */}
+        <HeroPattern />
+
+        {/* Glassy gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.12] via-transparent to-accent/[0.10] dark:from-primary/[0.06] dark:to-accent/[0.06]" />
+
+        {/* Soft radial glow */}
+        <div className="absolute top-1/4 -left-32 w-[500px] h-[500px] rounded-full bg-primary/[0.12] dark:bg-primary/[0.07] blur-[100px]" />
+        <div className="absolute bottom-0 right-0 w-[400px] h-[300px] rounded-full bg-accent/[0.10] dark:bg-accent/[0.05] blur-[80px]" />
+      </div>
+
       {/* ── Content ── */}
       <div className="relative z-10 pt-[64px] min-h-[60vh] md:min-h-[460px] max-h-[600px] flex items-center">
         <div className="max-w-5xl mx-auto px-6 w-full">

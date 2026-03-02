@@ -93,6 +93,10 @@ export const siteConfig = {
     { name: "Git", category: "tool" as const },
   ],
 
+  /* ── Hero ── */
+  /** Hero background pattern: "grid" | "dots" | "waves" */
+  heroPattern: "dots" as const,
+
   /* ── Misc / feature flags ── */
   /** Year the site / career started (used for copyright) */
   startYear: 2019,
@@ -102,7 +106,7 @@ export const siteConfig = {
   /* ── Maintenance mode ── */
   maintenance: {
     /** Set to true to show maintenance page instead of the normal site */
-    enabled: true,
+    enabled: false,
     /** Heading displayed on the maintenance page */
     title: "Under Maintenance",
     /** Body text displayed below the heading */

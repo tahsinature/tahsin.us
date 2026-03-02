@@ -66,10 +66,11 @@ export default function Header() {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      style={{ maskImage: "linear-gradient(to bottom, black 70%, transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, black 70%, transparent 100%)" }}
       className={cn(
-        "sticky top-0 z-50 w-full backdrop-blur-xl transition-all duration-300",
+        "sticky top-0 z-50 w-full backdrop-blur-xl transition-all duration-300 pb-3",
         scrolled
-          ? "bg-background/80 shadow-[0_1px_12px_rgba(0,0,0,0.04)] border-b border-border/50 dark:shadow-[0_1px_12px_rgba(0,0,0,0.2)]"
+          ? "bg-background/80 shadow-[0_1px_12px_rgba(0,0,0,0.04)] dark:shadow-[0_1px_12px_rgba(0,0,0,0.2)]"
           : "bg-background/60",
       )}
     >
@@ -100,8 +101,10 @@ export default function Header() {
             {/* Sliding pill */}
             {pillStyle && (
               <motion.span
+                key="nav-pill"
                 className="absolute top-1 bottom-1 rounded-lg bg-primary/10 shadow-sm ring-1 ring-primary/25"
-                animate={{ left: pillStyle.left, width: pillStyle.width }}
+                initial={{ left: pillStyle.left, width: pillStyle.width, opacity: 0 }}
+                animate={{ left: pillStyle.left, width: pillStyle.width, opacity: 1 }}
                 transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
               />
             )}
