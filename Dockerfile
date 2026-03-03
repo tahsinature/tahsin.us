@@ -26,6 +26,7 @@ import { serveStatic } from "hono/bun";
 const app = new Hono();
 
 app.use("/*", serveStatic({ root: "./dist" }));
+app.get("*", serveStatic({ path: "./dist/index.html" }));
 
 export default {
   port: 3000,
