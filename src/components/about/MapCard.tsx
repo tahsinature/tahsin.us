@@ -121,60 +121,52 @@ export default function MapCard() {
       className: "custom-popup",
     });
 
-    // Try to get user location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          const { latitude, longitude } = pos.coords;
+    // Fetch user location from IP (no permission prompt)
+    fetch("https://ipapi.co/json/")
+      .then((res) => res.json())
+      .then((data) => {
+        const latitude = data.latitude as number;
+        const longitude = data.longitude as number;
+        const countryCode = (data.country_code as string)?.toUpperCase();
+        const countryName = data.country_name as string;
 
-          // User marker (reuse icon from outer scope)
-          L.marker([latitude, longitude], { icon: userIcon }).addTo(map).bindPopup("<b>📍 You</b>", { className: "custom-popup" });
-
-          // Fit bounds to show both
-          const bounds = L.latLngBounds([MY_LOCATION.lat, MY_LOCATION.lng], [latitude, longitude]);
-          map.fitBounds(bounds, { padding: [30, 30], maxZoom: 6 });
-
-          // Dashed line between
-          L.polyline(
-            [
-              [MY_LOCATION.lat, MY_LOCATION.lng],
-              [latitude, longitude],
-            ],
-            { color: "#60a5fa", weight: 1.5, dashArray: "6 4", opacity: 0.5 },
-          ).addTo(map);
-
-          // Distance
-          const dist = roundTo10(haversine(MY_LOCATION.lat, MY_LOCATION.lng, latitude, longitude));
-
-          // Reverse geocode for country
-          try {
-            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&zoom=3`, { headers: { "Accept-Language": "en" } });
-            const data = await res.json();
-            const countryCode = data.address?.country_code?.toUpperCase();
-            const countryName = data.address?.country;
-
-            if (countryCode && countryCode === "CA") {
-              setMessage(`Hello, fellow Canadian! I'm based in ${MY_LABEL}, roughly ${dist.toLocaleString()}km away from you.`);
-            } else if (countryCode && demonyms[countryCode]) {
-              setMessage(`Hello, fellow ${demonyms[countryCode]}! I'm based in ${MY_LABEL}, roughly ${dist.toLocaleString()}km away from you.`);
-            } else if (countryName) {
-              setMessage(`Hello from ${countryName}! I'm based in ${MY_LABEL}, roughly ${dist.toLocaleString()}km away from you.`);
-            } else {
-              setMessage(`I'm based in ${MY_LABEL}, roughly ${dist.toLocaleString()}km away from you.`);
-            }
-          } catch {
-            setMessage(`I'm based in ${MY_LABEL}, roughly ${dist.toLocaleString()}km away from you.`);
-          }
-        },
-        () => {
-          // Denied or error
+        if (!latitude || !longitude) {
           setMessage(`I'm based in ${MY_LABEL} 🇨🇦`);
-        },
-        { timeout: 8000 },
-      );
-    } else {
-      setMessage(`I'm based in ${MY_LABEL} 🇨🇦`);
-    }
+          return;
+        }
+
+        // User marker
+        L.marker([latitude, longitude], { icon: userIcon }).addTo(map).bindPopup("<b>📍 You</b>", { className: "custom-popup" });
+
+        // Fit bounds to show both
+        const bounds = L.latLngBounds([MY_LOCATION.lat, MY_LOCATION.lng], [latitude, longitude]);
+        map.fitBounds(bounds, { padding: [30, 30], maxZoom: 6 });
+
+        // Dashed line between
+        L.polyline(
+          [
+            [MY_LOCATION.lat, MY_LOCATION.lng],
+            [latitude, longitude],
+          ],
+          { color: "#60a5fa", weight: 1.5, dashArray: "6 4", opacity: 0.5 },
+        ).addTo(map);
+
+        // Distance
+        const dist = roundTo10(haversine(MY_LOCATION.lat, MY_LOCATION.lng, latitude, longitude));
+
+        if (countryCode && countryCode === "CA") {
+          setMessage(`Hello, fellow Canadian! I'm based in ${MY_LABEL}, roughly ${dist.toLocaleString()}km away from you.`);
+        } else if (countryCode && demonyms[countryCode]) {
+          setMessage(`Hello, fellow ${demonyms[countryCode]}! I'm based in ${MY_LABEL}, roughly ${dist.toLocaleString()}km away from you.`);
+        } else if (countryName) {
+          setMessage(`Hello from ${countryName}! I'm based in ${MY_LABEL}, roughly ${dist.toLocaleString()}km away from you.`);
+        } else {
+          setMessage(`I'm based in ${MY_LABEL}, roughly ${dist.toLocaleString()}km away from you.`);
+        }
+      })
+      .catch(() => {
+        setMessage(`I'm based in ${MY_LABEL} 🇨🇦`);
+      });
 
     return () => {
       map.remove();
