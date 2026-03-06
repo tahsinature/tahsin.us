@@ -82,25 +82,29 @@ function ContributionCard({ c, isLast }: { c: Contribution; isLast: boolean }) {
 /* ── Project card ── */
 function ProjectCard({ project }: { project: Project }) {
   const [expanded, setExpanded] = useState(false);
+  const [hovered, setHovered] = useState(false);
 
   return (
     <motion.div
-      className={`
-        group bg-card border border-border rounded-xl overflow-hidden h-full
-        transition-all duration-300 hover:border-primary/30
-        hover:shadow-[0_8px_30px_rgba(0,0,0,0.18)]
-      `}
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.25 }}
+      className="group bg-card border border-border rounded-xl overflow-hidden h-full"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      animate={hovered
+        ? { borderColor: "var(--color-primary)", boxShadow: "0 8px 30px rgba(0,0,0,0.18)" }
+        : { borderColor: "var(--color-border)", boxShadow: "0 0 0 rgba(0,0,0,0)" }
+      }
+      transition={{ duration: 0.4, ease: "easeOut" }}
     >
       {/* Screenshot */}
       {project.screenshot && (
-        <div className="relative overflow-hidden">
-          <img
+        <div className="relative overflow-hidden h-48 md:h-56">
+          <motion.img
             src={project.screenshot}
             alt={`${project.title} screenshot`}
-            className="w-full h-48 md:h-56 object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
+            className="absolute inset-0 w-full h-full object-cover object-top"
             loading="lazy"
+            animate={{ scale: hovered ? 1.05 : 1 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-transparent to-transparent" />
         </div>
