@@ -1,10 +1,12 @@
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Calendar, Clock } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, ExternalLink } from "lucide-react";
 import { motion, useScroll, useSpring } from "motion/react";
 import { blogPosts } from "@/data/posts";
 import MDXLayout from "@/components/MDXLayout";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { FadeIn, BlurFadeIn } from "@/components/MotionWrapper";
+import PlatformIcon from "@/components/PlatformIcon";
+import { platforms } from "@/config/platforms";
 
 // Import all MDX files from per-post folders
 const mdxModules = import.meta.glob("../content/*/index.mdx", { eager: true }) as Record<string, { default: React.ComponentType; frontmatter?: Record<string, unknown> }>;
@@ -103,22 +105,54 @@ export default function BlogPostPage() {
       {/* Additional Resources */}
       <FadeIn>
         <footer className="mt-16 pt-8 border-t border-border">
-          <h3 className="text-lg font-semibold text-foreground mb-4">Additional resources</h3>
-          <p className="text-muted-foreground text-sm leading-relaxed mb-6">
-            JavaScript is a wonderful-yet-confusing language, and I think it might be quite useful to explore some additional resources on this topic.
-          </p>
-          <ul className="space-y-2 text-sm">
-            <li>
-              <a href="https://developer.mozilla.org" target="_blank" rel="noopener noreferrer" className="text-accent hover:text-primary underline underline-offset-2 transition-colors">
-                MDN Web Docs
-              </a>
-              {" — "}
-              <span className="text-muted-foreground">The go-to reference for web technologies</span>
-            </li>
-          </ul>
+          {post.resources && (
+            <>
+              <h3 className="text-lg font-semibold text-foreground mb-4">Additional resources</h3>
+              {post.resources.note && (
+                <p className="text-muted-foreground text-sm leading-relaxed mb-6">{post.resources.note}</p>
+              )}
+              <ul className="space-y-2 text-sm">
+                {post.resources.links.map((resource) => (
+                  <li key={resource.url}>
+                    <a href={resource.url} target="_blank" rel="noopener noreferrer" className="text-accent hover:text-primary underline underline-offset-2 transition-colors">
+                      {resource.label}
+                    </a>
+                    {resource.description && (
+                      <>
+                        {" — "}
+                        <span className="text-muted-foreground">{resource.description}</span>
+                      </>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+
+          {/* Published on other platforms */}
+          {post.publishedOn && post.publishedOn.length > 0 && (
+            <div className={`${post.resources ? "mt-8" : ""} pt-6 ${post.resources ? "border-t border-border/50" : ""}`}>
+              <p className="text-muted-foreground text-xs uppercase tracking-widest font-medium mb-3">Also published on</p>
+              <div className="flex flex-wrap gap-2">
+                {post.publishedOn.map((item) => (
+                  <a
+                    key={item.url}
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground hover:text-primary hover:border-primary/40 px-3 py-1.5 rounded text-xs font-medium border border-border transition-colors"
+                  >
+                    <PlatformIcon platform={item.platform} />
+                    {platforms[item.platform].name}
+                    <ExternalLink size={10} />
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Date stamp */}
-          <div className="mt-8 flex items-center justify-center gap-2 text-muted-foreground text-xs">
+          <div className={`${post.resources || post.publishedOn ? "mt-8" : ""} flex items-center justify-center gap-2 text-muted-foreground text-xs`}>
             <span>
               Last updated:{" "}
               {new Date(post.date).toLocaleDateString("en-US", {

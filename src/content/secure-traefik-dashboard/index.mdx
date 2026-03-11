@@ -1,0 +1,245 @@
+---
+title: "Secure Your Traefik Dashboard with HTTPS and Basic Auth"
+description: "Traefik's dashboard is powerful but dangerously exposed by default. Here's how to lock it down with TLS, basic auth, and proper configuration — step by step."
+category: "General"
+date: "2026-03-11"
+---
+
+import Mermaid from "@/components/Mermaid";
+
+Traefik is one of the best reverse proxies for Docker-based setups. It auto-discovers services, handles routing, and manages TLS certificates — all from labels in your `docker-compose.yml`. But its built-in dashboard? **Exposed and unauthenticated by default.**
+
+If you're running Traefik in production, the dashboard is an open window into your infrastructure — every router, service, and middleware laid bare. Let's fix that.
+
+---
+
+## What We're Building
+
+<Mermaid
+  chart={`flowchart LR
+    U["Browser"] -->|HTTPS| T["Traefik"]
+    T -->|Basic Auth| D["Dashboard"]
+    T -->|Route| S1["app-1"]
+    T -->|Route| S2["app-2"]
+
+    style T fill:#3b82f6,color:#fff
+    style D fill:#22c55e,color:#fff
+  `}
+  caption="The dashboard sits behind HTTPS + basic auth, just like any other service."
+/>
+
+By the end, the Traefik dashboard will:
+
+- Only be accessible over **HTTPS** (with a Let's Encrypt certificate)
+- Require a **username and password** before showing anything
+- Be **completely unreachable** over plain HTTP
+
+---
+
+## Step 1: Enable the Dashboard with TLS
+
+The key insight is that Traefik's dashboard is just another service internally — called `api@internal`. You route to it the same way you'd route to any container, using labels.
+
+Add these labels to your Traefik service in `docker-compose.yml`:
+
+```yaml
+services:
+  traefik:
+    image: traefik:v3
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yml:/etc/traefik/traefik.yml
+      - ./acme.json:/acme.json
+    labels:
+      traefik.enable: true
+
+      # Route the dashboard through HTTPS
+      traefik.http.routers.traefik_https.rule: Host(`traefik.example.com`)
+      traefik.http.routers.traefik_https.entrypoints: websecure
+      traefik.http.routers.traefik_https.tls: true
+      traefik.http.routers.traefik_https.tls.certResolver: myresolver
+
+      # This is the magic — point to Traefik's internal API service
+      traefik.http.routers.traefik_https.service: api@internal
+```
+
+The tricky part here is `api@internal`. This is Traefik's built-in service name for its own dashboard — it's not documented prominently, but it's what makes the whole thing work. Without it, Traefik doesn't know you're trying to route to itself.
+
+Make sure your `traefik.yml` has the certificate resolver configured:
+
+```yaml
+# traefik.yml
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+
+certificatesResolvers:
+  myresolver:
+    acme:
+      email: you@example.com
+      storage: /acme.json
+      httpChallenge:
+        entryPoint: web
+```
+
+After `docker compose up -d`, your dashboard is now accessible at `https://traefik.example.com` with a valid TLS certificate. But anyone can still access it.
+
+---
+
+## Step 2: Add Basic Auth
+
+Traefik middlewares let you add authentication to any route. For the dashboard, we'll use basic auth — defined entirely in Docker labels:
+
+```yaml
+    labels:
+      # ... previous labels ...
+
+      # Attach the auth middleware to the dashboard router
+      traefik.http.routers.traefik_https.middlewares: basic-auth-global
+
+      # Define the middleware
+      traefik.http.middlewares.basic-auth-global.basicauth.users: admin:$$apr1$$xyz...
+```
+
+### Generating the Password Hash
+
+The password must be Apache htpasswd format. Generate it with:
+
+```bash
+# Using htpasswd (install via apache2-utils)
+htpasswd -nb admin your-secure-password
+
+# Or using openssl
+echo "admin:$(openssl passwd -apr1 your-secure-password)"
+```
+
+This outputs something like:
+
+```
+admin:$apr1$ruca84Hq$mbjdMZBAG.KWn7vfN/SNK/
+```
+
+**Important:** When putting this in `docker-compose.yml`, you must **escape every `$` as `$$`**. Otherwise Docker Compose interprets them as environment variables:
+
+```
+admin:$$apr1$$ruca84Hq$$mbjdMZBAG.KWn7vfN/SNK/
+```
+
+One gotcha: the middleware **must be defined in Docker labels**, not in `traefik.yml`. Traefik loads middleware from docker labels dynamically — static config won't work for this.
+
+---
+
+## Step 3: Disable Insecure Mode
+
+By default, Traefik exposes the dashboard on port 8080 without any protection. Turn that off:
+
+```yaml
+# traefik.yml
+api:
+  insecure: false
+  dashboard: true
+```
+
+Setting `insecure: false` disables the unauthenticated port 8080 endpoint. The `dashboard: true` keeps the dashboard available — but only through the HTTPS router you configured in step 1.
+
+---
+
+## The Complete Setup
+
+Here's everything together:
+
+```yaml
+# docker-compose.yml
+services:
+  traefik:
+    image: traefik:v3
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yml:/etc/traefik/traefik.yml
+      - ./acme.json:/acme.json
+    labels:
+      traefik.enable: true
+
+      # HTTPS router for dashboard
+      traefik.http.routers.traefik_https.rule: Host(`traefik.example.com`)
+      traefik.http.routers.traefik_https.entrypoints: websecure
+      traefik.http.routers.traefik_https.tls: true
+      traefik.http.routers.traefik_https.tls.certResolver: myresolver
+      traefik.http.routers.traefik_https.service: api@internal
+      traefik.http.routers.traefik_https.middlewares: basic-auth-global
+
+      # Basic auth middleware
+      traefik.http.middlewares.basic-auth-global.basicauth.users: admin:$$apr1$$xyz...
+
+      # HTTP to HTTPS redirect (optional but recommended)
+      traefik.http.routers.http_catchall.rule: HostRegexp(`{any:.+}`)
+      traefik.http.routers.http_catchall.entrypoints: web
+      traefik.http.routers.http_catchall.middlewares: redirect-to-https
+      traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
+```
+
+```yaml
+# traefik.yml
+api:
+  insecure: false
+  dashboard: true
+
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+
+providers:
+  docker:
+    exposedByDefault: false
+
+certificatesResolvers:
+  myresolver:
+    acme:
+      email: you@example.com
+      storage: /acme.json
+      httpChallenge:
+        entryPoint: web
+```
+
+```bash
+# Create the acme.json file with correct permissions
+touch acme.json && chmod 600 acme.json
+
+# Start everything
+docker compose up -d
+```
+
+---
+
+## Common Pitfalls
+
+| Problem | Cause | Fix |
+|---------|-------|-----|
+| Dashboard shows "404" | Missing `service: api@internal` | Add the label pointing to Traefik's internal API |
+| Auth prompt never appears | Middleware defined in `traefik.yml` instead of labels | Move it to Docker labels |
+| `$` signs disappear in password | Docker Compose interpolation | Escape as `$$` |
+| Dashboard still accessible on :8080 | `api.insecure` is `true` | Set to `false` in `traefik.yml` |
+| Certificate errors | `acme.json` permissions wrong | Must be `chmod 600` |
+
+---
+
+## Summary
+
+Three steps to a secured dashboard:
+
+1. **TLS** — Route the dashboard through HTTPS using `api@internal` as the service
+2. **Basic Auth** — Add a middleware with htpasswd credentials in Docker labels
+3. **Disable insecure** — Set `api.insecure: false` to close the unprotected port 8080
+
+The dashboard is just another route in Traefik. Once you realize that, securing it is no different from securing any other service.

@@ -1,0 +1,250 @@
+---
+title: "Tired of Circular Dependencies in TypeScript?"
+description: "Circular dependencies silently break your code — returning undefined where you expect values. Here's how to detect them, understand why they happen, and fix them for good."
+category: "JavaScript"
+date: "2026-03-11"
+---
+
+import Mermaid from "@/components/Mermaid";
+
+Circular dependencies are one of those bugs that make you question your sanity. Your code looks correct. TypeScript doesn't complain. But at runtime, something is `undefined` — and you have no idea why.
+
+Let's look at how they happen, why they're dangerous, and how to catch them before they catch you.
+
+---
+
+## What Is a Circular Dependency?
+
+A circular dependency occurs when two or more modules depend on each other — either directly or through a chain. Module A imports Module B, and Module B imports Module A. The module system can't fully resolve either one before the other needs it.
+
+<Mermaid
+  chart={`flowchart LR
+    A["a.ts"] -->|imports| B["b.ts"]
+    B -->|imports| A
+
+    style A fill:#ef4444,color:#fff
+    style B fill:#ef4444,color:#fff
+  `}
+  caption="A circular dependency: A needs B, but B also needs A."
+/>
+
+---
+
+## A Working Example First
+
+Let's start with code that works — a linear dependency chain:
+
+```typescript
+// b.ts
+export const lastName = "Doe";
+```
+
+```typescript
+// a.ts
+import { lastName } from "./b";
+export const fullName = "John " + lastName;
+```
+
+```typescript
+// main.ts
+import { fullName } from "./a";
+console.log(fullName); // "John Doe" ✅
+```
+
+<Mermaid
+  chart={`flowchart LR
+    M["main.ts"] --> A["a.ts"] --> B["b.ts"]
+
+    style M fill:#3b82f6,color:#fff
+    style A fill:#3b82f6,color:#fff
+    style B fill:#3b82f6,color:#fff
+  `}
+  caption="Linear dependency chain — no cycles, no problems."
+/>
+
+Everything loads in order. `b.ts` is fully resolved before `a.ts` needs it. Clean.
+
+---
+
+## Now Break It
+
+What happens when `b.ts` also imports from `a.ts`?
+
+```typescript
+// a.ts
+import { lastName } from "./b";
+export const firstName = "John";
+export const fullName = firstName + " " + lastName;
+```
+
+```typescript
+// b.ts
+import { firstName } from "./a";
+export const lastName = "Doe";
+export const greeting = "Hi, " + firstName;
+```
+
+```typescript
+// main.ts
+import { fullName } from "./a";
+import { greeting } from "./b";
+
+console.log(fullName);  // "John undefined" 😱
+console.log(greeting);  // "Hi, undefined" 😱
+```
+
+Both `firstName` and `lastName` come back as `undefined`. No error. No warning. Just wrong output.
+
+### Why Does This Happen?
+
+When Node encounters a circular import, it doesn't throw an error — it returns the **partially loaded** module. Here's the sequence:
+
+1. `main.ts` starts loading `a.ts`
+2. `a.ts` tries to import from `b.ts`, so Node starts loading `b.ts`
+3. `b.ts` tries to import `firstName` from `a.ts` — but `a.ts` hasn't finished loading yet
+4. Node returns what `a.ts` has exported **so far**: nothing. `firstName` is `undefined`
+5. `b.ts` finishes loading, but with the wrong value baked in
+6. `a.ts` gets `lastName` from the now-loaded `b.ts`, but `b.ts` already captured the broken value
+
+The module system doesn't crash — it silently gives you incomplete data. This is what makes circular dependencies so insidious.
+
+---
+
+## Detecting Circular Dependencies
+
+In a small project, you might spot these by eye. In a large codebase with hundreds of files and path aliases? No chance. You need tooling.
+
+Here are two solid options — they solve the same problem but take different approaches.
+
+### Option 1: Madge — Fast Cycle Detection
+
+[Madge](https://github.com/pahen/madge) is a focused tool that does one thing well: analyze your dependency graph and find cycles.
+
+```bash
+npx madge --extensions js,ts --circular .
+```
+
+On a clean codebase:
+```
+✅ No circular dependency found!
+```
+
+On a broken one:
+```
+⚠ Circular dependencies found!
+  a.ts → b.ts → a.ts
+```
+
+For TypeScript projects with path aliases (`@/`, `~/`, etc.), pass your tsconfig:
+
+```bash
+npx madge --extensions js,ts --ts-config tsconfig.json --circular .
+```
+
+**Best for:** Quick cycle checks, CI gates, projects where you just want a yes/no answer.
+
+### Option 2: Skott — Full Dependency Graph Analysis
+
+[Skott](https://github.com/antoine-music/skott) goes further than cycle detection — it builds a complete graph of your project's module dependencies, including circular refs, unused files, and dependency depth. It also ships with a web-based visualization.
+
+```bash
+npx skott -s -m raw -d 50
+```
+
+| Flag | What it does |
+|------|-------------|
+| `-s` | Skip `node_modules` and third-party imports |
+| `-m raw` | Output raw analysis (no interactive UI) |
+| `-d 50` | Set max depth to 50 levels |
+
+Drop the `-m raw` flag to launch the interactive web UI — it renders your entire module graph visually, making it easy to spot clusters of tightly coupled modules:
+
+```bash
+npx skott -s -d 50
+```
+
+**Best for:** Understanding your overall architecture, visualizing module relationships, auditing large codebases.
+
+### Which One Should I Use?
+
+| | Madge | Skott |
+|---|---|---|
+| **Primary focus** | Circular dependency detection | Full dependency graph analysis |
+| **Speed** | Faster (targeted scan) | Slightly slower (builds full graph) |
+| **Visual output** | Text-based (or Graphviz export) | Built-in web UI |
+| **CI friendly** | Exits with error code on cycles | Also supports CI mode |
+| **Extra features** | Graphviz image generation | Unused file detection, dependency depth |
+
+You don't have to pick one — use **madge in CI** for fast cycle checks, and **skott locally** when you want to explore your dependency graph.
+
+### Add It to CI
+
+Whichever tool you choose, the most important thing is to **run it automatically**. Catching circular dependencies in code review is unreliable because the import graph isn't visible at a glance.
+
+```json
+"scripts": {
+  "check:circular": "madge --extensions js,ts --ts-config tsconfig.json --circular ."
+}
+```
+
+---
+
+## Common Patterns That Cause Circular Dependencies
+
+### 1. Shared Types Between Modules
+
+```typescript
+// user.ts
+import { Order } from "./order";
+export interface User { orders: Order[]; }
+
+// order.ts
+import { User } from "./user";
+export interface Order { buyer: User; }
+```
+
+**Fix:** Extract shared types into a separate file:
+
+```typescript
+// types.ts
+export interface User { orders: Order[]; }
+export interface Order { buyer: User; }
+```
+
+### 2. Service Classes That Call Each Other
+
+```typescript
+// auth.service.ts
+import { UserService } from "./user.service";
+// ...
+
+// user.service.ts
+import { AuthService } from "./auth.service";
+// ...
+```
+
+**Fix:** Introduce an interface or event system so they don't directly reference each other. Or refactor the shared logic into a third service.
+
+### 3. Barrel Exports (index.ts)
+
+Barrel files (`index.ts` that re-exports everything) are a common source of hidden circular dependencies. Module A imports from the barrel, which imports Module B, which imports from the barrel, which imports Module A.
+
+**Fix:** Import from specific files instead of barrels when cycles appear.
+
+---
+
+## Rules of Thumb
+
+- **Run `madge --circular` in CI** — don't rely on humans to spot import cycles
+- **Extract shared types** into dedicated files rather than importing across feature boundaries
+- **Avoid barrel files** in large projects, or be very deliberate about what they re-export
+- **If two modules need each other**, that's usually a sign they should be one module or that a third module should mediate
+- **Lazy imports** (`import()`) can break the cycle at runtime, but they're a band-aid — fix the architecture instead
+
+---
+
+## Summary
+
+Circular dependencies don't crash your app — they silently corrupt it. Values become `undefined`, behavior becomes unpredictable, and the bugs are incredibly hard to trace because the code *looks* correct.
+
+The fix isn't complicated: use `madge` to detect cycles, run it in CI to prevent new ones, and restructure your modules when cycles appear. A few minutes of prevention saves hours of debugging.

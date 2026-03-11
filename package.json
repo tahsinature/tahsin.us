@@ -30,6 +30,7 @@
     "rehype-mdx-import-media": "^1.2.0",
     "rehype-pretty-code": "^0.14.1",
     "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "^4.0.1",
     "remark-images": "^4.1.0",
     "remark-mdx-frontmatter": "^5.2.0",
     "shiki": "^3.22.0",

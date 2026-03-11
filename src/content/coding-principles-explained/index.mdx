@@ -1,0 +1,482 @@
+---
+title: "8 Coding Principles Every Developer Should Know — With Real Examples"
+description: "SOLID, DRY, KISS, YAGNI — explained with side-by-side Python examples showing the wrong way and the right way."
+category: "General"
+date: "2026-03-11"
+---
+
+import Mermaid from "@/components/Mermaid";
+
+You've probably heard terms like "SOLID" and "DRY" thrown around in code reviews and design discussions. But what do they actually mean in practice? And more importantly — what does violating them look like?
+
+In this article, I'll walk through **8 fundamental coding principles** with side-by-side examples: the bad way and the good way. No abstract theory — just code you can recognize from real projects.
+
+---
+
+## The Principles at a Glance
+
+<Mermaid
+  chart={`block-beta
+    columns 5
+    S["S\nSingle Responsibility"]:1
+    O["O\nOpen/Closed"]:1
+    L["L\nLiskov Substitution"]:1
+    I["I\nInterface Segregation"]:1
+    D["D\nDependency Inversion"]:1
+    DRY["DRY"]:1
+    KISS["KISS"]:1
+    YAGNI["YAGNI"]:1
+    space:2
+
+    style S fill:#3b82f6,color:#fff
+    style O fill:#3b82f6,color:#fff
+    style L fill:#3b82f6,color:#fff
+    style I fill:#3b82f6,color:#fff
+    style D fill:#3b82f6,color:#fff
+    style DRY fill:#22c55e,color:#fff
+    style KISS fill:#22c55e,color:#fff
+    style YAGNI fill:#22c55e,color:#fff
+  `}
+  caption="Top row: the five SOLID principles. Bottom row: universal guidelines."
+/>
+
+---
+
+## 1. Single Responsibility Principle (SRP)
+
+> A class should have only one reason to change.
+
+When a class handles too many concerns, changing one thing risks breaking another. The fix is simple: split responsibilities into focused classes.
+
+**The problem:**
+
+```python
+class Employee:
+    def __init__(self, name, id, department):
+        self.name = name
+        self.id = id
+        self.department = department
+
+    def calculate_salary(self):
+        # Salary logic
+        ...
+
+    def generate_payroll_report(self):
+        # Report generation
+        ...
+
+    def update_employee_info(self):
+        # Database updates
+        ...
+```
+
+This `Employee` class is a Swiss army knife — it calculates salaries, generates reports, *and* updates the database. A change to the reporting format could accidentally break salary calculations.
+
+**The fix:**
+
+```python
+class Employee:
+    def __init__(self, name, id, department):
+        self.name = name
+        self.id = id
+        self.department = department
+
+class PayrollCalculator:
+    def calculate_salary(self, employee):
+        ...
+
+class PayrollReporter:
+    def generate_report(self, employee):
+        ...
+
+class EmployeeInfoUpdater:
+    def update(self, employee):
+        ...
+```
+
+Each class has one job. Change the report format? Only `PayrollReporter` changes. Salary logic evolves? Only `PayrollCalculator` is touched.
+
+---
+
+## 2. Open/Closed Principle (OCP)
+
+> Software entities should be open for extension, but closed for modification.
+
+If adding a new feature requires modifying existing code, you're violating OCP. The result is usually a growing chain of `if/elif` statements.
+
+**The problem:**
+
+```python
+class PaymentProcessor:
+    def process_payment(self, payment_type, amount):
+        if payment_type == "credit_card":
+            print(f"Processing credit card payment of {amount}")
+        elif payment_type == "paypal":
+            print(f"Processing PayPal payment of {amount}")
+        elif payment_type == "bank_transfer":
+            print(f"Processing bank transfer of {amount}")
+        # Every new payment method = another elif here
+```
+
+Adding cryptocurrency support means opening up this class and modifying it. Every time.
+
+**The fix:**
+
+```python
+from abc import ABC, abstractmethod
+
+class PaymentProcessor(ABC):
+    @abstractmethod
+    def process_payment(self, amount):
+        pass
+
+class CreditCardProcessor(PaymentProcessor):
+    def process_payment(self, amount):
+        print(f"Processing credit card payment of {amount}")
+
+class PayPalProcessor(PaymentProcessor):
+    def process_payment(self, amount):
+        print(f"Processing PayPal payment of {amount}")
+
+class CryptoProcessor(PaymentProcessor):
+    def process_payment(self, amount):
+        print(f"Processing crypto payment of {amount}")
+```
+
+New payment method? Create a new class. Existing code stays untouched.
+
+---
+
+## 3. Liskov Substitution Principle (LSP)
+
+> Subtypes must be substitutable for their base types without altering the correctness of the program.
+
+If swapping a parent class for a child class breaks things, you've violated LSP. The classic example is the Rectangle-Square problem.
+
+**The problem:**
+
+```python
+class Rectangle:
+    def __init__(self, width, height):
+        self._width = width
+        self._height = height
+
+    def set_width(self, width):
+        self._width = width
+
+    def set_height(self, height):
+        self._height = height
+
+    def area(self):
+        return self._width * self._height
+
+class Square(Rectangle):
+    def set_width(self, width):
+        self._width = width
+        self._height = width  # Forces both to be equal
+
+    def set_height(self, height):
+        self._width = height  # Forces both to be equal
+        self._height = height
+```
+
+Code that does `rect.set_width(5); rect.set_height(3)` and expects `area() == 15` will break when `rect` is a `Square` — because setting height also overwrites width. The subtype can't substitute the parent cleanly.
+
+**The fix:**
+
+Make the intent explicit rather than silently overriding behavior:
+
+```python
+class Rectangle:
+    def __init__(self, width, height):
+        self._width = width
+        self._height = height
+
+    def area(self):
+        return self._width * self._height
+
+class Square(Rectangle):
+    def __init__(self, side):
+        super().__init__(side, side)
+
+    def set_side(self, side):
+        self._width = side
+        self._height = side
+```
+
+A `Square` is constructed with one dimension and exposes `set_side()` — no hidden surprises when substituted.
+
+---
+
+## 4. Interface Segregation Principle (ISP)
+
+> No client should be forced to depend on methods it doesn't use.
+
+Fat interfaces create awkward situations where classes must implement methods they don't care about.
+
+**The problem:**
+
+```python
+from abc import ABC, abstractmethod
+
+class Printer(ABC):
+    @abstractmethod
+    def print_document(self, doc):
+        pass
+
+    @abstractmethod
+    def fax_document(self, doc):
+        pass
+
+    @abstractmethod
+    def scan_document(self, doc):
+        pass
+```
+
+A basic inkjet printer has to implement `fax_document()` and `scan_document()` even though it can't do either.
+
+**The fix:**
+
+```python
+class Printer(ABC):
+    @abstractmethod
+    def print_document(self, doc):
+        pass
+
+class Fax(ABC):
+    @abstractmethod
+    def fax_document(self, doc):
+        pass
+
+class Scanner(ABC):
+    @abstractmethod
+    def scan_document(self, doc):
+        pass
+
+# A multifunctional device implements all three
+class MultifunctionalPrinter(Printer, Fax, Scanner):
+    def print_document(self, doc): ...
+    def fax_document(self, doc): ...
+    def scan_document(self, doc): ...
+
+# A basic printer only implements what it needs
+class BasicPrinter(Printer):
+    def print_document(self, doc): ...
+```
+
+Each interface is focused. Clients depend only on what they actually use.
+
+---
+
+## 5. Dependency Inversion Principle (DIP)
+
+> High-level modules should not depend on low-level modules. Both should depend on abstractions.
+
+When a class directly instantiates its dependencies, it becomes tightly coupled and hard to test or swap.
+
+**The problem:**
+
+```python
+class EmailSender:
+    def send(self, message):
+        print(f"Sending email: {message}")
+
+class NotificationService:
+    def __init__(self):
+        self.sender = EmailSender()  # Hardcoded dependency
+
+    def notify(self, message):
+        self.sender.send(message)
+```
+
+Want to switch to SMS? Push notifications? You have to crack open `NotificationService` and rewrite it.
+
+**The fix:**
+
+```python
+from abc import ABC, abstractmethod
+
+class NotificationSender(ABC):
+    @abstractmethod
+    def send(self, message):
+        pass
+
+class EmailSender(NotificationSender):
+    def send(self, message):
+        print(f"Sending email: {message}")
+
+class SMSSender(NotificationSender):
+    def send(self, message):
+        print(f"Sending SMS: {message}")
+
+class NotificationService:
+    def __init__(self, sender: NotificationSender):
+        self.sender = sender  # Injected abstraction
+
+    def notify(self, message):
+        self.sender.send(message)
+
+# Easy to swap
+service = NotificationService(EmailSender())
+service = NotificationService(SMSSender())
+```
+
+The high-level `NotificationService` depends on an abstraction, not a concrete class. Swapping implementations is one line.
+
+---
+
+## 6. Don't Repeat Yourself (DRY)
+
+> Every piece of knowledge must have a single, unambiguous representation in the system.
+
+Duplicated logic means duplicated bugs. When the tax rate changes, you now have to find every place it's hardcoded.
+
+**The problem:**
+
+```python
+def calculate_tax(salary):
+    tax_rate = 0.3
+    return salary * tax_rate
+
+def calculate_total_salary(salary):
+    tax_rate = 0.3  # Duplicated!
+    tax = salary * tax_rate  # Duplicated logic!
+    return salary - tax
+```
+
+**The fix:**
+
+```python
+def calculate_tax(salary):
+    tax_rate = 0.3
+    return salary * tax_rate
+
+def calculate_total_salary(salary):
+    tax = calculate_tax(salary)  # Reuse, don't repeat
+    return salary - tax
+```
+
+One source of truth for tax logic. Change it once, it updates everywhere.
+
+---
+
+## 7. Keep It Simple, Stupid (KISS)
+
+> The simplest solution that works is usually the best one.
+
+Clever code is not smart code. If a junior developer can't read it, it's too complex.
+
+**The problem:**
+
+```python
+def fibonacci(n):
+    if n <= 0:
+        return 0
+    elif n == 1:
+        return 1
+    else:
+        return fibonacci(n - 1) + fibonacci(n - 2)
+
+# Elegant? Sure.
+# O(2^n) time complexity and stack overflow on large inputs? Also yes.
+```
+
+**The fix:**
+
+```python
+def fibonacci(n):
+    if n <= 0:
+        return 0
+    a, b = 0, 1
+    for _ in range(1, n):
+        a, b = b, a + b
+    return b
+
+# O(n) time, O(1) space. Simple and fast.
+```
+
+The iterative version is easier to read, easier to debug, and orders of magnitude more efficient. No recursion tricks needed.
+
+---
+
+## 8. You Ain't Gonna Need It (YAGNI)
+
+> Don't implement something until it's actually needed.
+
+Speculative code is dead weight. It adds complexity, needs testing, and usually gets rewritten when the actual requirement arrives.
+
+**The problem:**
+
+```python
+class Employee:
+    def __init__(self, name, salary):
+        self.name = name
+        self.salary = salary
+
+    def get_name(self):
+        return self.name
+
+    def get_salary(self):
+        return self.salary
+
+    def get_tax(self):
+        return self.salary * 0.3  # Do we need this yet?
+
+    def get_bonus(self):
+        return self.salary * 0.1  # Requested by anyone? No.
+
+    def get_retirement_contribution(self):
+        return self.salary * 0.05  # Just in case...
+```
+
+Three methods that nobody asked for. They'll need maintenance, tests, and documentation — all for hypothetical features.
+
+**The fix:**
+
+```python
+class Employee:
+    def __init__(self, name, salary):
+        self.name = name
+        self.salary = salary
+
+    def get_name(self):
+        return self.name
+
+    def get_salary(self):
+        return self.salary
+```
+
+Build what you need today. Extend when the requirement is real.
+
+---
+
+## When Principles Conflict
+
+These principles aren't laws — they're guidelines. And sometimes they pull in opposite directions:
+
+- **DRY vs. KISS**: Abstracting to avoid repetition can make code harder to follow. Three similar lines might be clearer than a premature abstraction.
+- **OCP vs. YAGNI**: Building for extensibility is great, but if you're creating abstractions for features nobody's asked for, you're over-engineering.
+- **SRP vs. Pragmatism**: Splitting everything into tiny single-purpose classes can create an explosion of files. Sometimes a class with two closely related responsibilities is fine.
+
+The skill isn't memorizing principles — it's knowing when to apply them and when to relax them. **Context always wins.**
+
+---
+
+## Summary
+
+| Principle | One-Liner |
+|-----------|-----------|
+| **SRP** | One class, one job |
+| **OCP** | Extend, don't modify |
+| **LSP** | Subtypes must be drop-in replacements |
+| **ISP** | Don't force unused methods |
+| **DIP** | Depend on abstractions, not concretions |
+| **DRY** | Single source of truth |
+| **KISS** | Simplest solution wins |
+| **YAGNI** | Build it when you need it |
+
+These principles won't make your code perfect. But they'll make it *maintainable* — and that's what matters when you're working on a codebase for months or years, not just shipping a demo.
+
+---
+
+*All code examples are available in my [coding-principles](https://github.com/tahsinature/coding-principles) repository on GitHub.*

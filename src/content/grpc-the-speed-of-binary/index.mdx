@@ -1,0 +1,231 @@
+---
+title: "gRPC: The Speed of Binary"
+description: "I built two microservices and benchmarked gRPC against REST — the results were staggering. Up to 12x faster at scale."
+category: "General"
+date: "2026-03-11"
+---
+
+import Mermaid from "@/components/Mermaid";
+
+A few years ago, I ran an experiment to answer a simple question: **how much faster is gRPC than REST, really?** I built two Node.js microservices, wired them up with both protocols, and let the numbers speak. The results changed how I think about inter-service communication.
+
+---
+
+## The Setup
+
+The experiment was straightforward. Two microservices — a **Master** service acting as a gateway, and a **Note** service acting as an internal backend. The Master service exposes both an HTTP/REST endpoint and a gRPC endpoint. Both ultimately do the same thing: make a call and return a response.
+
+<Mermaid
+  chart={`flowchart LR
+    C["Client"] -->|"HTTP/REST"| M["Master Service<br/>(port 3000)"]
+    C -->|"gRPC"| M2["Master Service<br/>(port 3001)"]
+    M2 -->|"gRPC (HTTP/2)"| N["Note Service<br/>(port 4001)"]
+    M -->|"HTTP/1.1"| M
+    style C fill:#3b82f6,color:#fff
+    style M fill:#1e293b,color:#e2e8f0,stroke:#4b5563
+    style M2 fill:#1e293b,color:#e2e8f0,stroke:#4b5563
+    style N fill:#22c55e,color:#fff
+  `}
+  caption="Architecture: the client hits both REST and gRPC endpoints on the Master service."
+/>
+
+The idea was to isolate the protocol overhead. Both paths return trivially small payloads — this isn't a data transfer benchmark. It's a raw protocol efficiency test.
+
+---
+
+## Why gRPC?
+
+Before diving into the numbers, it's worth understanding what makes gRPC fundamentally different from REST.
+
+REST typically runs over **HTTP/1.1**, uses **JSON** for serialization, and establishes a new TCP connection (or reuses one with keep-alive) for each request. Every request carries full HTTP headers, and JSON must be parsed from text on both ends.
+
+gRPC runs over **HTTP/2**, uses **Protocol Buffers** (protobuf) for serialization, and multiplexes multiple requests over a single persistent connection. The payload is binary — compact and fast to serialize/deserialize.
+
+<Mermaid
+  chart={`flowchart TD
+    subgraph rest ["REST / HTTP"]
+        direction TB
+        A1["Serialization: Text-based JSON"]
+        A2["Transport: HTTP/1.1"]
+        A3["Connections: New per request*"]
+        A4["Headers: Full payload every time"]
+    end
+    subgraph grpc ["gRPC"]
+        direction TB
+        B1["Serialization: Binary Protobuf"]
+        B2["Transport: HTTP/2"]
+        B3["Connections: Persistent & multiplexed"]
+        B4["Headers: Compressed via HPACK"]
+    end
+    rest ~~~ grpc
+    style A1 fill:#ef4444,color:#fff
+    style A2 fill:#ef4444,color:#fff
+    style A3 fill:#ef4444,color:#fff
+    style A4 fill:#ef4444,color:#fff
+    style B1 fill:#22c55e,color:#fff
+    style B2 fill:#22c55e,color:#fff
+    style B3 fill:#22c55e,color:#fff
+    style B4 fill:#22c55e,color:#fff
+    style rest fill:none,stroke:#ef4444,color:#ef4444
+    style grpc fill:none,stroke:#22c55e,color:#22c55e
+  `}
+  caption="The fundamental protocol differences between REST and gRPC."
+/>
+
+\* _HTTP/1.1 does support keep-alive, but the overhead of text serialization and full headers remains._
+
+---
+
+## Defining the Contract
+
+With gRPC, you define your service contract using Protocol Buffers. Here's what the proto definitions looked like:
+
+```protobuf
+// master.proto
+syntax = "proto3";
+package Master;
+
+service AllService {
+  rpc GetTest (Empty) returns (Success);
+}
+
+message Empty {}
+
+message Success {
+  bool success = 1;
+}
+```
+
+```protobuf
+// note.proto
+syntax = "proto3";
+package Note;
+
+service MasterService {
+  rpc GetUserNote (UserId) returns (Notes);
+}
+
+message UserId {
+  string id = 1;
+}
+
+message Note {
+  string title = 1;
+  string body = 2;
+}
+
+message Notes {
+  repeated Note notes = 1;
+}
+```
+
+The proto file is the single source of truth. Both the server and client are generated from it — no more mismatched request/response shapes, no more guessing what an endpoint returns.
+
+---
+
+## The Benchmark
+
+The benchmark script fires sequential calls in a loop, timing the total duration for N requests. Simple, but effective for measuring per-call latency accumulation.
+
+```typescript
+// Simplified benchmark logic
+const start = performance.now();
+
+for (let i = 0; i < numberOfCalls; i++) {
+  if (protocol === "grpc") {
+    await grpcClient.GetTest({});
+  } else {
+    await axios.get("http://localhost:3000/health");
+  }
+}
+
+const duration = performance.now() - start;
+console.log(`${numberOfCalls} calls took ${duration}ms`);
+```
+
+---
+
+## The Results
+
+I ran the benchmark on a MacBook Pro (Intel i7-8750H, 16GB RAM). Here's what I found:
+
+| Calls | REST | gRPC | Speedup |
+|------:|-----:|-----:|--------:|
+| 10 | 46.8ms | 8.9ms | **5.3x** |
+| 100 | 248.7ms | 38.9ms | **6.4x** |
+| 1,000 | 1.75s | 228.8ms | **7.6x** |
+| 10,000 | 17.04s | 2.91s | **5.8x** |
+| 50,000 | 187.04s | 15.18s | **12.3x** |
+
+Read that last row again. **50,000 calls: REST took over 3 minutes. gRPC took 15 seconds.** That's a 12.3x difference.
+
+<Mermaid
+  chart={`xychart-beta
+    title "REST vs gRPC — Response Time (ms, log scale)"
+    x-axis ["10", "100", "1K", "10K", "50K"]
+    y-axis "Duration (ms)" 1 --> 200000
+    bar [46, 248, 1746, 17038, 187042]
+    bar [8, 38, 228, 2913, 15179]
+  `}
+  caption="Lower is better. The gap widens dramatically as call volume increases."
+/>
+
+---
+
+## Why the Gap Widens
+
+The most interesting observation isn't just that gRPC is faster — it's that the **advantage grows with volume**. At 10 calls, gRPC is ~5x faster. At 50,000 calls, it's over 12x faster.
+
+This makes sense when you consider what's happening under the hood:
+
+1. **Connection reuse**: gRPC's HTTP/2 connection is established once and multiplexed. REST pays connection overhead repeatedly.
+2. **Binary serialization**: Protobuf encoding/decoding is significantly cheaper than JSON parsing, and the savings compound over thousands of iterations.
+3. **Header compression**: HTTP/2's HPACK compression means headers shrink after the first request. HTTP/1.1 sends full headers every time.
+
+At low volumes, the per-call overhead is small in absolute terms. But multiply it by tens of thousands, and the waste becomes enormous.
+
+---
+
+## When to Actually Use gRPC
+
+After running this experiment, it might be tempting to slap gRPC on everything. Don't. Protocol choice is a trade-off, and context matters.
+
+**gRPC shines when:**
+- You have **service-to-service communication** in a microservices architecture
+- You need **high-throughput, low-latency** internal APIs
+- You want **strongly typed contracts** enforced at the protocol level
+- You're building **streaming APIs** (gRPC supports bidirectional streaming natively)
+
+**REST is still the better choice when:**
+- You're building a **public-facing API** that needs to be easily consumed by any HTTP client
+- Your consumers are **browsers** (gRPC-Web exists but adds complexity)
+- **Human readability** of payloads matters for debugging
+- Your team doesn't need the performance characteristics gRPC provides
+
+In my experience at HaloJasa, introducing gRPC for inter-service communication tripled our API performance — closely mirroring the results from this experiment. The real world validated the benchmark.
+
+---
+
+## The Modern Landscape
+
+Since I ran this experiment, the gRPC ecosystem has matured significantly:
+
+- **gRPC-Web** has stabilized, making it viable for browser clients with an Envoy proxy
+- **Connect** (from Buf) offers a gRPC-compatible protocol that works natively in browsers without a proxy
+- **Protocol Buffers v3** syntax is now the standard, with better defaults and simpler semantics
+- Major cloud providers (AWS, GCP, Azure) all offer first-class gRPC support in their service meshes and load balancers
+- **gRPC health checking** and **reflection** are now standardized patterns for production deployments
+
+If you haven't revisited gRPC recently, the developer experience has improved dramatically.
+
+---
+
+## Try It Yourself
+
+The full experiment is open source:
+
+**[github.com/tahsinature/grpc-demonstration](https://github.com/tahsinature/grpc-demonstration)**
+
+Clone it, spin up both services, and run the benchmark. Play with the call volume — watching the gap widen in real-time is far more convincing than any table.
+
+> **Key takeaway:** gRPC isn't just "a bit faster" than REST. At scale, the protocol-level advantages compound into order-of-magnitude performance gains. If you're building microservices and haven't considered gRPC for internal communication, you're leaving significant performance on the table.

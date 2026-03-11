@@ -99,6 +99,18 @@ export default function HomePage() {
                         </span>
                       </div>
                       <p className="text-muted-foreground text-sm leading-relaxed">{job.description}</p>
+                      {job.technologies && job.technologies.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-3">
+                          {job.technologies.map((tech) => (
+                            <span
+                              key={tech}
+                              className="bg-secondary text-secondary-foreground px-2 py-0.5 rounded-sm text-[11px] font-medium border border-border"
+                            >
+                              {tech}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </motion.div>
                   </div>
                 </StaggerItem>

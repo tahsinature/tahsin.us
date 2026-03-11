@@ -4,6 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import mdx from "@mdx-js/rollup";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkMdxFrontmatter from "remark-mdx-frontmatter";
+import remarkGfm from "remark-gfm";
 import rehypeMdxImportMedia from "rehype-mdx-import-media";
 import path from "path";
 
@@ -11,7 +12,7 @@ import path from "path";
 export default defineConfig({
   plugins: [
     mdx({
-      remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter],
+      remarkPlugins: [remarkGfm, remarkFrontmatter, remarkMdxFrontmatter],
       rehypePlugins: [rehypeMdxImportMedia],
     }),
     react(),

@@ -1,0 +1,303 @@
+---
+title: "Ansible + K3s: A Lightweight Kubernetes Platform That Actually Scales"
+description: "A practical, battle-tested approach to running multiple web applications on Kubernetes — without the cloud bill or the complexity of enterprise tooling."
+category: "General"
+date: "2026-03-11"
+---
+
+import Mermaid from "@/components/Mermaid";
+
+## Why This Exists
+
+If you've ever juggled multiple side projects — a personal site, a client app, an API — you've probably faced the same dilemma: **where do I host all of this, and how do I keep it manageable?**
+
+"Just use Vercel/Railway/Render" gets expensive fast. "Set up a proper Kubernetes cluster" sounds like overkill. But there's a middle ground: **a lightweight Kubernetes setup on affordable VPS instances, managed entirely through Ansible, with a local VM playground for testing before you deploy.**
+
+---
+
+## The Big Picture
+
+<Mermaid
+  chart={`flowchart LR
+    A["Your Machine\n(Ansible)"] -->|SSH| B["Local VMs\n(testing)"]
+    A -->|SSH| C["Production VPS\n(K3s)"]
+    C --> D["mysite.dev"]
+    C --> E["shopfront.io"]
+    C --> F["nonprofit-site.org"]
+    C --> G["+ more apps"]
+
+    style A fill:#4A90D9,color:#fff
+    style B fill:#2ECC71,color:#fff
+    style C fill:#326CE5,color:#fff
+  `}
+  caption="Ansible on your machine orchestrates both local VMs and production over SSH."
+/>
+
+Everything lives in a single Git repo. Ansible connects to machines over SSH, installs K3s, syncs Kubernetes manifests, deploys dotfiles, and manages secrets. No agents, no cloud dashboards — just `make vps` and you're done.
+
+| Layer | Tool | Why |
+|-------|------|-----|
+| **Orchestration** | Ansible | Declarative, agentless, works over SSH |
+| **Kubernetes** | K3s | Lightweight single-binary, perfect for VPS |
+| **Registry** | GHCR | Free, integrates with GitHub Actions |
+| **Ingress** | NGINX | Domain-based routing + TLS |
+| **Secrets** | Ansible Vault + Doppler | Encrypted at rest, injected at deploy |
+| **Local VMs** | `vm` CLI | Mirror production locally before deploying |
+
+---
+
+## Inventory — Organizing Machines
+
+The inventory groups every machine along three dimensions. A host like `tos-1` can simultaneously be: Debian + VPS + sandbox profile + kubernetes-enabled. Each group contributes variables, and Ansible merges them automatically.
+
+```yaml
+all:
+  children:
+    # OS → determines package manager (apt, brew, pacman)
+    debian:
+      hosts: { tos-1:, tos-2:, tos-3:, zeabur: }
+    macos:
+      hosts: { macbook: }
+
+    # Purpose → determines which roles to apply
+    vps:
+      hosts: { tos-1:, tos-2:, tos-3:, zeabur: }
+    workstations:
+      hosts: { macbook: }
+
+    # Profile → determines which dotfiles to deploy
+    profile_sandbox:
+      hosts: { tos-1:, tos-2:, tos-3:, zeabur: }
+    profile_personal:
+      hosts: { macbook: }
+
+    # Feature flags → opt-in capabilities
+    kubernetes:
+      hosts: { tos-1:, tos-2:, tos-3:, zeabur: }
+```
+
+Variables cascade through layers — global defaults, then group overrides, then per-host overrides:
+
+```yaml
+# group_vars/all/main.yml — every machine
+default_user: deploy
+common_packages: [curl, wget, git, htop, tmux, jq]
+
+# group_vars/vps.yml — all VPS hosts
+dotfiles_profile: sandbox
+dev_setup: basic
+
+# host_vars/zeabur.yml — production only
+ansible_host: 203.0.113.10
+k8s_manifest_source: zeabur
+k8s_namespace: fleet
+```
+
+---
+
+## Kubernetes on K3s
+
+K3s is a CNCF-certified Kubernetes distribution in a single ~70MB binary. No etcd, no heavy control plane — just `curl | sh` and you have a cluster.
+
+The Ansible kubernetes role handles the full lifecycle: install K3s, wait for readiness, create registry credentials, sync manifests, and apply them with `--prune` so deleting a manifest file removes the app from the cluster.
+
+<Mermaid
+  chart={`flowchart LR
+    A["Install K3s"] --> B["Create Secrets\n(GHCR + Doppler)"]
+    B --> C["Sync Manifests\n(rsync)"]
+    C --> D["kubectl apply\n--prune"]
+
+    style A fill:#326CE5,color:#fff
+    style D fill:#22c55e,color:#fff
+  `}
+  caption="The kubernetes role: install, authenticate, sync, apply."
+/>
+
+---
+
+## Deploying Applications
+
+Every app follows the same three-file pattern:
+
+<Mermaid
+  chart={`flowchart LR
+    U["User"] --> ING["NGINX\nIngress"]
+    ING --> S["Service"]
+    S --> D["Deployment\n(Pod)"]
+    D -.-> GHCR["GHCR\n(pull image)"]
+
+    style ING fill:#FF6B35,color:#fff
+    style GHCR fill:#8B5CF6,color:#fff
+  `}
+  caption="Traffic flow: Ingress routes domains to Services, which target Deployments."
+/>
+
+A real example — deploying `mysite.dev`:
+
+```yaml
+# deployment.yml — what to run
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tus
+  namespace: fleet
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: tus } }
+  template:
+    metadata: { labels: { app: tus } }
+    spec:
+      imagePullSecrets: [{ name: ghcr-secret }]
+      containers:
+        - name: tus
+          image: ghcr.io/yourusername/sandbox/tus:latest
+          ports: [{ containerPort: 3000 }]
+```
+
+```yaml
+# service.yml — internal networking
+apiVersion: v1
+kind: Service
+metadata: { name: tus-svc, namespace: fleet }
+spec:
+  selector: { app: tus }
+  ports: [{ port: 80, targetPort: 3000 }]
+```
+
+```yaml
+# ingress.yml — domain routing
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata: { name: tus-ingress, namespace: fleet }
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: mysite.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service: { name: tus-svc, port: { number: 80 } }
+```
+
+**Adding a new app** is: create a directory, drop in three YAML files, run `make kubernetes`. **Removing an app** is: delete the directory, run `make kubernetes` — the `--prune` flag cleans up orphaned resources.
+
+---
+
+## Secrets Management
+
+Secrets never touch Git in plaintext. They flow through a secure pipeline:
+
+<Mermaid
+  chart={`flowchart LR
+    A[".env\n(gitignored)"] -->|encrypt| B["Vault\n(committed)"]
+    B -->|deploy| C["K8s Secrets"]
+    C -->|env vars| D["Pods"]
+
+    style A fill:#EF4444,color:#fff
+    style B fill:#F59E0B,color:#fff
+    style C fill:#8B5CF6,color:#fff
+    style D fill:#22c55e,color:#fff
+  `}
+  caption="Plaintext .env → encrypted Vault → Kubernetes secrets → running containers."
+/>
+
+```bash
+# 1. Store secrets locally (never committed)
+echo "GITHUB_PAT=ghp_xxx" >> .env
+
+# 2. Encrypt into Ansible Vault
+make sync-secrets
+
+# 3. Deploy — Ansible decrypts in memory, injects into K8s
+make vps
+```
+
+For apps needing many runtime secrets, the setup also supports **External Secrets Operator (ESO)** with Doppler — secrets sync automatically without re-running Ansible.
+
+---
+
+## Local VM Playground
+
+Before deploying to production, test everything locally. The `vm` CLI spins up lightweight Debian VMs that mirror your production setup:
+
+```bash
+vm create 3 -s light -n tos    # Create tos-1, tos-2, tos-3
+make ping                       # Verify connectivity
+make vps                        # Full deploy (K3s + apps)
+vm exec tos-1 "k3s kubectl get pods -A"
+vm delete --all -f              # Clean up
+```
+
+Local VMs use simple nginx containers with HTML pages instead of real apps — enough to test the full pipeline (manifest sync, namespace creation, ingress routing) without needing container images.
+
+---
+
+## Dotfiles — Consistent Environment Everywhere
+
+Every machine gets a consistent shell environment through Dotbot, with three profiles:
+
+| Profile | Where | What |
+|---------|-------|------|
+| **Personal** | Workstations | Full zsh, editor integration, all aliases |
+| **Sandbox** | VPS / test servers | Bash + server monitoring aliases |
+| **Lightweight** | Constrained environments | Minimal bash, basic functions |
+
+All profiles share a common layer (`.bashrc`, `.aliases`, `.gitconfig`, `.functions`), and each adds profile-specific customizations on top. Ansible copies the dotfiles and runs Dotbot with the matching profile config.
+
+---
+
+## Day-to-Day Operations
+
+```bash
+# Full deployment
+make all                    # Everything, everywhere
+make vps                    # VPS hosts only
+make host HOST=zeabur       # Single host
+
+# Targeted
+make kubernetes             # Sync K8s manifests only
+make dotfiles               # Sync dotfiles only
+
+# Utilities
+make ping                   # Test connectivity
+make check                  # Dry run (no changes)
+make sync-secrets           # Encrypt .env → Vault
+```
+
+---
+
+## Advanced: GitOps with Flux
+
+For fully automated deployments, optional Flux integration watches a Git repo and applies changes on push — no `make kubernetes` needed. Push your manifests and the cluster updates itself.
+
+---
+
+## What It Costs
+
+| Resource | Cost |
+|----------|------|
+| VPS (2 vCPU, 4GB RAM) | $5-20/mo |
+| Domain | $10-15/year |
+| GHCR, Doppler, Ansible, VMs | Free |
+
+**~$10-25/month total** for running multiple web applications on Kubernetes. Compare that to $7+/app on PaaS platforms.
+
+---
+
+## Summary
+
+This setup gives you:
+
+- **A single source of truth** — Git repo contains everything: manifests, configs, dotfiles, encrypted secrets
+- **Reproducibility** — one command to go from blank VPS to fully configured Kubernetes node
+- **Safe experimentation** — test locally before touching production
+- **Simplicity** — no Terraform, no cloud lock-in. Just Ansible, K3s, and SSH
+- **Scalability** — new app = three YAML files. New server = one inventory entry
+
+The infrastructure grows with your projects. Start with one VPS. When you need more, add a node to the inventory. The tooling stays the same.
+
+---
+
+*All examples are from a real, working setup. Adapt the inventory, manifests, and secrets to your own infrastructure.*
