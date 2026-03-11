@@ -29,11 +29,6 @@ export const GearIcon = (props: IconProps) => (
   </svg>
 );
 
-export const SocialIcon = ({ d, ...props }: IconProps & { d: string }) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
-    <path d={d} />
-  </svg>
-);
 
 export const CharacterIllustration = (props: IconProps) => (
   <svg viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg" {...props}>

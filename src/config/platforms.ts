@@ -10,12 +10,18 @@ const g = (domain: string) => `https://www.google.com/s2/favicons?domain=${domai
 const f = (domain: string) => `https://${domain}/favicon.ico`;
 
 export const platforms = {
+  github: { name: "GitHub", favicon: f("github.com") },
+  linkedin: { name: "LinkedIn", favicon: g("linkedin.com") },
+  twitter: { name: "Twitter / X", favicon: g("x.com") },
+  facebook: { name: "Facebook", favicon: g("facebook.com") },
+  instagram: { name: "Instagram", favicon: g("instagram.com") },
+  npm: { name: "npm", favicon: g("npmjs.com") },
+  dockerhub: { name: "Docker Hub", favicon: g("hub.docker.com") },
+  stackoverflow: { name: "Stack Overflow", favicon: g("stackoverflow.com") },
   devto: { name: "Dev.to", favicon: g("dev.to") },
   medium: { name: "Medium", favicon: g("medium.com") },
-  linkedin: { name: "LinkedIn", favicon: g("linkedin.com") },
+  email: { name: "Email", favicon: g("gmail.com") },
   hashnode: { name: "Hashnode", favicon: f("hashnode.com") },
-  twitter: { name: "Twitter", favicon: g("x.com") },
-  github: { name: "GitHub", favicon: f("github.com") },
 } as const satisfies Record<string, Platform>;
 
 export type PlatformKey = keyof typeof platforms;

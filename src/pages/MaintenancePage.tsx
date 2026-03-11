@@ -3,11 +3,12 @@ import Logo from "@/components/Logo";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { BlurFadeIn } from "@/components/MotionWrapper";
 import { motion } from "motion/react";
-import { GearIcon, SocialIcon } from "@/components/SVGs";
+import { GearIcon } from "@/components/SVGs";
 import { socialProfiles } from "@/data/social-profiles";
+import { platforms } from "@/config/platforms";
 
 const socials = socialProfiles
-  .filter((s) => ["GitHub", "LinkedIn", "Email"].includes(s.label))
+  .filter((s) => ["github", "linkedin", "email"].includes(s.platform))
   .filter((s) => s.href);
 
 const stagger = 0.12;
@@ -99,18 +100,21 @@ export default function MaintenancePage() {
         {maintenance.showSocials && socials.length > 0 && (
           <BlurFadeIn delay={stagger * 5}>
             <div className="flex items-center gap-3">
-              {socials.map((s) => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  target={s.href.startsWith("mailto:") ? undefined : "_blank"}
-                  rel={s.href.startsWith("mailto:") ? undefined : "noopener noreferrer"}
-                  aria-label={s.label}
-                  className="w-10 h-10 rounded-xl border border-border/50 bg-card/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 hover:bg-primary/5 transition-all duration-300"
-                >
-                  <SocialIcon d={s.icon} className="w-[18px] h-[18px]" />
-                </a>
-              ))}
+              {socials.map((s) => {
+                const p = platforms[s.platform];
+                return (
+                  <a
+                    key={s.platform}
+                    href={s.href}
+                    target={s.href.startsWith("mailto:") ? undefined : "_blank"}
+                    rel={s.href.startsWith("mailto:") ? undefined : "noopener noreferrer"}
+                    aria-label={p.name}
+                    className="w-10 h-10 rounded-xl border border-border/50 bg-card/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 hover:bg-primary/5 transition-all duration-300"
+                  >
+                    <img src={p.favicon} alt={p.name} className="w-[18px] h-[18px]" loading="lazy" />
+                  </a>
+                );
+              })}
             </div>
           </BlurFadeIn>
         )}
