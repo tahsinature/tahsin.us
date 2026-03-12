@@ -14,6 +14,8 @@ RUN bun run build
 # Production stage
 FROM oven/bun:1.3
 
+RUN apt-get update && apt-get install -y --no-install-recommends tini && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 COPY --from=build /app/dist ./dist
@@ -38,4 +40,5 @@ RUN bun add hono
 
 EXPOSE 3000
 
+ENTRYPOINT ["tini", "--"]
 CMD ["bun", "server.ts"]
