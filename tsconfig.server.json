@@ -25,5 +25,6 @@
       "@server/*": ["server/*"]
     }
   },
-  "include": ["server/**/*.ts", "src/lib/notion.ts"]
+  "include": ["server/**/*.ts", "src/lib/notion.ts"],
+  "exclude": ["server/**/*.test.ts"]
 }

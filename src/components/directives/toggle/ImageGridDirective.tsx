@@ -29,7 +29,7 @@ export default function ImageGridDirective({ props }: { props: DirectiveProps })
 
   return (
     <div className="my-4">
-      {title && <h3 className="text-sm font-semibold text-foreground mb-3">{title}</h3>}
+      {title && <h3 className="text-sm font-semibold text-foreground mb-3">{title as string}</h3>}
       <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
         {visible.map((src, i) => {
           const isLast = i === visibleCount - 1 && remaining > 0;

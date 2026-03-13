@@ -10,7 +10,7 @@
  * File/video/PDF attachments come as file:// URIs that aren't usable directly.
  * We resolve them in the background via the block API and update the UI.
  */
-import { createContext, useContext, useEffect, useRef, useState, useCallback, useMemo, type ReactNode } from "react";
+import { useContext, useEffect, useRef, useState, useCallback, useMemo, type ReactNode } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { codeToHtml, type BundledLanguage } from "shiki";
