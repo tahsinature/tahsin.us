@@ -40,7 +40,6 @@ export default function LocationMap() {
 
     map.on("load", () => {
       setReady(true);
-      // Fly in after a brief pause
       setTimeout(() => {
         map.flyTo({
           center: LONDON_ON,
@@ -71,9 +70,9 @@ export default function LocationMap() {
   }, []);
 
   return (
-    <div className="hidden md:block rounded-xl border border-border/40 bg-card/30 h-full min-h-[240px] relative overflow-hidden group">
-      {/* Map canvas */}
-      <div ref={containerRef} className="absolute inset-0 w-full h-full" />
+    <div className="hidden md:block rounded-xl border border-border/40 overflow-hidden relative" style={{ minHeight: 240 }}>
+      {/* Map container — MapLibre needs a block-level element with resolved dimensions */}
+      <div ref={containerRef} style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }} />
 
       {/* Vignette overlay */}
       <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_30px_rgba(0,0,0,0.15)] dark:shadow-[inset_0_0_30px_rgba(0,0,0,0.4)] rounded-xl z-10" />
@@ -82,11 +81,8 @@ export default function LocationMap() {
       <div
         className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 transition-opacity duration-700 ${ready ? "opacity-100" : "opacity-0"}`}
       >
-        {/* Ping ring */}
         <span className="absolute inset-0 -m-3 rounded-full bg-primary/20 animate-ping" />
-        {/* Steady glow */}
         <span className="absolute inset-0 -m-2 rounded-full bg-primary/15" />
-        {/* Pin */}
         <div className="relative flex items-center justify-center w-8 h-8 rounded-full bg-primary/90 text-primary-foreground shadow-lg shadow-primary/30">
           <MapPin size={16} />
         </div>
