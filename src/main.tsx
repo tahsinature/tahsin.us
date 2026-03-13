@@ -8,10 +8,12 @@ import App from "@/App.tsx";
 // Apply theme before first render to avoid flash
 const theme = useThemeStore.getState().theme;
 document.documentElement.classList.toggle("dark", theme === "dark");
+document.documentElement.classList.toggle("light", theme === "light");
 
 // Subscribe to future changes
 useThemeStore.subscribe((state) => {
   document.documentElement.classList.toggle("dark", state.theme === "dark");
+  document.documentElement.classList.toggle("light", state.theme === "light");
 });
 
 createRoot(document.getElementById("root")!).render(
