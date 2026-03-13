@@ -121,8 +121,8 @@ export default function MapCard() {
       className: "custom-popup",
     });
 
-    // Fetch user location from IP (no permission prompt)
-    fetch("https://ipapi.co/json/")
+    // Fetch user location from IP (proxied to avoid CORS + rate limits)
+    fetch("/api/geo")
       .then((res) => res.json())
       .then((data) => {
         const latitude = data.latitude as number;

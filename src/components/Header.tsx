@@ -11,8 +11,10 @@ import { MobileNavTrigger } from "@/components/layout/MobileNavTrigger";
 const NAV_ITEMS = [
   { label: "Blog", to: "/blog" },
   { label: "Community", to: "/contributions" },
+  { label: "Travel", to: "/travel" },
   { label: "Photography", to: "/photography" },
   { label: "About", to: "/about" },
+  ...(siteConfig.enableDebug ? [{ label: "Debug", to: "/debug" }] : []),
 ];
 
 export default function Header() {
@@ -37,6 +39,8 @@ export default function Header() {
       return location.pathname.startsWith("/photography");
     if (to === "/contributions")
       return location.pathname === "/contributions";
+    if (to === "/debug")
+      return location.pathname.startsWith("/debug");
     return location.pathname === to;
   };
 
@@ -63,9 +67,9 @@ export default function Header() {
 
   return (
     <motion.header
-      initial={{ y: -20, opacity: 0 }}
+      initial={{ y: -10, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
       style={{ maskImage: "linear-gradient(to bottom, black 70%, transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, black 70%, transparent 100%)" }}
       className={cn(
         "sticky top-0 z-50 w-full backdrop-blur-xl transition-all duration-300 pb-3",

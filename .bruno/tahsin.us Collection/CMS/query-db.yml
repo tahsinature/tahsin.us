@@ -1,0 +1,21 @@
+info:
+  name: query-db
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: https://api.notion.com/v1/data_sources/:data-source-id/query
+  params:
+    - name: data-source-id
+      value: 322960add9d38024b272c54f85cbb876
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: https://developers.notion.com/reference/retrieve-page-markdown

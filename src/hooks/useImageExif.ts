@@ -15,8 +15,12 @@ export const useImageExif = (src: string, manualMeta?: PhotoMeta): { meta: Photo
     let cancelled = false;
 
     const readExif = async () => {
+      // Proxy external images through our server to avoid CORS
+      const isExternal = src.startsWith("http") && !src.startsWith(window.location.origin);
+      const fetchUrl = isExternal ? `/api/image-proxy?url=${encodeURIComponent(src)}` : src;
+
       try {
-        const exif = await exifr.parse(src, {
+        const exif = await exifr.parse(fetchUrl, {
           pick: ["Make", "Model", "LensModel", "LensMake", "FocalLength", "FNumber", "ExposureTime", "ISO", "ISOSpeedRatings"],
         });
 

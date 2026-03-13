@@ -7,7 +7,8 @@ import PhotoLightbox from "@/components/PhotoLightbox";
 import { FadeIn, StaggerContainer, StaggerItem, motion } from "@/components/MotionWrapper";
 import { blogPosts } from "@/data/posts";
 import { favPhotos } from "@/data/photography";
-import { workExperiences, skills, socialLinks } from "@/data/about";
+import { workExperiences, skills } from "@/data/about";
+import { getSocial } from "@/data/social-profiles";
 import { siteConfig } from "@/config/site";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
@@ -31,10 +32,10 @@ export default function HomePage() {
                 <p className="text-muted-foreground leading-relaxed text-[15px]">{siteConfig.bio}</p>
                 <p className="text-muted-foreground leading-relaxed text-[15px]">{siteConfig.bioExtended}</p>
                 <div className="flex flex-wrap gap-3 pt-2">
-                  <SocialPill href={socialLinks.github} icon={<Github size={15} />} label="GitHub" />
-                  {socialLinks.twitter && <SocialPill href={socialLinks.twitter} icon={<Twitter size={15} />} label="Twitter" />}
-                  <SocialPill href={socialLinks.linkedin} icon={<Linkedin size={15} />} label="LinkedIn" />
-                  <SocialPill href={socialLinks.email} icon={<Mail size={15} />} label="Email" />
+                  <SocialPill href={getSocial("github")!.href} icon={<Github size={15} />} label="GitHub" />
+                  {getSocial("twitter") && <SocialPill href={getSocial("twitter")!.href} icon={<Twitter size={15} />} label="Twitter" />}
+                  <SocialPill href={getSocial("linkedin")!.href} icon={<Linkedin size={15} />} label="LinkedIn" />
+                  <SocialPill href={getSocial("email")!.href} icon={<Mail size={15} />} label="Email" />
                 </div>
               </div>
             </FadeIn>

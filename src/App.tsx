@@ -14,6 +14,8 @@ import TripGalleryPage from "@/pages/TripGalleryPage";
 import AboutPage from "@/pages/AboutPage";
 import ContributionsPage from "@/pages/ContributionsPage";
 import NotFoundPage from "@/pages/NotFoundPage";
+import DebugPage from "@/pages/DebugPage";
+import PageView from "@/pages/PageView";
 
 function App() {
   const location = useLocation();
@@ -45,8 +47,11 @@ function App() {
             <Route path="/contributions" element={<ContributionsPage />} />
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/post/:slug" element={<BlogPostPage />} />
+            <Route path="/travel" element={<PageView pageId={siteConfig.notionPages.travel} title="Travel" />} />
             <Route path="/photography" element={<PhotographyPage />} />
             <Route path="/photography/:slug" element={<TripGalleryPage />} />
+            {siteConfig.enableDebug && <Route path="/debug" element={<DebugPage />} />}
+            <Route path="/page/:pageId" element={<PageView />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </motion.main>

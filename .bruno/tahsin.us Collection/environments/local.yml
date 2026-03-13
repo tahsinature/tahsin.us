@@ -1,0 +1,6 @@
+name: local
+variables:
+  - name: backend_host
+    value: http://localhost:3000
+  - secret: true
+    name: N_TOK

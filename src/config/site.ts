@@ -18,28 +18,27 @@ export const siteConfig = {
   locationShort: "London, Ontario",
   locationEmoji: "🇨🇦",
   bio: "Senior software engineer with 7+ years shipping production systems at scale — from greenfield builds at startups to platform modernization in enterprise.",
-  bioExtended:
-    "I lead backend and infrastructure efforts, specializing in distributed architecture, cloud-native platforms on AWS, and containerized microservices with Kubernetes.",
+  bioExtended: "I lead backend and infrastructure efforts, specializing in distributed architecture, cloud-native platforms on AWS, and containerized microservices with Kubernetes.",
   tagline: "Code, coffee, cameras — not always in that order.",
   heroIntro: "Hi, I'm Mohammad Tahsin, a software engineer based in London, Ontario, Canada.",
-
-  /* ── Social / contact ── */
-  social: {
-    github: "https://github.com/tahsinature",
-    linkedin: "https://www.linkedin.com/in/t4h51n/",
-    twitter: "", // leave empty to hide
-    email: "mailto:hello@tahsin.us",
-  },
 
   /* ── Hero ── */
   /** Hero background pattern: "grid" | "dots" | "waves" */
   heroPattern: "dots" as const,
+
+  /* ── Notion pages ── */
+  /** Map named pages to Notion page IDs */
+  notionPages: {
+    travel: "322960add9d3807283e7c9d28ec099e0",
+  },
 
   /* ── Misc / feature flags ── */
   /** Year the site / career started (used for copyright) */
   startYear: 2019,
   /** Show the newsletter signup form in the sidebar */
   enableNewsletter: false,
+  /** Enable the /debug page (set to false to hide it) */
+  enableDebug: true,
 
   /* ── Maintenance mode ── */
   maintenance: {

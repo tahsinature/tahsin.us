@@ -3,6 +3,7 @@ import { Github, Linkedin, Mail } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { Container } from "@/components/shared/Container";
 import { FadeIn } from "@/components/MotionWrapper";
+import { getSocial } from "@/data/social-profiles";
 
 const NAV_ITEMS = [
   { label: "Blog", href: "/blog" },
@@ -12,10 +13,10 @@ const NAV_ITEMS = [
 ];
 
 const SOCIAL_LINKS = [
-  { href: siteConfig.social.github, icon: Github, label: "GitHub" },
-  { href: siteConfig.social.linkedin, icon: Linkedin, label: "LinkedIn" },
-  { href: siteConfig.social.email, icon: Mail, label: "Email" },
-].filter((link) => link.href);
+  { href: getSocial("github")?.href, icon: Github, label: "GitHub" },
+  { href: getSocial("linkedin")?.href, icon: Linkedin, label: "LinkedIn" },
+  { href: getSocial("email")?.href, icon: Mail, label: "Email" },
+].filter((link) => link.href) as { href: string; icon: typeof Github; label: string }[];
 
 export default function Footer() {
   return (
@@ -48,10 +49,10 @@ export default function Footer() {
               <span>{siteConfig.locationShort}</span>
               <span className="hidden sm:inline">&middot;</span>
               <a
-                href={siteConfig.social.email}
+                href={getSocial("email")?.href}
                 className="hover:text-foreground transition-colors duration-200"
               >
-                {siteConfig.social.email.replace("mailto:", "")}
+                {getSocial("email")?.handle}
               </a>
             </div>
 

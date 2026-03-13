@@ -17,6 +17,7 @@ import SuitcaseIllustration from "@/components/about/SuitcaseIllustration";
 import MapCard from "@/components/about/MapCard";
 import { workExperiences, skills } from "@/data/about";
 import { siteConfig } from "@/config/site";
+import { getSocial } from "@/data/social-profiles";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { FadeIn, BlurFadeIn, SlideIn, StaggerContainer, StaggerItem, Float } from "@/components/MotionWrapper";
 
@@ -150,7 +151,7 @@ export default function AboutPage() {
               </p>
               <p className="text-muted-foreground text-sm">
                 Check out my work on{" "}
-                <a href={siteConfig.social.github} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline underline decoration-dotted">
+                <a href={getSocial("github")?.href} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline underline decoration-dotted">
                   GitHub
                 </a>
                 .

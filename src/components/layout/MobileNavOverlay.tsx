@@ -7,12 +7,15 @@ import { ThemeToggle } from "./ThemeToggle";
 import { useMobileNavStore } from "@/stores/useMobileNavStore";
 import Logo from "@/components/Logo";
 import { siteConfig } from "@/config/site";
+import { getSocial } from "@/data/social-profiles";
 
 const NAV_ITEMS = [
   { label: "Blog", href: "/blog" },
   { label: "Community", href: "/contributions" },
+  { label: "Travel", href: "/travel" },
   { label: "Photography", href: "/photography" },
   { label: "About", href: "/about" },
+  ...(siteConfig.enableDebug ? [{ label: "Debug", href: "/debug" }] : []),
 ];
 
 export function MobileNavOverlay() {
@@ -114,7 +117,7 @@ export function MobileNavOverlay() {
         >
           <div>
             <p className="text-xs text-muted-foreground/50">
-              {siteConfig.social.email.replace("mailto:", "")}
+              {getSocial("email")?.handle}
             </p>
           </div>
           <p className="text-[11px] text-muted-foreground/35">

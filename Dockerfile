@@ -20,25 +20,10 @@ WORKDIR /app
 
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/package.json ./
-
-COPY <<'EOF' server.ts
-import { Hono } from "hono";
-import { serveStatic } from "hono/bun";
-
-const app = new Hono();
-
-app.use("/*", serveStatic({ root: "./dist" }));
-app.get("*", serveStatic({ path: "./dist/index.html" }));
-
-export default {
-  port: 3000,
-  fetch: app.fetch,
-};
-EOF
-
-RUN bun add hono
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/server ./server
 
 EXPOSE 3000
 
 ENTRYPOINT ["tini", "--"]
-CMD ["bun", "server.ts"]
+CMD ["bun", "server/index.ts"]
