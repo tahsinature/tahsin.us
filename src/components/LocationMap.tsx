@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { MapPin } from "lucide-react";
 import { siteConfig } from "@/config/site";
 
 const LONDON_ON: [number, number] = [-81.2453, 42.9849];
@@ -18,8 +17,6 @@ function getTheme(): "light" | "dark" {
 
 export default function LocationMap() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<maplibregl.Map | null>(null);
-  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -30,16 +27,14 @@ export default function LocationMap() {
       style: STYLES[theme],
       center: LONDON_ON,
       zoom: 4,
-      pitch: 0,
       attributionControl: false,
-      interactive: false,
-      fadeDuration: 0,
     });
 
-    mapRef.current = map;
+    new maplibregl.Marker({ color: getComputedStyle(document.documentElement).getPropertyValue("--primary").trim() })
+      .setLngLat(LONDON_ON)
+      .addTo(map);
 
     map.on("load", () => {
-      setReady(true);
       setTimeout(() => {
         map.flyTo({
           center: LONDON_ON,
@@ -52,10 +47,8 @@ export default function LocationMap() {
       }, 400);
     });
 
-    // Watch theme changes
     const observer = new MutationObserver(() => {
-      const newTheme = getTheme();
-      map.setStyle(STYLES[newTheme]);
+      map.setStyle(STYLES[getTheme()]);
     });
     observer.observe(document.documentElement, {
       attributes: true,
@@ -65,31 +58,14 @@ export default function LocationMap() {
     return () => {
       observer.disconnect();
       map.remove();
-      mapRef.current = null;
     };
   }, []);
 
   return (
     <div className="hidden md:block rounded-xl border border-border/40 overflow-hidden relative" style={{ minHeight: 240 }}>
-      {/* Map container — MapLibre needs a block-level element with resolved dimensions */}
       <div ref={containerRef} style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }} />
 
-      {/* Vignette overlay */}
-      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_30px_rgba(0,0,0,0.15)] dark:shadow-[inset_0_0_30px_rgba(0,0,0,0.4)] rounded-xl z-10" />
-
-      {/* Pulsing marker */}
-      <div
-        className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 transition-opacity duration-700 ${ready ? "opacity-100" : "opacity-0"}`}
-      >
-        <span className="absolute inset-0 -m-3 rounded-full bg-primary/20 animate-ping" />
-        <span className="absolute inset-0 -m-2 rounded-full bg-primary/15" />
-        <div className="relative flex items-center justify-center w-8 h-8 rounded-full bg-primary/90 text-primary-foreground shadow-lg shadow-primary/30">
-          <MapPin size={16} />
-        </div>
-      </div>
-
-      {/* Location label */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 p-3 bg-gradient-to-t from-background/80 via-background/40 to-transparent">
+      <div className="absolute bottom-0 left-0 right-0 z-20 p-3 bg-gradient-to-t from-background/80 via-background/40 to-transparent pointer-events-none">
         <p className="text-foreground font-semibold text-sm leading-tight">
           {siteConfig.locationShort}
         </p>
