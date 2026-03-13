@@ -71,9 +71,9 @@ export default function LocationMap() {
   }, []);
 
   return (
-    <div className="hidden md:flex flex-col rounded-xl border border-border/40 bg-card/30 h-full min-h-[200px] relative overflow-hidden group">
+    <div className="hidden md:block rounded-xl border border-border/40 bg-card/30 h-full min-h-[240px] relative overflow-hidden group">
       {/* Map canvas */}
-      <div ref={containerRef} className="absolute inset-0" />
+      <div ref={containerRef} className="absolute inset-0 w-full h-full" />
 
       {/* Vignette overlay */}
       <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_30px_rgba(0,0,0,0.15)] dark:shadow-[inset_0_0_30px_rgba(0,0,0,0.4)] rounded-xl z-10" />
