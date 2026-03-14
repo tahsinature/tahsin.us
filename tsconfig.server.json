@@ -25,5 +25,6 @@
       "@server/*": ["server/*"]
     }
   },
-  "include": ["server/**/*.ts"]
+  "include": ["server/**/*.ts"],
+  "exclude": ["server/**/*.test.ts"]
 }
