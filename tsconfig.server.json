@@ -4,7 +4,7 @@
     "target": "ES2023",
     "lib": ["ES2023"],
     "module": "ESNext",
-    "types": ["node"],
+    "types": ["node", "bun-types"],
     "skipLibCheck": true,
 
     "moduleResolution": "bundler",
@@ -25,6 +25,5 @@
       "@server/*": ["server/*"]
     }
   },
-  "include": ["server/**/*.ts", "src/lib/notion.ts"],
-  "exclude": ["server/**/*.test.ts"]
+  "include": ["server/**/*.ts"]
 }

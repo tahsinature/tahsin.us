@@ -1,10 +1,12 @@
 import { Client } from "@notionhq/client";
 
-const DATA_SOURCE_ID = process.env.PHOTOS_DS_ID ?? "";
+const TRIPS_DS_ID = process.env.PHOTOS_DS_ID ?? "";
+const PHOTOS_DS_ID = "323960ad-d9d3-80af-8586-000b87acbf60";
 
 export interface PhotoData {
   src: string;
   name: string;
+  caption: string;
   isFav: boolean;
   mediaType: "image" | "video" | "gif";
 }
@@ -81,68 +83,136 @@ function formatDate(date: { start: string; end: string | null } | null): { displ
   };
 }
 
+// ── Fetch photos for a specific trip ──
+
+async function fetchPhotosForTrip(
+  notion: Client,
+  tripId: string,
+): Promise<PhotoData[]> {
+  const photos: PhotoData[] = [];
+  let cursor: string | undefined;
+
+  do {
+    const res = await notion.dataSources.query({
+      data_source_id: PHOTOS_DS_ID,
+      filter_properties: ["Name", "Files", "Caption", "Fav"],
+      filter: {
+        and: [
+          { property: "Trips", relation: { contains: tripId.replace(/-/g, "") } },
+          { property: "Files", files: { is_not_empty: true } },
+        ],
+      },
+      ...(cursor ? { start_cursor: cursor } : {}),
+    } as Parameters<typeof notion.dataSources.query>[0]);
+
+    for (const page of res.results) {
+      const props = (page as Record<string, unknown>).properties as Record<string, unknown>;
+
+      const name = (props.Name as { title: Array<{ plain_text: string }> })?.title?.[0]?.plain_text ?? "";
+      const caption = (props.Caption as { rich_text: Array<{ plain_text: string }> })?.rich_text?.[0]?.plain_text ?? "";
+      const isFav = (props.Fav as { checkbox: boolean })?.checkbox ?? false;
+      const files = (props.Files as { files: Array<{ name: string; file?: { url: string }; external?: { url: string } }> })?.files ?? [];
+      const firstFile = files[0];
+      if (!firstFile) continue;
+
+      const src = firstFile.file?.url ?? firstFile.external?.url ?? "";
+      if (!src) continue;
+
+      photos.push({
+        src,
+        name: name || firstFile.name,
+        caption,
+        isFav,
+        mediaType: getMediaType(firstFile.name),
+      });
+    }
+
+    cursor = res.has_more ? (res as { next_cursor?: string }).next_cursor : undefined;
+  } while (cursor);
+
+  return photos;
+}
+
+// ── Main fetch ──
+
 export async function fetchPhotographs(token: string): Promise<PhotographsResponse> {
   const notion = new Client({ auth: token });
 
+  // Step 1: Fetch all trips
   const response = await notion.dataSources.query({
-    data_source_id: DATA_SOURCE_ID,
+    data_source_id: TRIPS_DS_ID,
     sorts: [{ property: "Date", direction: "descending" }],
   });
 
-  const trips: TripData[] = [];
   const slugCounts = new Map<string, number>();
+
+  // Step 2: Build trip metadata and collect photo relation IDs
+  const tripMetas: Array<{
+    id: string;
+    name: string;
+    description: string;
+    dateDisplay: string;
+    dateRaw: string;
+    photoRelationIds: string[];
+  }> = [];
 
   for (const page of response.results) {
     const props = (page as Record<string, unknown>).properties as Record<string, unknown>;
 
-    // Extract name
     const nameField = props.Name as { title: Array<{ plain_text: string }> };
     const name = nameField?.title?.[0]?.plain_text ?? "";
     if (!name) continue;
 
-    // Extract files
-    const filesField = props.Files as {
-      files: Array<{ name: string; type: string; file?: { url: string }; external?: { url: string } }>;
-    };
-    const files = filesField?.files ?? [];
-    if (files.length === 0) continue;
-
-    // Extract description
     const descField = props.Description as { rich_text: Array<{ plain_text: string }> };
     const description = descField?.rich_text?.map((t) => t.plain_text).join("") ?? "";
 
-    // Extract date
     const dateField = props.Date as { date: { start: string; end: string | null } | null };
     const { display: dateDisplay, raw: dateRaw } = formatDate(dateField?.date ?? null);
 
-    // Extract favCount
-    const favField = props.FavFirst as { number: number | null };
-    const favCount = favField?.number ?? 0;
+    const photosRelation = (props.Photos as { relation: Array<{ id: string }> })?.relation ?? [];
 
-    // Generate slug with collision handling
-    let slug = slugify(name);
+    tripMetas.push({
+      id: (page as { id: string }).id,
+      name,
+      description,
+      dateDisplay,
+      dateRaw,
+      photoRelationIds: photosRelation.map((r) => r.id),
+    });
+  }
+
+  // Step 3: Fetch photos for all trips in parallel
+  const tripPhotos = await Promise.all(
+    tripMetas.map((trip) => fetchPhotosForTrip(notion, trip.id)),
+  );
+
+  // Step 4: Assemble trips
+  const trips: TripData[] = [];
+  for (let i = 0; i < tripMetas.length; i++) {
+    const meta = tripMetas[i];
+    const photos = tripPhotos[i];
+    if (photos.length === 0) continue;
+
+    let slug = slugify(meta.name);
     const count = slugCounts.get(slug) ?? 0;
     slugCounts.set(slug, count + 1);
     if (count > 0) {
-      slug = `${slug}-${(page as { id: string }).id.slice(0, 8)}`;
+      slug = `${slug}-${meta.id.slice(0, 8)}`;
     }
 
-    // Build photos
-    const photos: PhotoData[] = files.map((file, index) => ({
-      src: file.type === "file" ? file.file!.url : file.external!.url,
-      name: file.name,
-      isFav: index < favCount,
-      mediaType: getMediaType(file.name),
-    }));
+    // Sort: favs first
+    photos.sort((a, b) => (a.isFav === b.isFav ? 0 : a.isFav ? -1 : 1));
+
+    const favCount = photos.filter((p) => p.isFav).length;
 
     trips.push({
-      id: (page as { id: string }).id,
+      id: meta.id,
       slug,
-      name,
+      name: meta.name,
       coverImage: photos[0].src,
-      description,
-      date: dateDisplay,
-      dateRaw,
+      description: meta.description,
+      date: meta.dateDisplay,
+      dateRaw: meta.dateRaw,
       photoCount: photos.length,
       favCount,
       photos,

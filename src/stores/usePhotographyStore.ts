@@ -63,7 +63,7 @@ export const usePhotographyStore = create<PhotographyState>((set, get) => ({
             date: string;
             photoCount: number;
             favCount: number;
-            photos: Array<{ src: string; name: string; isFav: boolean; mediaType: string }>;
+            photos: Array<{ src: string; name: string; caption: string; isFav: boolean; mediaType: string }>;
           }) => ({
             id: t.id,
             slug: t.slug,
@@ -75,7 +75,8 @@ export const usePhotographyStore = create<PhotographyState>((set, get) => ({
             favCount: t.favCount,
             photos: t.photos.map((p) => ({
               src: p.src,
-              alt: fileNameToAlt(p.name),
+              alt: p.caption || fileNameToAlt(p.name),
+              caption: p.caption,
               name: p.name,
               isFav: p.isFav,
               mediaType: p.mediaType as "image" | "video" | "gif",

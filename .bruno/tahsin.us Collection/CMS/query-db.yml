@@ -5,11 +5,34 @@ info:
 
 http:
   method: POST
-  url: https://api.notion.com/v1/data_sources/:data-source-id/query
+  url: https://api.notion.com/v1/data_sources/:data-source-id/query?filter_properties[]=Files&filter_properties[]=Caption
   params:
+    - name: filter_properties[]
+      value: Name
+      type: query
+      disabled: true
+    - name: filter_properties[]
+      value: Files
+      type: query
+    - name: filter_properties[]
+      value: Caption
+      type: query
     - name: data-source-id
-      value: 322960add9d38024b272c54f85cbb876
+      value: 323960ad-d9d3-80af-8586-000b87acbf60
       type: path
+  body:
+    type: json
+    data: |-
+      {
+          "filter": {
+            "and": [
+               {
+              "property": "Trips",
+              "relation": { "contains": "322960add9d38077b3ccddf8ca2532cf" }
+            }
+            ]
+          }
+        }
   auth: inherit
 
 settings:

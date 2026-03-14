@@ -11,6 +11,7 @@ export interface PhotoMeta {
 export interface Photo {
   src: string;
   alt: string;
+  caption?: string;
   name?: string;
   isFav?: boolean;
   mediaType?: "image" | "video" | "gif";
