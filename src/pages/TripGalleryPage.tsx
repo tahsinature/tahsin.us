@@ -1,16 +1,42 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link, useSearchParams } from "react-router-dom";
-import { ArrowLeft, MapPin, Calendar } from "lucide-react";
-import { trips } from "@/data/photography";
+import { ArrowLeft, MapPin, Calendar, FileText } from "lucide-react";
+import { usePhotographyStore } from "@/stores/usePhotographyStore";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import PhotoImage from "@/components/PhotoImage";
 import ExifMetaDisplay from "@/components/ExifMetaDisplay";
 import PhotoLightbox from "@/components/PhotoLightbox";
 import { FadeIn, BlurFadeIn, motion } from "@/components/MotionWrapper";
 
+/* ── Skeleton ── */
+
+function TripGallerySkeleton() {
+  const aspects = ["aspect-[3/4]", "aspect-[4/3]", "aspect-[1/1]", "aspect-[3/2]", "aspect-[2/3]", "aspect-[4/5]"];
+  return (
+    <main className="max-w-7xl mx-auto px-6 py-8">
+      <div className="h-4 w-32 bg-muted/30 rounded animate-pulse mb-8" />
+      <header className="mb-10 space-y-3">
+        <div className="h-8 w-48 bg-muted/30 rounded animate-pulse" />
+        <div className="h-5 w-72 bg-muted/20 rounded animate-pulse" />
+        <div className="h-4 w-36 bg-muted/20 rounded animate-pulse" />
+        <hr className="border-border mt-6" />
+      </header>
+      <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className={`break-inside-avoid ${aspects[i % aspects.length]} bg-muted/30 rounded animate-pulse`} />
+        ))}
+      </div>
+    </main>
+  );
+}
+
+/* ── Main Page ── */
+
 export default function TripGalleryPage() {
   const { slug } = useParams<{ slug: string }>();
-  const trip = trips.find((t) => t.slug === slug);
+  const { getTripBySlug, status, prefetchTripPage } = usePhotographyStore();
+  const trip = getTripBySlug(slug ?? "");
+
   useDocumentTitle(trip?.country);
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -18,6 +44,16 @@ export default function TripGalleryPage() {
     const p = searchParams.get("photo");
     return p !== null ? parseInt(p, 10) : null;
   });
+
+  // Prefetch trip page content for "View Trip Details"
+  useEffect(() => {
+    if (trip?.id) prefetchTripPage(trip.id);
+  }, [trip?.id, prefetchTripPage]);
+
+  const isLoading = status === "idle" || status === "loading";
+
+  // Show skeleton while loading
+  if (isLoading) return <TripGallerySkeleton />;
 
   if (!trip) {
     return (
@@ -75,15 +111,29 @@ export default function TripGalleryPage() {
             <h1 className="text-3xl font-bold text-foreground">{trip.country}</h1>
           </div>
         </BlurFadeIn>
-        <BlurFadeIn delay={0.1}>
-          <p className="text-muted-foreground text-lg mb-2">{trip.description}</p>
-        </BlurFadeIn>
+        {trip.description && (
+          <BlurFadeIn delay={0.1}>
+            <p className="text-muted-foreground text-lg mb-2">{trip.description}</p>
+          </BlurFadeIn>
+        )}
         <BlurFadeIn delay={0.15}>
-          <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
-            <Calendar size={14} />
-            {trip.date}
-            <span className="mx-2 text-border">·</span>
+          <div className="flex items-center gap-1.5 text-muted-foreground text-sm flex-wrap">
+            {trip.date && (
+              <>
+                <Calendar size={14} />
+                {trip.date}
+                <span className="mx-2 text-border">&middot;</span>
+              </>
+            )}
             {trip.photoCount} photos
+            <span className="mx-2 text-border">&middot;</span>
+            <Link
+              to={`/page/${trip.id}`}
+              className="text-primary hover:underline inline-flex items-center gap-1"
+            >
+              <FileText size={13} />
+              Trip Details
+            </Link>
           </div>
         </BlurFadeIn>
         <FadeIn delay={0.2}>
@@ -111,7 +161,7 @@ export default function TripGalleryPage() {
                   variants={{ hover: { scale: 1.03 } }}
                   transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
                 >
-                  <PhotoImage src={photo.src} alt={photo.alt} className="w-full h-auto object-cover" loading="lazy" aspectHint="4/3" />
+                  <PhotoImage src={photo.src} alt={photo.alt} className="w-full h-auto object-cover" loading="lazy" aspectHint="" />
                 </motion.div>
                 {/* Hover overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">

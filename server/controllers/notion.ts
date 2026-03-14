@@ -3,7 +3,7 @@ import { fetchNotionPageMarkdown, resolveFileBlocks } from "@server/lib/notion";
 
 
 function getToken() {
-  const token = process.env.NOTION_TOKEN;
+  const token = process.env.N_TOK;
   if (!token || token === "your_notion_token_here") {
     return null;
   }
@@ -12,7 +12,7 @@ function getToken() {
 
 export async function getPage(c: Context) {
   const token = getToken();
-  if (!token) return c.json({ error: "NOTION_TOKEN not configured" }, 500);
+  if (!token) return c.json({ error: "N_TOK not configured" }, 500);
 
   const { pageId } = c.req.param();
 
@@ -27,7 +27,7 @@ export async function getPage(c: Context) {
 
 export async function resolveFiles(c: Context) {
   const token = getToken();
-  if (!token) return c.json({ error: "NOTION_TOKEN not configured" }, 500);
+  if (!token) return c.json({ error: "N_TOK not configured" }, 500);
 
   try {
     const { blockIds } = await c.req.json<{ blockIds: string[] }>();

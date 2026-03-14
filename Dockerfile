@@ -14,9 +14,12 @@ RUN bun run build
 # Production stage
 FROM oven/bun:1.3
 
-RUN apt-get update && apt-get install -y --no-install-recommends tini && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y tini curl gnupg ca-certificates
 
 WORKDIR /app
+
+COPY --from=build /app/scripts ./scripts
+RUN ./scripts/install-doppler-inside-container.sh && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/package.json ./
@@ -28,4 +31,4 @@ COPY --from=build /app/server ./server
 EXPOSE 3000
 
 ENTRYPOINT ["tini", "--"]
-CMD ["bun", "server/index.ts"]
+CMD ["./scripts/run-prod.sh"]

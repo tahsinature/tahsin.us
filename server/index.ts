@@ -3,6 +3,11 @@ import { serveStatic } from "hono/bun";
 import { notionRoutes } from "@server/routes/notion";
 import { imageProxyRoutes } from "@server/routes/image-proxy";
 import { geoRoutes } from "@server/routes/geo";
+import { photographRoutes } from "@server/routes/photographs";
+
+if (!process.env.N_TOK) {
+  throw new Error("N_TOK environment variable is required");
+}
 
 const app = new Hono();
 
@@ -10,6 +15,7 @@ const app = new Hono();
 app.route("/api", notionRoutes);
 app.route("/api", imageProxyRoutes);
 app.route("/api", geoRoutes);
+app.route("/api", photographRoutes);
 
 // Static files & SPA fallback
 app.use("/*", serveStatic({ root: "./dist" }));

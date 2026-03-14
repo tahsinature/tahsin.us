@@ -17,9 +17,9 @@ async function main() {
     process.exit(1);
   }
 
-  const token = process.env.NOTION_TOKEN;
+  const token = process.env.N_TOK;
   if (!token || token === "your_notion_token_here") {
-    console.error("NOTION_TOKEN not configured in .env");
+    console.error("N_TOK not configured in .env");
     process.exit(1);
   }
 

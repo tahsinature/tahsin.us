@@ -10,7 +10,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "bun server/index.ts",
+    "start": "./scripts/run-prod.sh",
     "test": "bun test server/__tests__"
   },
   "dependencies": {

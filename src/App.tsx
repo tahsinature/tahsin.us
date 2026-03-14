@@ -2,6 +2,7 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect } from "react";
 import { siteConfig } from "@/config/site";
+import { usePhotographyStore } from "@/stores/usePhotographyStore";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { MobileNavOverlay } from "@/components/layout/MobileNavOverlay";
@@ -19,6 +20,11 @@ import PageView from "@/pages/PageView";
 
 function App() {
   const location = useLocation();
+  const fetchPhotographs = usePhotographyStore((s) => s.fetchPhotographs);
+
+  useEffect(() => {
+    fetchPhotographs();
+  }, [fetchPhotographs]);
 
   useEffect(() => {
     window.scrollTo(0, 0);

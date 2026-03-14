@@ -7,7 +7,7 @@ import InteractiveCodeCard from "@/components/InteractiveCodeCard";
 import PhotoLightbox from "@/components/PhotoLightbox";
 import { FadeIn, StaggerContainer, StaggerItem, motion } from "@/components/MotionWrapper";
 import { blogPosts } from "@/data/posts";
-import { favPhotos } from "@/data/photography";
+import { usePhotographyStore } from "@/stores/usePhotographyStore";
 import { workExperiences, skills } from "@/data/about";
 import { getSocial } from "@/data/social-profiles";
 import { siteConfig } from "@/config/site";
@@ -16,6 +16,7 @@ import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 export default function HomePage() {
   useDocumentTitle();
   const recentPosts = blogPosts.slice(0, 3);
+  const favPhotos = usePhotographyStore((s) => s.favPhotos);
   const previewPhotos = favPhotos.slice(0, 6);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 

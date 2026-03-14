@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Camera, MapPin, Calendar, Image, Sparkles, Globe } from "lucide-react";
-import { trips, favPhotos } from "@/data/photography";
+import { Camera, MapPin, Calendar, Image, Sparkles, Globe, RefreshCw } from "lucide-react";
+import { usePhotographyStore } from "@/stores/usePhotographyStore";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import PhotoImage from "@/components/PhotoImage";
 import ExifMetaDisplay from "@/components/ExifMetaDisplay";
@@ -11,9 +11,43 @@ import { AnimatePresence } from "motion/react";
 
 type ViewMode = "destinations" | "featured";
 
+/* ── Skeleton Loaders ── */
+
+function DestinationsSkeleton() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className="bg-card border border-border rounded-md overflow-hidden animate-pulse">
+          <div className="aspect-[16/9] bg-muted/30" />
+          <div className="p-5 space-y-3">
+            <div className="h-5 w-1/2 bg-muted/30 rounded" />
+            <div className="h-3 w-3/4 bg-muted/20 rounded" />
+            <div className="h-3 w-1/4 bg-muted/20 rounded" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function FeaturedSkeleton() {
+  const aspects = ["aspect-[3/4]", "aspect-[4/3]", "aspect-[1/1]", "aspect-[3/2]", "aspect-[2/3]", "aspect-[4/5]"];
+  return (
+    <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
+      {Array.from({ length: 9 }).map((_, i) => (
+        <div key={i} className={`break-inside-avoid ${aspects[i % aspects.length]} bg-muted/30 rounded animate-pulse`} />
+      ))}
+    </div>
+  );
+}
+
+/* ── Main Page ── */
+
 export default function PhotographyPage() {
   useDocumentTitle("Photography");
   const [searchParams, setSearchParams] = useSearchParams();
+  const { trips, favPhotos, status, error, fetchPhotographs } = usePhotographyStore();
+
   const [view, setView] = useState<ViewMode>(() => {
     const v = searchParams.get("view");
     return v === "featured" ? "featured" : "destinations";
@@ -23,7 +57,18 @@ export default function PhotographyPage() {
     return p !== null ? parseInt(p, 10) : null;
   });
 
-  // Sync lightbox state to URL so the link is shareable
+  // Staleness refresh — re-fetch if data older than 25 minutes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const { fetchedAt } = usePhotographyStore.getState();
+      if (fetchedAt && Date.now() - fetchedAt > 25 * 60 * 1000) {
+        usePhotographyStore.getState().fetchPhotographs();
+      }
+    }, 60_000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Lightbox controls for featured view
   const openFeaturedLightbox = (index: number) => {
     setLightboxIndex(index);
     setSearchParams({ view: "featured", photo: String(index) }, { replace: true });
@@ -49,6 +94,8 @@ export default function PhotographyPage() {
       setSearchParams({ view: "featured", photo: String(prev) }, { replace: true });
     }
   };
+
+  const isLoading = status === "idle" || status === "loading";
 
   return (
     <main className="max-w-7xl mx-auto px-6 py-12">
@@ -95,7 +142,23 @@ export default function PhotographyPage() {
         </div>
       </FadeIn>
 
-      {/* Destinations View */}
+      {/* Error State */}
+      {status === "error" && (
+        <FadeIn>
+          <div className="text-center py-16">
+            <p className="text-muted-foreground mb-4">Failed to load photographs: {error}</p>
+            <button
+              onClick={() => fetchPhotographs()}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded text-sm font-medium border border-border bg-card text-foreground hover:border-primary/40 transition-colors cursor-pointer"
+            >
+              <RefreshCw size={14} />
+              Retry
+            </button>
+          </div>
+        </FadeIn>
+      )}
+
+      {/* Content */}
       <AnimatePresence mode="wait">
         {view === "destinations" && (
           <motion.div
@@ -105,52 +168,57 @@ export default function PhotographyPage() {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
           >
-            <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" staggerDelay={0.08}>
-              {trips.map((trip) => (
-                <StaggerItem key={trip.slug} variant="scale">
-                  <motion.div
-                    whileHover="hover"
-                    className="h-full"
-                  >
-                  <Link
-                    to={`/photography/${trip.slug}`}
-                    className="group relative block bg-card border border-border rounded-md overflow-hidden hover:border-primary/40 transition-colors duration-300 h-full"
-                  >
-                    <div>
-                      {/* Cover Image */}
-                      <div className="relative aspect-[4/3] overflow-hidden">
-                        <motion.div
-                          className="w-full h-full"
-                          variants={{ hover: { scale: 1.03 } }}
-                          transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
-                        >
-                          <PhotoImage src={trip.coverImage} alt={trip.country} className="w-full h-full object-cover" loading="lazy" aspectHint="4/3" />
-                        </motion.div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-transparent to-transparent" />
-                        <div className="absolute top-3 right-3 bg-background/70 backdrop-blur-sm text-muted-foreground text-xs px-2.5 py-1 rounded flex items-center gap-1.5 border border-border/50">
-                          <Image size={12} />
-                          {trip.photoCount}
-                        </div>
-                      </div>
+            {isLoading ? (
+              <DestinationsSkeleton />
+            ) : status === "success" && trips.length === 0 ? (
+              <p className="text-muted-foreground text-center py-16">No destinations yet.</p>
+            ) : (
+              <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" staggerDelay={0.08}>
+                {trips.map((trip) => (
+                  <StaggerItem key={trip.slug} variant="scale">
+                    <motion.div whileHover="hover" className="h-full">
+                      <Link
+                        to={`/photography/${trip.slug}`}
+                        className="group relative flex flex-col bg-card border border-border rounded-md overflow-hidden hover:border-primary/40 transition-colors duration-300 h-full"
+                      >
+                        <div className="flex flex-col h-full">
+                          {/* Cover Image */}
+                          <div className="relative aspect-[16/9] overflow-hidden">
+                            <motion.div
+                              className="w-full h-full"
+                              variants={{ hover: { scale: 1.03 } }}
+                              transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+                            >
+                              <PhotoImage src={trip.coverImage} alt={trip.country} className="w-full h-full object-cover" loading="lazy" aspectHint="16/9" />
+                            </motion.div>
+                            <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-transparent to-transparent" />
+                            <div className="absolute top-3 right-3 bg-background/70 backdrop-blur-sm text-muted-foreground text-xs px-2.5 py-1 rounded flex items-center gap-1.5 border border-border/50">
+                              <Image size={12} />
+                              {trip.photoCount}
+                            </div>
+                          </div>
 
-                      {/* Info */}
-                      <div className="p-5">
-                        <div className="flex items-center gap-2 mb-1">
-                          <MapPin size={14} className="text-warm flex-shrink-0" />
-                          <h2 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">{trip.country}</h2>
+                          {/* Info */}
+                          <div className="p-5 flex-1 flex flex-col">
+                            <div className="flex items-center gap-2 mb-1">
+                              <MapPin size={14} className="text-warm flex-shrink-0" />
+                              <h2 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">{trip.country}</h2>
+                            </div>
+                            {trip.description && <p className="text-muted-foreground text-sm mb-3 line-clamp-2 flex-1">{trip.description}</p>}
+                            {trip.date && (
+                              <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
+                                <Calendar size={12} />
+                                {trip.date}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        <p className="text-muted-foreground text-sm mb-3 line-clamp-2">{trip.description}</p>
-                        <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
-                          <Calendar size={12} />
-                          {trip.date}
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                  </motion.div>
-                </StaggerItem>
-              ))}
-            </StaggerContainer>
+                      </Link>
+                    </motion.div>
+                  </StaggerItem>
+                ))}
+              </StaggerContainer>
+            )}
           </motion.div>
         )}
 
@@ -163,36 +231,44 @@ export default function PhotographyPage() {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
           >
-            <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
-              {favPhotos.map((photo, index) => (
-                <motion.button
-                  key={index}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.4, delay: index * 0.05 }}
-                  onClick={() => openFeaturedLightbox(index)}
-                  className="w-full break-inside-avoid rounded overflow-hidden border border-border hover:border-primary/40 transition-colors duration-300 group cursor-pointer block"
-                >
-                  <div className="relative overflow-hidden">
-                    <motion.div
-                      className="w-full h-auto"
-                      initial={{ scale: 1 }}
-                      whileHover={{ scale: 1.03 }}
-                      transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+            {isLoading ? (
+              <FeaturedSkeleton />
+            ) : favPhotos.length === 0 ? (
+              <p className="text-muted-foreground text-center py-16">No featured photos yet.</p>
+            ) : (
+              <>
+                <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
+                  {favPhotos.map((photo, index) => (
+                    <motion.button
+                      key={index}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.4, delay: index * 0.05 }}
+                      onClick={() => openFeaturedLightbox(index)}
+                      className="w-full break-inside-avoid rounded overflow-hidden border border-border hover:border-primary/40 transition-colors duration-300 group cursor-pointer block"
                     >
-                      <PhotoImage src={photo.src} alt={photo.alt} className="w-full h-auto object-cover" loading="lazy" aspectHint="4/3" />
-                    </motion.div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                      <span className="text-white text-sm font-medium drop-shadow-lg mb-1">{photo.alt}</span>
-                      <ExifMetaDisplay meta={photo.meta ?? null} compact />
-                    </div>
-                  </div>
-                </motion.button>
-              ))}
-            </div>
+                      <div className="relative overflow-hidden">
+                        <motion.div
+                          className="w-full h-auto"
+                          initial={{ scale: 1 }}
+                          whileHover={{ scale: 1.03 }}
+                          transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+                        >
+                          <PhotoImage src={photo.src} alt={photo.alt} className="w-full h-auto object-cover" loading="lazy" aspectHint="" />
+                        </motion.div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+                          <span className="text-white text-sm font-medium drop-shadow-lg mb-1">{photo.alt}</span>
+                          <ExifMetaDisplay meta={photo.meta ?? null} compact />
+                        </div>
+                      </div>
+                    </motion.button>
+                  ))}
+                </div>
 
-            {/* Lightbox */}
-            <PhotoLightbox photos={favPhotos} index={lightboxIndex} onClose={closeFeaturedLightbox} onNext={goNextFeatured} onPrev={goPrevFeatured} />
+                {/* Lightbox */}
+                <PhotoLightbox photos={favPhotos} index={lightboxIndex} onClose={closeFeaturedLightbox} onNext={goNextFeatured} onPrev={goPrevFeatured} />
+              </>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

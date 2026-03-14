@@ -3,7 +3,7 @@ import { Hono } from "hono";
 import { getPage, resolveFiles } from "@server/controllers/notion";
 
 // Mock env
-process.env.NOTION_TOKEN = "test-token";
+process.env.N_TOK = "test-token";
 
 // We can't easily mock @notionhq/client imports, so test the HTTP layer:
 // validation, error handling, response shape.
@@ -14,15 +14,15 @@ app.post("/notion/resolve-files", resolveFiles);
 
 describe("GET /notion/:pageId", () => {
   test("returns 500 when token is not configured", async () => {
-    const original = process.env.NOTION_TOKEN;
-    delete process.env.NOTION_TOKEN;
+    const original = process.env.N_TOK;
+    delete process.env.N_TOK;
 
     const res = await app.request("/notion/abc123");
     expect(res.status).toBe(500);
     const body = await res.json();
-    expect(body.error).toContain("NOTION_TOKEN");
+    expect(body.error).toContain("N_TOK");
 
-    process.env.NOTION_TOKEN = original;
+    process.env.N_TOK = original;
   });
 });
 
@@ -48,8 +48,8 @@ describe("POST /notion/resolve-files", () => {
   });
 
   test("returns 500 when token is not configured", async () => {
-    const original = process.env.NOTION_TOKEN;
-    delete process.env.NOTION_TOKEN;
+    const original = process.env.N_TOK;
+    delete process.env.N_TOK;
 
     const res = await app.request("/notion/resolve-files", {
       method: "POST",
@@ -58,8 +58,8 @@ describe("POST /notion/resolve-files", () => {
     });
     expect(res.status).toBe(500);
     const body = await res.json();
-    expect(body.error).toContain("NOTION_TOKEN");
+    expect(body.error).toContain("N_TOK");
 
-    process.env.NOTION_TOKEN = original;
+    process.env.N_TOK = original;
   });
 });

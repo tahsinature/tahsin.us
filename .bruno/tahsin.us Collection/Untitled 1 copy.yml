@@ -1,0 +1,18 @@
+info:
+  name: Untitled 1 copy
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{backend_host}}/api/notion/322960add9d380869cf9d87a73a1ad30"
+  headers:
+    - name: Content-Type
+      value: application/json
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
