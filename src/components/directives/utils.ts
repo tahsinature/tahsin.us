@@ -14,24 +14,19 @@ export const resolveAccent = (raw?: string, fallback = "var(--color-primary)"): 
   return ACCENT_MAP[lower] ?? (lower.startsWith("#") ? lower : fallback);
 };
 
-export interface TreeNode<T extends Record<string, unknown> = Record<string, never>> {
-  text: string;
-  children: TreeNode<T>[];
-}
+export type TreeNode<T = object> = T & { text: string; children: TreeNode<T>[] };
 
 /**
  * Parse indented markdown list lines into a tree.
  * Works for `- item`, `* item`, `1. item`, `- [x] item`, `- [ ] item`.
- * Returns parsed items via the `extract` callback for per-line customisation.
  */
-export function parseIndentedTree<T extends Record<string, unknown>>(
+export function parseIndentedTree<T>(
   body: string,
   lineParser: (line: string) => (T & { text: string }) | null,
-): (T & { text: string; children: (T & { text: string; children: unknown[] })[] })[] {
+): TreeNode<T>[] {
   const lines = body.split("\n").filter((l) => l.trim().length > 0);
-  type Node = T & { text: string; children: Node[] };
-  const root: Node[] = [];
-  const stack: { indent: number; items: Node[] }[] = [{ indent: -1, items: root }];
+  const root: TreeNode<T>[] = [];
+  const stack: { indent: number; items: TreeNode<T>[] }[] = [{ indent: -1, items: root }];
 
   for (const line of lines) {
     const indentMatch = line.match(/^(\s*)/);
@@ -39,7 +34,7 @@ export function parseIndentedTree<T extends Record<string, unknown>>(
     const parsed = lineParser(line);
     if (!parsed) continue;
 
-    const item: Node = { ...parsed, children: [] };
+    const item: TreeNode<T> = { ...parsed, children: [] };
 
     while (stack.length > 1 && stack[stack.length - 1].indent >= indent) {
       stack.pop();
