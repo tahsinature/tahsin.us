@@ -4,7 +4,7 @@ import { useScroll, useSpring, motion } from "motion/react";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 
-export default function PageView({ pageId: propId, title }: { pageId?: string; title?: string } = {}) {
+export default function PageView({ pageId: propId, fetchUrl, title }: { pageId?: string; fetchUrl?: string; title?: string } = {}) {
   useDocumentTitle(title ?? "Page");
 
   const { pageId: paramId } = useParams<{ pageId: string }>();
@@ -18,16 +18,13 @@ export default function PageView({ pageId: propId, title }: { pageId?: string; t
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchPage = useCallback(async (id: string) => {
-    const cleanId = id.trim().replace(/[^a-f0-9-]/gi, "");
-    if (!cleanId) return;
-
+  const fetchPage = useCallback(async (url: string) => {
     setLoading(true);
     setError(null);
     setMarkdown(null);
 
     try {
-      const res = await fetch(`/api/notion/${cleanId}`);
+      const res = await fetch(url);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Failed to fetch");
       setMarkdown(data.markdown);
@@ -38,9 +35,11 @@ export default function PageView({ pageId: propId, title }: { pageId?: string; t
     }
   }, []);
 
+  const resolvedUrl = fetchUrl ?? (resolvedId ? `/api/notion/${resolvedId.trim().replace(/[^a-f0-9-]/gi, "")}` : null);
+
   useEffect(() => {
-    if (resolvedId) fetchPage(resolvedId);
-  }, [resolvedId, fetchPage]);
+    if (resolvedUrl) fetchPage(resolvedUrl);
+  }, [resolvedUrl, fetchPage]);
 
   // Intercept clicks on internal page links
   const handleContentClick = useCallback((e: React.MouseEvent) => {
@@ -74,7 +73,7 @@ export default function PageView({ pageId: propId, title }: { pageId?: string; t
           <h2 className="text-lg font-semibold text-foreground mb-1">Something went wrong</h2>
           <p className="text-sm text-muted-foreground mb-4 max-w-md">{error}</p>
           <button
-            onClick={() => resolvedId && fetchPage(resolvedId)}
+            onClick={() => resolvedUrl && fetchPage(resolvedUrl)}
             className="text-sm text-primary hover:text-primary/80 transition-colors"
           >
             Try again

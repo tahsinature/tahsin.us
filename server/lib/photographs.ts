@@ -1,6 +1,6 @@
 import { Client } from "@notionhq/client";
 
-const DATA_SOURCE_ID = "322960ad-d9d3-8024-9334-000b1088e996";
+const DATA_SOURCE_ID = process.env.PHOTOS_DS_ID ?? "";
 
 export interface PhotoData {
   src: string;

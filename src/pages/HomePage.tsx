@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Briefcase, MapPin, ExternalLink, Mail, Github, Twitter, Linkedin, Camera, BookOpen, Code2, Layers, Wrench, User, Maximize2 } from "lucide-react";
-import LocationMap from "@/components/LocationMap";
 import HeroBanner from "@/components/HeroBanner";
 import InteractiveCodeCard from "@/components/InteractiveCodeCard";
 import PhotoLightbox from "@/components/PhotoLightbox";
@@ -42,9 +41,9 @@ export default function HomePage() {
               </div>
             </FadeIn>
 
-            {/* Location map */}
+            {/* Location illustration */}
             <FadeIn delay={0.2}>
-              <LocationMap />
+              <LocationCard />
             </FadeIn>
           </div>
         </section>
@@ -210,6 +209,34 @@ function SectionLabel({ icon, label }: { icon: React.ReactNode; label: string })
       {icon}
       {label}
     </h2>
+  );
+}
+
+function LocationCard() {
+  return (
+    <div className="hidden md:flex flex-col items-center justify-center rounded-xl border border-border/40 bg-card/30 p-8 h-full min-h-[200px] relative overflow-hidden">
+      {/* Decorative concentric rings */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="w-40 h-40 rounded-full border border-border/20" />
+        <div className="absolute w-28 h-28 rounded-full border border-border/15" />
+        <div className="absolute w-16 h-16 rounded-full border border-border/10" />
+      </div>
+
+      {/* Pin + label */}
+      <div className="relative flex flex-col items-center gap-3">
+        <motion.div
+          className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary"
+          animate={{ y: [0, -4, 0] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <MapPin size={22} />
+        </motion.div>
+        <div className="text-center">
+          <p className="text-foreground font-semibold text-sm">{siteConfig.locationShort}</p>
+          <p className="text-muted-foreground/60 text-xs mt-0.5">{siteConfig.locationEmoji} Canada</p>
+        </div>
+      </div>
+    </div>
   );
 }
 

@@ -1,9 +1,10 @@
 import { Hono } from "hono";
 import { cached } from "@server/middleware/cache";
-import { getPage, resolveFiles } from "@server/controllers/notion";
+import { getPage, getNamedPage, resolveFiles } from "@server/controllers/notion";
 
 export const notionRoutes = new Hono();
 
+notionRoutes.get("/pages/:name", cached({ ttl: 300 }), getNamedPage);
 notionRoutes.get("/notion/:pageId", cached({ ttl: 300 }), getPage);
 notionRoutes.post(
   "/notion/resolve-files",

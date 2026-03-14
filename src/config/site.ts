@@ -26,12 +26,6 @@ export const siteConfig = {
   /** Hero background pattern: "grid" | "dots" | "waves" */
   heroPattern: "dots" as const,
 
-  /* ── Notion pages ── */
-  /** Map named pages to Notion page IDs */
-  notionPages: {
-    travel: "322960add9d3807283e7c9d28ec099e0",
-  },
-
   /* ── Misc / feature flags ── */
   /** Year the site / career started (used for copyright) */
   startYear: 2019,
