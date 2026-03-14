@@ -320,7 +320,7 @@ function parseEnhancedMarkdown(text: string): Segment[] {
       i++; // skip </details>
 
       const dedented = dedent(inner).join("\n");
-      const parsed = tryParseDirective(dedented, "toggle", summary);
+      const parsed = tryParseDirective(dedented);
 
       if (parsed && "error" in parsed) {
         segments.push({ type: "directive-error", error: parsed.error });
@@ -380,7 +380,6 @@ function parseEnhancedMarkdown(text: string): Segment[] {
     }
 
     // Media tags: <video src="...">caption</video> etc.
-    // Captions containing @type: are parsed as directives instead.
     let mediaHandled = false;
     for (const tag of ["video", "audio", "pdf", "file"] as const) {
       const re = new RegExp(`^<${tag}\\s+([^>]*)>(.*?)</${tag}>$`);
@@ -389,17 +388,7 @@ function parseEnhancedMarkdown(text: string): Segment[] {
         flushMd();
         const mediaSrc = attr(trimmed, "src") ?? "";
         const caption = m[2] || "";
-        const parsed = caption.includes("@type:") ? tryParseDirective(caption, tag) : null;
-
-        if (parsed && "error" in parsed) {
-          segments.push({ type: "directive-error", error: parsed.error });
-        } else if (parsed && "result" in parsed) {
-          parsed.result.props.src = mediaSrc;
-          const { directiveType, props, warnings } = parsed.result;
-          segments.push({ type: "directive", directiveType, props, warnings });
-        } else {
-          segments.push({ type: tag, src: mediaSrc, caption: caption || undefined });
-        }
+        segments.push({ type: tag, src: mediaSrc, caption: caption || undefined });
         i++;
         mediaHandled = true;
         break;
@@ -442,8 +431,10 @@ function ClickableImage({ src, alt }: { src?: string; alt?: string }) {
   const index = photos.findIndex((p) => p.src === src);
   const clickable = index !== -1;
   return (
-    <figure className="my-4">
-      <img src={src} alt={alt ?? ""} className={clickable ? "cursor-pointer hover:opacity-90" : ""} onClick={() => clickable && open(index)} />
+    <figure className="mx-auto max-w-2xl" style={{ marginTop: "4rem", marginBottom: "4rem" }}>
+      <div className="rounded-xl border border-border/50 overflow-hidden">
+        <img src={src} alt={alt ?? ""} className={`w-full ${clickable ? "cursor-pointer hover:opacity-90 transition-opacity" : ""}`} style={{ display: "block", margin: 0 }} onClick={() => clickable && open(index)} loading="lazy" />
+      </div>
       {alt && <figcaption className="text-xs text-muted-foreground mt-2 text-center">{alt}</figcaption>}
     </figure>
   );

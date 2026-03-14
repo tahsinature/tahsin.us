@@ -3,7 +3,7 @@ import type { DirectiveProps } from "../types";
 import { useResolvedSrc } from "../contexts";
 
 export default function RetroDiskDirective({ props }: { props: DirectiveProps }) {
-  const { title, artist } = props;
+  const { title, artist, loop, progress: showProgress } = props;
   const { url: audioSrc, loading } = useResolvedSrc((props.src as string) ?? "");
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -28,8 +28,10 @@ export default function RetroDiskDirective({ props }: { props: DirectiveProps })
       if (audio.duration) setProgress(audio.currentTime / audio.duration);
     };
     const onEnd = () => {
-      setPlaying(false);
-      setProgress(0);
+      if (!audio.loop) {
+        setPlaying(false);
+        setProgress(0);
+      }
     };
     audio.addEventListener("timeupdate", onTime);
     audio.addEventListener("ended", onEnd);
@@ -57,7 +59,7 @@ export default function RetroDiskDirective({ props }: { props: DirectiveProps })
 
   return (
     <div className="flex items-center gap-4 p-4 rounded-xl border border-border bg-muted/20 my-4">
-      <audio ref={audioRef} src={audioSrc} preload="metadata" />
+      <audio ref={audioRef} src={audioSrc} preload="metadata" loop={loop === "true"} />
 
       {/* Vinyl disk */}
       <button
@@ -92,12 +94,14 @@ export default function RetroDiskDirective({ props }: { props: DirectiveProps })
         <p className="text-sm font-semibold text-foreground truncate">{(title as string) || "Untitled Track"}</p>
         {artist && <p className="text-xs text-muted-foreground mt-0.5 truncate">{artist as string}</p>}
         {/* Progress bar */}
-        <div className="mt-2 h-1 rounded-full bg-muted overflow-hidden">
-          <div
-            className="h-full bg-amber-600/70 rounded-full transition-[width] duration-200"
-            style={{ width: `${progress * 100}%` }}
-          />
-        </div>
+        {showProgress === "true" && (
+          <div className="mt-2 h-1 rounded-full bg-muted overflow-hidden">
+            <div
+              className="h-full bg-amber-600/70 rounded-full transition-[width] duration-200"
+              style={{ width: `${progress * 100}%` }}
+            />
+          </div>
+        )}
       </div>
 
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>

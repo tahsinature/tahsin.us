@@ -1,45 +1,70 @@
-import type { DirectiveProps, DirectiveConfig, DirectiveHost, DirectiveResult, DirectiveError, PageLink } from "./types";
+import type { DirectiveProps, DirectiveConfig, DirectiveResult, DirectiveError, PageLink } from "./types";
 import { directiveRegistry } from "./registry";
 
-/** Parse directives (@key: value) and content from toggle inner text */
-export function parseDirectiveContent(text: string, config: DirectiveConfig): { props: DirectiveProps; warnings: string[] } {
+/**
+ * Extract the first fenced code block from toggle inner text.
+ * Returns the code block content and the remaining text (everything outside the code block).
+ * Handles Notion's tab-indented fences and optional language tags.
+ */
+function extractCodeBlock(text: string): { code: string; rest: string } | null {
   const lines = text.split("\n");
-  const props: DirectiveProps = {};
+  let fenceStart = -1;
+
+  for (let i = 0; i < lines.length; i++) {
+    const trimmed = lines[i].replace(/^\t+/, "");
+    if (fenceStart === -1) {
+      if (/^```\w*$/.test(trimmed)) fenceStart = i;
+    } else {
+      if (/^```$/.test(trimmed)) {
+        const code = lines.slice(fenceStart + 1, i).join("\n");
+        const rest = [...lines.slice(0, fenceStart), ...lines.slice(i + 1)].join("\n");
+        return { code, rest };
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * Parse annotations from code block lines.
+ * Simple key-value: `@key: value` or boolean flag: `@key`
+ */
+function parseAnnotations(code: string, config: DirectiveConfig): { annotations: Record<string, string>; warnings: string[] } {
+  const annotations: Record<string, string> = {};
   const warnings: string[] = [];
-  const usedLines = new Set<number>();
+  const known = new Set(config.annotations);
 
-  // Mark @type line as used
-  lines.forEach((l, i) => {
-    if (l.trim().match(/^@type:\s*.+$/i)) usedLines.add(i);
-  });
+  for (const line of code.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("@type:") || trimmed.startsWith("@type :")) continue;
 
-  // Extract known annotations — supports both @key: value and @key (flag)
-  for (const key of config.annotations) {
-    lines.forEach((l, i) => {
-      const t = l.trim();
-      const reVal = new RegExp(`^@${key}:\\s*(.+)$`, "i");
-      const m = t.match(reVal);
-      if (m) {
-        props[key] = m[1].trim();
-        usedLines.add(i);
-        return;
+    const match = trimmed.match(/^@(\S+?)(?::\s*(.*))?$/);
+    if (match) {
+      const key = match[1].toLowerCase();
+      const value = match[2]?.trim() ?? "true";
+      if (known.has(key)) {
+        annotations[key] = value;
+      } else {
+        warnings.push(`Unknown annotation @${key} — supported: ${config.annotations.map((a) => `@${a}`).join(", ")}`);
       }
-      if (t.toLowerCase() === `@${key}`) {
-        props[key] = "true";
-        usedLines.add(i);
-      }
-    });
+    }
   }
 
-  // Detect unknown annotations (lines with @ that weren't consumed)
+  return { annotations, warnings };
+}
+
+/**
+ * Extract content (images, pages, body text) from the non-code-block portion of the toggle.
+ */
+function extractContent(text: string, config: DirectiveConfig): Partial<DirectiveProps> {
+  const props: Partial<DirectiveProps> = {};
+  const lines = text.split("\n");
+  const usedLines = new Set<number>();
+
+  // Mark callout wrapper lines as used (they're just containers)
   lines.forEach((l, i) => {
-    if (usedLines.has(i)) return;
     const t = l.trim();
-    const m = t.match(/^@(\S+?)(?::\s*(.*))?$/);
-    if (m && m[1].toLowerCase() !== "type") {
-      warnings.push(`Unknown annotation @${m[1]} — supported: ${config.annotations.map((a) => `@${a}`).join(", ")}`);
-      usedLines.add(i);
-    }
+    if (t === "<callout>" || t === "</callout>" || /^<callout\s/.test(t)) usedLines.add(i);
   });
 
   // Extract images
@@ -62,7 +87,6 @@ export function parseDirectiveContent(text: string, config: DirectiveConfig): { 
     const pages: PageLink[] = [];
     lines.forEach((l, i) => {
       const t = l.trim();
-      // <page url="...">Title</page>
       const pm = t.match(/<page\s+url=["']([^"']*)["']>([^<]*)<\/page>/);
       if (pm) {
         const idMatch = pm[1].match(/([a-f0-9]{32})\/?$/i);
@@ -70,7 +94,6 @@ export function parseDirectiveContent(text: string, config: DirectiveConfig): { 
         usedLines.add(i);
         return;
       }
-      // Markdown link to a page: - [Title](/id?pvs=...) or [Title](/id)
       const lm = t.match(/\[([^\]]+)\]\(\/([a-f0-9]{32})[^)]*\)/i);
       if (lm) {
         pages.push({ pageId: lm[2], title: lm[1] });
@@ -84,63 +107,97 @@ export function parseDirectiveContent(text: string, config: DirectiveConfig): { 
     }
   }
 
-  // Collect remaining text as body
+  // Extract media src (<audio src="...">, <video src="...">, etc.)
+  if (config.extractMedia) {
+    lines.forEach((l, i) => {
+      const m = l.match(/<(?:audio|video)\s+src="([^"]+)"/);
+      if (m) {
+        props.src = m[1];
+        usedLines.add(i);
+      }
+    });
+  }
+
+  // Collect remaining text as body.
+  // Notion wraps content in tabs for nesting (toggle → callout → item) — we need to
+  // find the common tab prefix and strip it so the list's own relative indentation is preserved.
   if (config.collectBody) {
-    const bodyLines = lines.filter((_, i) => !usedLines.has(i)).filter((l) => l.trim().length > 0);
+    const candidateLines = lines
+      .filter((_, i) => !usedLines.has(i))
+      .map((l) => l.replace(/^>\s?/, ""))
+      .filter((l) => l.trim().length > 0);
+    // Find minimum leading tab count across all content lines
+    const minTabs = candidateLines.reduce((min, l) => {
+      const m = l.match(/^\t*/);
+      const count = m ? m[0].length : 0;
+      return Math.min(min, count);
+    }, Infinity);
+    const stripRe = minTabs > 0 && minTabs < Infinity ? new RegExp(`^\\t{${minTabs}}`) : null;
+    const bodyLines = candidateLines
+      .map((l) => (stripRe ? l.replace(stripRe, "") : l))
+      .map((l) => l.replace(/\t/g, "    "));
     const body = bodyLines.join("\n").trim();
     if (body) props.body = body;
   }
 
-  return { props, warnings };
+  return props;
 }
 
 /**
- * Try to parse text as a directive.
- * Returns a result, an error, or null (no @type found — not a directive).
+ * Try to parse toggle inner text as a directive.
+ *
+ * Detection rule: a toggle is a directive ONLY if it contains a fenced code block
+ * with `@type: <name>`. The code block holds all annotations. Everything outside
+ * the code block (text, images, pages) is content.
+ *
+ * Returns a result, an error, or null (not a directive).
  */
 export function tryParseDirective(
   innerText: string,
-  host: DirectiveHost,
-  fallbackTitle?: string,
 ): { result: DirectiveResult } | { error: DirectiveError } | null {
-  const typeMatch = innerText.match(/^@type:\s*(.+)$/im);
+  // Step 1: Extract the code block — no code block means not a directive
+  const extracted = extractCodeBlock(innerText);
+  if (!extracted) return null;
+
+  const { code, rest } = extracted;
+
+  // Step 2: Check for @type — no @type means not a directive
+  const typeMatch = code.match(/^@type:\s*(.+)$/im);
   if (!typeMatch) return null;
 
-  const directiveType = typeMatch[1].trim().toLowerCase();
-  const config = directiveRegistry[directiveType];
+  // Step 3: Resolve directive type (exact match or prefix variant)
+  const rawType = typeMatch[1].trim().toLowerCase();
+  let config = directiveRegistry[rawType];
+  let variant: string | undefined;
 
-  // Unknown directive type
   if (!config) {
-    const available = Object.entries(directiveRegistry)
-      .filter(([, cfg]) => cfg.hosts.includes(host))
-      .map(([name]) => name);
-    const hint = available.length > 0 ? `Available for <${host}>: ${available.join(", ")}` : `No directives available for <${host}>`;
-    return {
-      error: {
-        directiveType,
-        host,
-        message: `Unknown directive "@type: ${directiveType}". ${hint}`,
-      },
-    };
+    const dashIdx = rawType.indexOf("-");
+    if (dashIdx > 0) {
+      const prefix = rawType.slice(0, dashIdx);
+      const prefixConfig = directiveRegistry[prefix];
+      if (prefixConfig) {
+        config = prefixConfig;
+        variant = rawType.slice(dashIdx + 1);
+      }
+    }
   }
 
-  // Host mismatch
-  if (!config.hosts.includes(host)) {
-    const validHosts = config.hosts.join(", ");
-    return {
-      error: {
-        directiveType,
-        host,
-        message: `"@type: ${directiveType}" cannot be used on <${host}>. Supported hosts: ${validHosts}`,
-      },
-    };
+  if (!config) {
+    const available = Object.keys(directiveRegistry);
+    return { error: { directiveType: rawType, message: `Unknown directive "@type: ${rawType}". Available: ${available.join(", ")}` } };
   }
 
-  const { props, warnings } = parseDirectiveContent(innerText, config);
+  // Step 4: Parse annotations from code block
+  const { annotations, warnings } = parseAnnotations(code, config);
 
-  if (!props.title && fallbackTitle?.trim()) {
-    props.title = fallbackTitle.trim();
-  }
+  // Step 5: Extract content from the rest of the toggle
+  const content = extractContent(rest, config);
 
-  return { result: { directiveType, props, warnings } };
+  // Step 6: Merge everything into props
+  const props: DirectiveProps = { ...content, ...annotations };
+  if (variant) props.variant = variant;
+
+  const resolvedType = variant ? rawType.slice(0, rawType.indexOf("-")) : rawType;
+
+  return { result: { directiveType: resolvedType, props, warnings } };
 }

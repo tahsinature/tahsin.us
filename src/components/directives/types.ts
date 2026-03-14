@@ -1,6 +1,3 @@
-/** Where a directive can be used */
-export type DirectiveHost = "toggle" | "audio" | "video" | "file" | "pdf";
-
 export interface PageLink {
   pageId: string;
   title: string;
@@ -14,13 +11,11 @@ export interface DirectiveProps {
   /** All <page> tags extracted as navigable links */
   pages?: PageLink[];
   body?: string;
-  /** Media source URL — set when directive is hosted on audio/video/file/pdf */
+  /** Media source URL — extracted from <audio>/<video> tags in content */
   src?: string;
 }
 
 export interface DirectiveConfig {
-  /** Which host elements this directive supports */
-  hosts: DirectiveHost[];
   /** Known @key annotations */
   annotations: string[];
   extractImage?: boolean;
@@ -28,6 +23,8 @@ export interface DirectiveConfig {
   extractPage?: boolean;
   /** Extract all <page> tags as a pages[] array */
   extractAllPages?: boolean;
+  /** Extract media src from <audio>, <video> tags in content */
+  extractMedia?: boolean;
   collectBody?: boolean;
 }
 
@@ -40,6 +37,5 @@ export interface DirectiveResult {
 
 export interface DirectiveError {
   directiveType: string;
-  host: DirectiveHost;
   message: string;
 }
