@@ -1,17 +1,14 @@
 info:
-  name: resolve-files
+  name: cache-bust
   type: http
-  seq: 9
+  seq: 8
 
 http:
   method: POST
-  url: "{{backend_host}}/api/notion/resolve-files"
+  url: "{{backend_host}}/api/ops/cache/bust"
   headers:
     - name: Content-Type
       value: application/json
-  body:
-    type: json
-    data: ""
   auth: inherit
 
 settings:

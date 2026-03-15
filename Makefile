@@ -12,7 +12,7 @@ bundle-analyze:
 	open .temp/bundle-stats.html
 
 upload-photos:
-	bun scripts/photography/upload-photos.ts
+	bun scripts/notion/upload-photos.ts
 
 update-captions:
-	claude $(if $(YOLO),--dangerously-skip-permissions) "Read scripts/photography/update-captions.ts file content and read the instruction and run the file."
+	claude $(if $(YOLO),--dangerously-skip-permissions) "Read scripts/notion/update-captions.ts file content and read the instruction and run the file."

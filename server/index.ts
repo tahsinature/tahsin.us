@@ -19,9 +19,29 @@ app.route("/api", geoRoutes);
 app.route("/api", photographRoutes);
 app.route("/api", opsRoutes);
 
-// Static files & SPA fallback
+// Static assets with long-term caching (hashed filenames)
+app.use(
+  "/assets/*",
+  serveStatic({
+    root: "./dist",
+    onFound: (_path, c) => {
+      c.header("Cache-Control", "public, max-age=31536000, immutable");
+    },
+  }),
+);
+// 404 for missing assets — don't fall through to SPA fallback
+app.all("/assets/*", (c) => c.text("Not found", 404));
+
+// Other static files (favicon, etc.)
 app.use("/*", serveStatic({ root: "./dist" }));
-app.get("*", serveStatic({ path: "./dist/index.html" }));
+
+// SPA fallback — only for non-asset routes, never cached
+app.get("*", serveStatic({
+  path: "./dist/index.html",
+  onFound: (_path, c) => {
+    c.header("Cache-Control", "no-cache");
+  },
+}));
 
 export default {
   port: 3000,

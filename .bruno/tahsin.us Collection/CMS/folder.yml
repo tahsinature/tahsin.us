@@ -19,3 +19,5 @@ request:
       value: 322960add9d3807283e7c9d28ec099e0
     - name: HOST_NOTION
       value: https://api.notion.com/v1
+    - name: PAGE_PLAYGROUND
+      value: 323960add9d38019b85fd0aab9c10ec6
