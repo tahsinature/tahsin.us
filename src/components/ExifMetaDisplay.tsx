@@ -18,19 +18,34 @@ export default function ExifMetaDisplay({ meta, compact = false }: ExifMetaDispl
   const hasAnyTechnical = meta.camera || meta.lens || meta.aperture || meta.shutterSpeed || meta.iso || meta.focalLength;
 
   if (compact) {
+    const settings = [meta.focalLength, meta.aperture, meta.shutterSpeed, meta.iso ? `ISO ${meta.iso}` : undefined].filter(Boolean);
     return (
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-white/70 text-[11px]">
-        {meta.location && (
-          <span className="flex items-center gap-1">
-            <MapPin size={10} />
-            {meta.location}
-          </span>
+      <div className="space-y-1 text-white/70 text-[11px]">
+        {(meta.camera || meta.lens) && (
+          <div className="flex items-center gap-2">
+            {meta.camera && (
+              <span className="flex items-center gap-1">
+                <Camera size={10} className="text-white/50" />
+                {meta.camera}
+              </span>
+            )}
+            {meta.lens && (
+              <span className="flex items-center gap-1">
+                <Focus size={10} className="text-white/50" />
+                {meta.lens}
+              </span>
+            )}
+          </div>
         )}
-        {meta.camera && (
-          <span className="flex items-center gap-1">
-            <Camera size={10} />
-            {meta.camera}
-          </span>
+        {settings.length > 0 && (
+          <div className="flex items-center gap-1.5 text-white/50 text-[10px]">
+            {settings.map((s, i) => (
+              <span key={i} className="flex items-center gap-1.5">
+                {i > 0 && <span className="text-white/25">·</span>}
+                {s}
+              </span>
+            ))}
+          </div>
         )}
       </div>
     );

@@ -175,7 +175,7 @@ export async function fetchPhotos(token: string, tripId?: string, favOnly?: bool
   do {
     const res = await notion.dataSources.query({
       data_source_id: PHOTOS_DS_ID,
-      filter_properties: ["Name", "Files", "Caption", "Fav", "EXIF"],
+      filter_properties: ["Name", "Files", "Caption", "Fav", "EXIF", "Trips", "Dimensions"],
       filter,
       ...(cursor ? { start_cursor: cursor } : {}),
     } as Parameters<typeof notion.dataSources.query>[0]);
@@ -199,6 +199,11 @@ export async function fetchPhotos(token: string, tripId?: string, favOnly?: bool
         try { exif = JSON.parse(exifText); } catch { /* skip malformed */ }
       }
 
+      const tripRelation = (props.Trips as { relation: Array<{ id: string }> })?.relation ?? [];
+
+      const dimText = (props.Dimensions as { rich_text: Array<{ plain_text: string }> })?.rich_text?.[0]?.plain_text ?? "";
+      const dimMatch = dimText.match(/^(\d+)x(\d+)$/);
+
       photos.push({
         src,
         name: name || firstFile.name,
@@ -206,6 +211,9 @@ export async function fetchPhotos(token: string, tripId?: string, favOnly?: bool
         isFav,
         mediaType: getMediaType(firstFile.name),
         exif,
+        tripIds: tripRelation.map((r) => r.id),
+        width: dimMatch ? parseInt(dimMatch[1]) : null,
+        height: dimMatch ? parseInt(dimMatch[2]) : null,
       });
     }
 

@@ -5,10 +5,9 @@ import { usePhotographyStore } from "@/stores/usePhotographyStore";
 import { usePageStore } from "@/stores/usePageStore";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import type { Photo } from "@/data/photography";
-import PhotoImage from "@/components/PhotoImage";
-import ExifMetaDisplay from "@/components/ExifMetaDisplay";
+import PhotoGrid from "@/components/PhotoGrid";
 import PhotoLightbox from "@/components/PhotoLightbox";
-import { FadeIn, BlurFadeIn, motion } from "@/components/MotionWrapper";
+import { FadeIn, BlurFadeIn } from "@/components/MotionWrapper";
 import { PAGE_PADDING } from "@/config/layout";
 
 /* ── Skeleton ── */
@@ -24,7 +23,7 @@ function TripGallerySkeleton() {
         <div className="h-4 w-36 bg-muted/20 rounded animate-pulse" />
         <hr className="border-border mt-6" />
       </header>
-      <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
+      <div className="columns-2 lg:columns-3 gap-3 space-y-3">
         {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className={`break-inside-avoid ${aspects[i % aspects.length]} bg-muted/30 rounded animate-pulse`} />
         ))}
@@ -158,42 +157,13 @@ export default function TripGalleryPage() {
 
       {/* Photo Grid */}
       {photosLoading ? (
-        <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
+        <div className="columns-2 lg:columns-3 gap-3 space-y-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className={`break-inside-avoid ${["aspect-[3/4]", "aspect-[4/3]", "aspect-[1/1]"][i % 3]} bg-muted/30 rounded animate-pulse`} />
           ))}
         </div>
       ) : (
-        <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
-          {photos.map((photo, index) => (
-            <motion.div
-              key={index}
-              whileHover="hover"
-              className="w-full break-inside-avoid"
-            >
-              <motion.button
-                onClick={() => openLightbox(index)}
-                className="w-full rounded overflow-hidden border border-border group cursor-pointer block"
-                variants={{ hover: { borderColor: "oklch(0.88 0.17 90 / 0.35)" } }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="relative overflow-hidden">
-                  <motion.div
-                    className="w-full h-auto"
-                    variants={{ hover: { scale: 1.03 } }}
-                    transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
-                  >
-                    <PhotoImage src={photo.src} alt={photo.alt} className="w-full h-auto object-cover" loading="lazy" aspectHint="" />
-                  </motion.div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                    <span className="text-white text-sm font-medium drop-shadow-lg mb-1">{photo.alt}</span>
-                    <ExifMetaDisplay meta={photo.meta ?? null} compact />
-                  </div>
-                </div>
-              </motion.button>
-            </motion.div>
-          ))}
-        </div>
+        <PhotoGrid photos={photos} onPhotoClick={openLightbox} />
       )}
 
       <PhotoLightbox photos={photos} index={lightboxIndex} onClose={closeLightbox} onNext={goNext} onPrev={goPrev} />

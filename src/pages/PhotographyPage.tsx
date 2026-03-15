@@ -5,7 +5,7 @@ import MarqueeText from "@/components/MarqueeText";
 import { usePhotographyStore } from "@/stores/usePhotographyStore";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import PhotoImage from "@/components/PhotoImage";
-import ExifMetaDisplay from "@/components/ExifMetaDisplay";
+import PhotoGrid from "@/components/PhotoGrid";
 import PhotoLightbox from "@/components/PhotoLightbox";
 import { FadeIn, StaggerContainer, StaggerItem, motion } from "@/components/MotionWrapper";
 import { PAGE_PADDING } from "@/config/layout";
@@ -388,33 +388,7 @@ export default function PhotographyPage() {
               <p className="text-muted-foreground text-center py-16">No featured photos yet.</p>
             ) : (
               <>
-                <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
-                  {favPhotos.map((photo, index) => (
-                    <motion.button
-                      key={index}
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.4, delay: index * 0.05 }}
-                      onClick={() => openFeaturedLightbox(index)}
-                      className="w-full break-inside-avoid rounded overflow-hidden border border-border hover:border-primary/40 transition-colors duration-300 group cursor-pointer block"
-                    >
-                      <div className="relative overflow-hidden">
-                        <motion.div
-                          className="w-full h-auto"
-                          initial={{ scale: 1 }}
-                          whileHover={{ scale: 1.03 }}
-                          transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
-                        >
-                          <PhotoImage src={photo.src} alt={photo.alt} className="w-full h-auto object-cover" loading="lazy" aspectHint="" />
-                        </motion.div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                          <span className="text-white text-sm font-medium drop-shadow-lg mb-1">{photo.alt}</span>
-                          <ExifMetaDisplay meta={photo.meta ?? null} compact />
-                        </div>
-                      </div>
-                    </motion.button>
-                  ))}
-                </div>
+                <PhotoGrid photos={favPhotos} onPhotoClick={openFeaturedLightbox} />
 
                 {/* Lightbox */}
                 <PhotoLightbox photos={favPhotos} index={lightboxIndex} onClose={closeFeaturedLightbox} onNext={goNextFeatured} onPrev={goPrevFeatured} />

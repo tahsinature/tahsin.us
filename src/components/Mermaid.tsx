@@ -42,7 +42,7 @@ const THEME_CONFIG = {
   },
 };
 
-let mermaidModule: typeof import("mermaid")["default"] | null = null;
+let mermaidModule: (typeof import("mermaid"))["default"] | null = null;
 
 async function getMermaid() {
   if (!mermaidModule) {
@@ -63,6 +63,7 @@ export default function Mermaid({ chart, caption }: MermaidProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [svg, setSvg] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+  const hasRendered = useRef(false);
   const theme = useThemeStore((s) => s.theme);
 
   useEffect(() => {
@@ -70,21 +71,23 @@ export default function Mermaid({ chart, caption }: MermaidProps) {
     const id = `mermaid-${idCounter++}`;
 
     // Only show skeleton on initial load, not theme switches
-    if (!svg) setError(null);
+    if (!hasRendered.current) setError(null);
 
     getMermaid().then(async (m) => {
       if (cancelled) return;
       m.initialize({ startOnLoad: false, ...THEME_CONFIG[theme] });
       try {
         const { svg: renderedSvg } = await m.render(id, chart.trim());
-        if (!cancelled) setSvg(renderedSvg);
+        if (!cancelled) { setSvg(renderedSvg); hasRendered.current = true; }
       } catch (err) {
         console.error("Mermaid render error:", err);
         if (!cancelled) setError("Failed to render diagram");
       }
     });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [chart, theme]);
 
   if (error) {

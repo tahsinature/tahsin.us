@@ -50,6 +50,9 @@ export interface PhotoData {
   isFav: boolean;
   mediaType: MediaType;
   exif: PhotoExif | null;
+  tripIds: string[];
+  width: number | null;
+  height: number | null;
 }
 
 export interface PhotosResponse {

@@ -4,7 +4,9 @@ import { ArrowRight, Briefcase, MapPin, ExternalLink, Mail, Github, Twitter, Lin
 import HeroBanner from "@/components/HeroBanner";
 import InteractiveCodeCard from "@/components/InteractiveCodeCard";
 import PhotoLightbox from "@/components/PhotoLightbox";
+import PhotoImage from "@/components/PhotoImage";
 import MarqueeText from "@/components/MarqueeText";
+import ExifMetaDisplay from "@/components/ExifMetaDisplay";
 import { FadeIn, StaggerContainer, StaggerItem, motion } from "@/components/MotionWrapper";
 import { blogPosts } from "@/data/posts";
 import { usePhotographyStore } from "@/stores/usePhotographyStore";
@@ -308,38 +310,54 @@ function PhotoCard({ photo, index, onOpen }: { photo: import("@/data/photography
       animate={{ y: active ? -4 : 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >
-      <motion.img
-        src={photo.src}
-        alt={photo.alt}
-        className="w-full h-full object-cover"
+      <motion.div
+        className="w-full h-full"
         animate={{
           scale: active ? 1.05 : 1,
           filter: active ? "grayscale(0%)" : "grayscale(100%)",
         }}
         transition={{ duration: 1.2, ease: [0.25, 0.1, 0.25, 1] }}
-        loading="lazy"
-      />
+      >
+        <PhotoImage src={photo.src} alt={photo.alt} className="w-full h-full object-cover" loading="lazy" bare />
+      </motion.div>
 
       {/* Overlay — info */}
       <motion.div
-        className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent flex items-end p-3"
+        className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-background/40 flex flex-col justify-between p-3"
         initial={false}
         animate={{ opacity: active ? 1 : 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
       >
+        {/* EXIF — top */}
+        <motion.div
+          initial={false}
+          animate={{ y: active ? 0 : -8, opacity: active ? 1 : 0 }}
+          transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
+        >
+          <ExifMetaDisplay meta={photo.meta ?? null} compact />
+        </motion.div>
+
+        {/* Trip + caption — bottom */}
         <motion.div
           className="flex items-center gap-1.5 min-w-0 w-full"
           initial={false}
           animate={{ y: active ? 0 : 8, opacity: active ? 1 : 0 }}
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
         >
-          <MapPin size={10} className="text-white drop-shadow-lg flex-shrink-0" />
-          <span className="text-white text-xs font-medium drop-shadow-lg whitespace-nowrap">{photo.tripName || photo.meta?.location?.split(",")[0] || photo.alt}</span>
+          {(photo.tripName || photo.meta?.location) && (
+            <>
+              <MapPin size={10} className="text-white drop-shadow-lg flex-shrink-0" />
+              <span className="text-white text-xs font-medium drop-shadow-lg whitespace-nowrap">{photo.tripName || photo.meta?.location?.split(",")[0]}</span>
+            </>
+          )}
           {photo.caption && (
             <>
-              <span className="text-white/40">|</span>
+              {(photo.tripName || photo.meta?.location) && <span className="text-white/40">|</span>}
               <MarqueeText text={photo.caption} className="text-white/70 text-xs drop-shadow-lg" />
             </>
+          )}
+          {!photo.caption && !photo.tripName && !photo.meta?.location && (
+            <span className="text-white text-xs font-medium drop-shadow-lg whitespace-nowrap">{photo.alt}</span>
           )}
         </motion.div>
       </motion.div>

@@ -10,23 +10,31 @@ const fileNameToAlt = (name: string): string =>
     .replace(/[-_]+/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
 
-const mapPhoto = (p: PhotoData, tripName?: string): Photo => ({
-  src: p.src,
-  alt: p.caption || fileNameToAlt(p.name),
-  caption: p.caption,
-  name: p.name,
-  isFav: p.isFav,
-  mediaType: p.mediaType,
-  tripName,
-  meta: p.exif ? {
-    camera: p.exif.camera ?? undefined,
-    lens: p.exif.lens ?? undefined,
-    focalLength: p.exif.focalLength ?? undefined,
-    aperture: p.exif.aperture ?? undefined,
-    shutterSpeed: p.exif.shutterSpeed ?? undefined,
-    iso: p.exif.iso ?? undefined,
-  } : undefined,
-});
+const mapPhoto = (p: PhotoData, trips: TripFolder[]): Photo => {
+  const tripName = p.tripIds.length > 0
+    ? trips.find((t) => p.tripIds.includes(t.id))?.country
+    : undefined;
+
+  return {
+    src: p.src,
+    alt: p.caption || fileNameToAlt(p.name),
+    caption: p.caption,
+    name: p.name,
+    isFav: p.isFav,
+    mediaType: p.mediaType,
+    tripName,
+    width: p.width ?? undefined,
+    height: p.height ?? undefined,
+    meta: p.exif ? {
+      camera: p.exif.camera ?? undefined,
+      lens: p.exif.lens ?? undefined,
+      focalLength: p.exif.focalLength ?? undefined,
+      aperture: p.exif.aperture ?? undefined,
+      shutterSpeed: p.exif.shutterSpeed ?? undefined,
+      iso: p.exif.iso ?? undefined,
+    } : undefined,
+  };
+};
 
 interface PhotographyState {
   trips: TripFolder[];
@@ -149,8 +157,7 @@ export const usePhotographyStore = create<PhotographyState>((set, get) => ({
         data = await res.json();
       }
 
-      const tripName = tripId ? get().trips.find((t) => t.id === tripId)?.country : undefined;
-      const photos: Photo[] = (data.photos as PhotoData[]).map((p) => mapPhoto(p, tripName));
+      const photos: Photo[] = (data.photos as PhotoData[]).map((p) => mapPhoto(p, get().trips));
 
       const fetching = new Set(get().photosFetching);
       fetching.delete(cacheKey);

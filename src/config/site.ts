@@ -32,7 +32,7 @@ export const siteConfig = {
   /** Show the newsletter signup form in the sidebar */
   enableNewsletter: false,
   /** Enable the /debug page (set to false to hide it) */
-  enableDebug: false,
+  enableDebug: true,
 
   /* ── Maintenance mode ── */
   maintenance: {
