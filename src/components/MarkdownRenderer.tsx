@@ -17,6 +17,7 @@ import { codeToHtml, type BundledLanguage } from "shiki";
 import { FileText, Download, Loader2, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import PhotoLightbox from "@/components/PhotoLightbox";
+import PhotoImage from "@/components/PhotoImage";
 import Mermaid from "@/components/Mermaid";
 import { useThemeStore } from "@/stores/useThemeStore";
 import type { Photo } from "@/data/photography";
@@ -430,11 +431,18 @@ function ClickableImage({ src, alt }: { src?: string; alt?: string }) {
   const { photos, open } = useContext(ImageViewerContext);
   const index = photos.findIndex((p) => p.src === src);
   const clickable = index !== -1;
+
   return (
     <figure className="mx-auto max-w-2xl" style={{ marginTop: "4rem", marginBottom: "4rem" }}>
-      <div className="rounded-xl border border-border/50 overflow-hidden">
-        <img src={src} alt={alt ?? ""} className={`w-full ${clickable ? "cursor-pointer hover:opacity-90 transition-opacity" : ""}`} style={{ display: "block", margin: 0 }} onClick={() => clickable && open(index)} loading="lazy" />
-      </div>
+      <PhotoImage
+        src={src}
+        alt={alt ?? ""}
+        aspectHint=""
+        className={`w-full ${clickable ? "cursor-pointer hover:opacity-90" : ""}`}
+        style={{ display: "block", margin: 0 }}
+        onClick={() => clickable && open(index)}
+        loading="lazy"
+      />
       {alt && <figcaption className="text-xs text-muted-foreground mt-2 text-center">{alt}</figcaption>}
     </figure>
   );

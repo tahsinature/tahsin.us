@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import type { DirectiveProps } from "../types";
+import PhotoImage from "@/components/PhotoImage";
 
 function CardThumbnail({ images, alt }: { images: string[]; alt: string }) {
   const [index, setIndex] = useState(0);
@@ -16,13 +17,15 @@ function CardThumbnail({ images, alt }: { images: string[]; alt: string }) {
 
   return (
     <div className="w-28 shrink-0 bg-muted/20 relative overflow-hidden">
+      <div className="absolute inset-0 animate-pulse bg-muted/40" />
       {images.map((src, i) => (
-        <img
+        <PhotoImage
           key={src}
+          bare
           src={src}
           alt={alt}
-          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
-          style={{ opacity: i === index ? 1 : 0 }}
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ opacity: i === index ? undefined : 0 }}
         />
       ))}
       {images.length > 1 && (

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import type { DirectiveProps, PageLink } from "../types";
+import PhotoImage from "@/components/PhotoImage";
 
 export default function HeroCardDirective({ props }: { props: DirectiveProps }) {
   const navigate = useNavigate();
@@ -27,13 +28,15 @@ export default function HeroCardDirective({ props }: { props: DirectiveProps }) 
       <div className="relative h-40 bg-muted/20">
         {images.length > 0 ? (
           <>
+            <div className="absolute inset-0 animate-pulse bg-muted/40" />
             {images.map((src, i) => (
-              <img
+              <PhotoImage
                 key={src}
+                bare
                 src={src}
                 alt=""
-                className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
-                style={{ opacity: i === imgIndex ? 1 : 0 }}
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ opacity: i === imgIndex ? undefined : 0 }}
               />
             ))}
           </>
