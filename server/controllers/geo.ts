@@ -1,4 +1,5 @@
 import type { Context } from "hono";
+import type { GeoResponse, ApiError } from "@shared/api";
 
 export async function getGeo(c: Context) {
   const ip =
@@ -9,12 +10,12 @@ export async function getGeo(c: Context) {
   try {
     const res = await fetch(`https://ipapi.co/${ip === "unknown" || ip === "127.0.0.1" || ip === "::1" ? "" : `${ip}/`}json/`);
     if (!res.ok) {
-      return c.json({ error: `Upstream returned ${res.status}` }, 502);
+      return c.json<ApiError>({ error: `Upstream returned ${res.status}` }, 502);
     }
-    const data = await res.json();
-    return c.json(data);
+    const data = await res.json() as GeoResponse;
+    return c.json<GeoResponse>(data);
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
-    return c.json({ error: message }, 502);
+    return c.json<ApiError>({ error: message }, 502);
   }
 }

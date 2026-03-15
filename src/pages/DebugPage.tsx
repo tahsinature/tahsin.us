@@ -1,8 +1,10 @@
+import { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { siteConfig } from "@/config/site";
 import { useThemeStore } from "@/stores/useThemeStore";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { BlurFadeIn } from "@/components/MotionWrapper";
+import type { HealthResponse } from "@shared/api";
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -31,6 +33,14 @@ export default function DebugPage() {
   const theme = useThemeStore((s) => s.theme);
   const nav = navigator;
 
+  const [health, setHealth] = useState<HealthResponse | null>(null);
+  useEffect(() => {
+    fetch("/api/ops/health")
+      .then((r) => r.json())
+      .then((data: HealthResponse) => setHealth(data))
+      .catch(() => {});
+  }, []);
+
   return (
     <div className="max-w-2xl mx-auto px-6 py-16">
       <BlurFadeIn>
@@ -44,6 +54,20 @@ export default function DebugPage() {
             <Link to="/page/321960add9d380b4a9d3e22df97ee834" className="text-accent underline underline-offset-2 hover:text-primary transition-colors">
               Page Preview
             </Link>
+          </Section>
+        </BlurFadeIn>
+
+        {/* ── Server Health ── */}
+        <BlurFadeIn delay={0.03}>
+          <Section title="Server Health">
+            {health ? (
+              <>
+                <Row label="status" value={health.status} />
+                <Row label="uptime" value={`${Math.round(health.uptime)}s`} />
+              </>
+            ) : (
+              <span className="text-muted-foreground">Loading...</span>
+            )}
           </Section>
         </BlurFadeIn>
 
@@ -105,9 +129,7 @@ export default function DebugPage() {
             {Object.keys(localStorage).length === 0 ? (
               <span className="text-muted-foreground">(empty)</span>
             ) : (
-              Object.keys(localStorage).map((key) => (
-                <Row key={key} label={key} value={localStorage.getItem(key) ?? ""} />
-              ))
+              Object.keys(localStorage).map((key) => <Row key={key} label={key} value={localStorage.getItem(key) ?? ""} />)
             )}
           </Section>
         </BlurFadeIn>

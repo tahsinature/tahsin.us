@@ -22,9 +22,10 @@
 
     "baseUrl": ".",
     "paths": {
-      "@server/*": ["server/*"]
+      "@server/*": ["server/*"],
+      "@shared/*": ["shared/*"]
     }
   },
-  "include": ["server/**/*.ts"],
+  "include": ["server/**/*.ts", "shared/**/*.ts"],
   "exclude": ["server/**/*.test.ts"]
 }

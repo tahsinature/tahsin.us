@@ -1,7 +1,7 @@
 info:
   name: photos
   type: http
-  seq: 6
+  seq: 5
 
 http:
   method: GET
@@ -10,11 +10,6 @@ http:
     - name: Content-Type
       value: application/json
   auth: inherit
-  params:
-    query:
-      - name: trip-id
-        value: ""
-        enabled: false
 
 settings:
   encodeUrl: true

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { Photo, TripFolder } from "@/data/photography";
+import type { PhotoData, TripData } from "@shared/api";
 import { awaitPrefetch } from "@/lib/prefetch";
 
 /** Clean a filename into a display-friendly alt text */
@@ -9,21 +10,13 @@ const fileNameToAlt = (name: string): string =>
     .replace(/[-_]+/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
 
-interface ServerPhoto {
-  src: string;
-  name: string;
-  caption: string;
-  isFav: boolean;
-  mediaType: string;
-}
-
-const mapPhoto = (p: ServerPhoto, tripName?: string): Photo => ({
+const mapPhoto = (p: PhotoData, tripName?: string): Photo => ({
   src: p.src,
   alt: p.caption || fileNameToAlt(p.name),
   caption: p.caption,
   name: p.name,
   isFav: p.isFav,
-  mediaType: p.mediaType as "image" | "video" | "gif",
+  mediaType: p.mediaType,
   tripName,
 });
 
@@ -68,12 +61,12 @@ export const usePhotographyStore = create<PhotographyState>((set, get) => ({
     const doFetch = async () => {
       set({ tripsStatus: "loading", tripsError: null });
       try {
-        const data = (await awaitPrefetch<{ trips: unknown[] }>("/api/trips")) ?? await fetch("/api/trips").then((r) => {
+        const data = (await awaitPrefetch<{ trips: TripData[] }>("/api/trips")) ?? await fetch("/api/trips").then((r) => {
           if (!r.ok) throw new Error(`HTTP ${r.status}`);
           return r.json();
         });
         const trips: TripFolder[] = data.trips.map(
-          (t: { id: string; slug: string; name: string; coverImage: string; description: string; date: string; dateRaw: string; photoCount: number }) => ({
+          (t: TripData) => ({
             id: t.id,
             slug: t.slug,
             country: t.name,
@@ -125,10 +118,10 @@ export const usePhotographyStore = create<PhotographyState>((set, get) => ({
     try {
       // Try prefetched data for favOnly (no tripId) requests
       const prefetchKey = !tripId && opts?.favOnly ? "/api/photos?favonly=true" : null;
-      let data: { photos: ServerPhoto[] };
+      let data: { photos: PhotoData[] };
 
       if (prefetchKey) {
-        const prefetched = await awaitPrefetch<{ photos: ServerPhoto[] }>(prefetchKey);
+        const prefetched = await awaitPrefetch<{ photos: PhotoData[] }>(prefetchKey);
         if (prefetched) {
           data = prefetched;
         } else {
@@ -149,7 +142,7 @@ export const usePhotographyStore = create<PhotographyState>((set, get) => ({
       }
 
       const tripName = tripId ? get().trips.find((t) => t.id === tripId)?.country : undefined;
-      const photos: Photo[] = (data.photos as ServerPhoto[]).map((p) => mapPhoto(p, tripName));
+      const photos: Photo[] = (data.photos as PhotoData[]).map((p) => mapPhoto(p, tripName));
 
       const fetching = new Set(get().photosFetching);
       fetching.delete(cacheKey);

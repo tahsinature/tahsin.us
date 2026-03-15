@@ -1,28 +1,8 @@
 import { Client } from "@notionhq/client";
+import type { TripData, PhotoData, MediaType } from "@shared/api";
 
 const TRIPS_DS_ID = process.env.PHOTOS_DS_ID ?? "";
 const PHOTOS_DS_ID = "323960ad-d9d3-80af-8586-000b87acbf60";
-
-// ── Types ──
-
-export interface TripData {
-  id: string;
-  slug: string;
-  name: string;
-  coverImage: string;
-  description: string;
-  date: string;
-  dateRaw: string;
-  photoCount: number;
-}
-
-export interface PhotoData {
-  src: string;
-  name: string;
-  caption: string;
-  isFav: boolean;
-  mediaType: "image" | "video" | "gif";
-}
 
 // ── Helpers ──
 
@@ -33,7 +13,7 @@ function slugify(name: string): string {
     .replace(/^-|-$/g, "");
 }
 
-function getMediaType(filename: string): "image" | "video" | "gif" {
+function getMediaType(filename: string): MediaType {
   const ext = filename.split(".").pop()?.toLowerCase() ?? "";
   if (ext === "gif") return "gif";
   if (["mp4", "mov", "webm", "avi", "mkv"].includes(ext)) return "video";
