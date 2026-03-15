@@ -13,6 +13,7 @@ export interface Photo {
   alt: string;
   caption?: string;
   name?: string;
+  tripName?: string;
   isFav?: boolean;
   mediaType?: "image" | "video" | "gif";
   width?: number;

@@ -86,7 +86,9 @@ export const usePhotographyStore = create<PhotographyState>((set, get) => ({
           }),
         );
 
-        const favPhotos = trips.flatMap((trip) => trip.photos.filter((p) => p.isFav));
+        const favPhotos = trips.flatMap((trip) =>
+          trip.photos.filter((p) => p.isFav).map((p) => ({ ...p, tripName: trip.country })),
+        );
 
         set({
           trips,

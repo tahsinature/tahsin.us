@@ -4,6 +4,7 @@ import { ArrowRight, Briefcase, MapPin, ExternalLink, Mail, Github, Twitter, Lin
 import HeroBanner from "@/components/HeroBanner";
 import InteractiveCodeCard from "@/components/InteractiveCodeCard";
 import PhotoLightbox from "@/components/PhotoLightbox";
+import MarqueeText from "@/components/MarqueeText";
 import { FadeIn, StaggerContainer, StaggerItem, motion } from "@/components/MotionWrapper";
 import { blogPosts } from "@/data/posts";
 import { usePhotographyStore } from "@/stores/usePhotographyStore";
@@ -285,7 +286,7 @@ function PhotoCard({ photo, index, onOpen }: { photo: import("@/data/photography
       onClick={handleClick}
       onHoverStart={() => setHovered(true)}
       onHoverEnd={() => setHovered(false)}
-      className="relative aspect-[4/3] rounded overflow-hidden border border-border cursor-pointer transition-colors duration-500 ease-out hover:border-primary/40"
+      className="group relative aspect-[4/3] rounded overflow-hidden border border-border cursor-pointer transition-colors duration-500 ease-out hover:border-primary/40"
       animate={{ y: active ? -4 : 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >
@@ -309,15 +310,19 @@ function PhotoCard({ photo, index, onOpen }: { photo: import("@/data/photography
         transition={{ duration: 0.8, ease: "easeOut" }}
       >
         <motion.div
-          className="flex flex-col gap-1"
+          className="flex items-center gap-1.5 min-w-0 w-full"
           initial={false}
           animate={{ y: active ? 0 : 8, opacity: active ? 1 : 0 }}
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
         >
-          <span className="text-white text-xs font-medium drop-shadow-lg flex items-center gap-1">
-            <MapPin size={10} />
-            {photo.meta?.location?.split(",")[0] || photo.alt}
-          </span>
+          <MapPin size={10} className="text-white drop-shadow-lg flex-shrink-0" />
+          <span className="text-white text-xs font-medium drop-shadow-lg whitespace-nowrap">{photo.tripName || photo.meta?.location?.split(",")[0] || photo.alt}</span>
+          {photo.caption && (
+            <>
+              <span className="text-white/40">|</span>
+              <MarqueeText text={photo.caption} className="text-white/70 text-xs drop-shadow-lg" />
+            </>
+          )}
         </motion.div>
       </motion.div>
 

@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Camera, MapPin, Calendar, Image, Sparkles, Globe, RefreshCw, Plane, LayoutGrid, List } from "lucide-react";
+import MarqueeText from "@/components/MarqueeText";
 import { usePhotographyStore } from "@/stores/usePhotographyStore";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import PhotoImage from "@/components/PhotoImage";
@@ -10,22 +11,6 @@ import { FadeIn, StaggerContainer, StaggerItem, motion } from "@/components/Moti
 import { AnimatePresence } from "motion/react";
 
 type ViewMode = "destinations" | "featured";
-
-function MarqueeText({ text }: { text: string }) {
-  const ref = useRef<HTMLParagraphElement>(null);
-  const [overflows, setOverflows] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (el) setOverflows(el.scrollWidth > el.clientWidth);
-  }, [text]);
-
-  return (
-    <div className={`overflow-hidden min-w-0 flex-1 ${overflows ? "[mask-image:linear-gradient(to_right,black_90%,transparent)]" : ""}`}>
-      <p ref={ref} className={`text-muted-foreground text-sm whitespace-nowrap ${overflows ? "group-hover:animate-marquee" : ""}`}>{text}</p>
-    </div>
-  );
-}
 
 /* ── Skeleton Loaders ── */
 
@@ -239,7 +224,7 @@ export default function PhotographyPage() {
                                   {trip.description && (
                                     <>
                                       <span className="text-muted-foreground/30">|</span>
-                                      <MarqueeText text={trip.description} />
+                                      <MarqueeText text={trip.description} className="text-muted-foreground text-sm" />
                                     </>
                                   )}
                                 </div>
