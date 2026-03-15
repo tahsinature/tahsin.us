@@ -17,7 +17,9 @@ export function cached(opts: CacheMiddlewareOptions): MiddlewareHandler {
   return async (c, next) => {
     if (process.env.CACHE_ENABLED === "false") return await next();
 
-    const cacheKey = opts.key ? await opts.key(c) : `${c.req.method}:${c.req.path}`;
+    const url = new URL(c.req.url);
+    const query = url.search ? url.search : "";
+    const cacheKey = opts.key ? await opts.key(c) : `${c.req.method}:${c.req.path}${query}`;
 
     const hit = await cache.get(cacheKey);
     if (hit) {
