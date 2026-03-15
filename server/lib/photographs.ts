@@ -191,8 +191,6 @@ export async function fetchPhotographs(token: string): Promise<PhotographsRespon
   for (let i = 0; i < tripMetas.length; i++) {
     const meta = tripMetas[i];
     const photos = tripPhotos[i];
-    if (photos.length === 0) continue;
-
     let slug = slugify(meta.name);
     const count = slugCounts.get(slug) ?? 0;
     slugCounts.set(slug, count + 1);
@@ -209,7 +207,7 @@ export async function fetchPhotographs(token: string): Promise<PhotographsRespon
       id: meta.id,
       slug,
       name: meta.name,
-      coverImage: photos[0].src,
+      coverImage: photos[0]?.src ?? "",
       description: meta.description,
       date: meta.dateDisplay,
       dateRaw: meta.dateRaw,

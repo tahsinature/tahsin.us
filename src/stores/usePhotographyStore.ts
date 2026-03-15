@@ -61,6 +61,7 @@ export const usePhotographyStore = create<PhotographyState>((set, get) => ({
             coverImage: string;
             description: string;
             date: string;
+            dateRaw: string;
             photoCount: number;
             favCount: number;
             photos: Array<{ src: string; name: string; caption: string; isFav: boolean; mediaType: string }>;
@@ -71,6 +72,7 @@ export const usePhotographyStore = create<PhotographyState>((set, get) => ({
             coverImage: t.coverImage,
             description: t.description,
             date: t.date,
+            dateRaw: t.dateRaw,
             photoCount: t.photoCount,
             favCount: t.favCount,
             photos: t.photos.map((p) => ({

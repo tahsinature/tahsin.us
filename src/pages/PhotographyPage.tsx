@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Camera, MapPin, Calendar, Image, Sparkles, Globe, RefreshCw } from "lucide-react";
+import { Camera, MapPin, Calendar, Image, Sparkles, Globe, RefreshCw, Plane, LayoutGrid, List } from "lucide-react";
 import { usePhotographyStore } from "@/stores/usePhotographyStore";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import PhotoImage from "@/components/PhotoImage";
@@ -10,6 +10,22 @@ import { FadeIn, StaggerContainer, StaggerItem, motion } from "@/components/Moti
 import { AnimatePresence } from "motion/react";
 
 type ViewMode = "destinations" | "featured";
+
+function MarqueeText({ text }: { text: string }) {
+  const ref = useRef<HTMLParagraphElement>(null);
+  const [overflows, setOverflows] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (el) setOverflows(el.scrollWidth > el.clientWidth);
+  }, [text]);
+
+  return (
+    <div className={`overflow-hidden min-w-0 flex-1 ${overflows ? "[mask-image:linear-gradient(to_right,black_90%,transparent)]" : ""}`}>
+      <p ref={ref} className={`text-muted-foreground text-sm whitespace-nowrap ${overflows ? "group-hover:animate-marquee" : ""}`}>{text}</p>
+    </div>
+  );
+}
 
 /* ── Skeleton Loaders ── */
 
@@ -52,6 +68,7 @@ export default function PhotographyPage() {
     const v = searchParams.get("view");
     return v === "featured" ? "featured" : "destinations";
   });
+  const [layout, setLayout] = useState<"grid" | "list">("grid");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(() => {
     const p = searchParams.get("photo");
     return p !== null ? parseInt(p, 10) : null;
@@ -96,6 +113,7 @@ export default function PhotographyPage() {
   };
 
   const isLoading = status === "idle" || status === "loading";
+  const sortedTrips = [...trips].sort((a, b) => (a.photoCount === 0 ? 1 : 0) - (b.photoCount === 0 ? 1 : 0));
 
   return (
     <main className="max-w-7xl mx-auto px-6 py-12">
@@ -112,7 +130,7 @@ export default function PhotographyPage() {
 
       {/* View Toggle */}
       <FadeIn delay={0.1}>
-        <div className="flex gap-2 mb-10">
+        <div className="flex items-center gap-2 mb-10">
           <motion.button
             onClick={() => setView("destinations")}
             className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium border transition-all ${
@@ -139,6 +157,23 @@ export default function PhotographyPage() {
             <Sparkles size={15} />
             Best Shots
           </motion.button>
+
+          {view === "destinations" && (
+            <div className="ml-auto flex items-center border border-border rounded overflow-hidden">
+              <button
+                onClick={() => setLayout("grid")}
+                className={`p-1.5 transition-colors ${layout === "grid" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                <LayoutGrid size={14} />
+              </button>
+              <button
+                onClick={() => setLayout("list")}
+                className={`p-1.5 transition-colors ${layout === "list" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                <List size={14} />
+              </button>
+            </div>
+          )}
         </div>
       </FadeIn>
 
@@ -172,53 +207,176 @@ export default function PhotographyPage() {
               <DestinationsSkeleton />
             ) : status === "success" && trips.length === 0 ? (
               <p className="text-muted-foreground text-center py-16">No destinations yet.</p>
-            ) : (
-              <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" staggerDelay={0.08}>
-                {trips.map((trip) => (
-                  <StaggerItem key={trip.slug} variant="scale">
-                    <motion.div whileHover="hover" className="h-full">
-                      <Link
-                        to={`/photography/${trip.slug}`}
-                        className="group relative flex flex-col bg-card border border-border rounded-md overflow-hidden hover:border-primary/40 transition-colors duration-300 h-full"
-                      >
-                        <div className="flex flex-col h-full">
-                          {/* Cover Image */}
-                          <div className="relative aspect-[16/9] overflow-hidden">
-                            <motion.div
-                              className="w-full h-full"
-                              variants={{ hover: { scale: 1.03 } }}
-                              transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
-                            >
-                              <PhotoImage src={trip.coverImage} alt={trip.country} className="w-full h-full object-cover" loading="lazy" aspectHint="16/9" />
-                            </motion.div>
-                            <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-transparent to-transparent" />
-                            <div className="absolute top-3 right-3 bg-background/70 backdrop-blur-sm text-muted-foreground text-xs px-2.5 py-1 rounded flex items-center gap-1.5 border border-border/50">
-                              <Image size={12} />
-                              {trip.photoCount}
-                            </div>
-                          </div>
-
-                          {/* Info */}
-                          <div className="p-5 flex-1 flex flex-col">
-                            <div className="flex items-center gap-2 mb-1">
-                              <MapPin size={14} className="text-warm flex-shrink-0" />
-                              <h2 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">{trip.country}</h2>
-                            </div>
-                            {trip.description && <p className="text-muted-foreground text-sm mb-3 line-clamp-2 flex-1">{trip.description}</p>}
-                            {trip.date && (
-                              <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
-                                <Calendar size={12} />
-                                {trip.date}
+            ) : layout === "grid" ? (
+                <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" staggerDelay={0.08}>
+                  {sortedTrips.map((trip) => (
+                    <StaggerItem key={trip.slug} variant="scale">
+                      <motion.div whileHover="hover" className="h-full">
+                        {trip.photoCount > 0 ? (
+                          <Link
+                            to={`/photography/${trip.slug}`}
+                            className="group relative flex flex-col bg-card border border-border rounded-md overflow-hidden hover:border-primary/40 transition-colors duration-300 h-full"
+                          >
+                            <div className="flex flex-col h-full">
+                              <div className="relative aspect-[16/9] overflow-hidden">
+                                <motion.div
+                                  className="w-full h-full"
+                                  variants={{ hover: { scale: 1.03 } }}
+                                  transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+                                >
+                                  <PhotoImage src={trip.coverImage} alt={trip.country} className="w-full h-full object-cover" loading="lazy" aspectHint="16/9" />
+                                </motion.div>
+                                <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-transparent to-transparent" />
+                                <div className="absolute top-3 right-3 bg-background/70 backdrop-blur-sm text-muted-foreground text-xs px-2.5 py-1 rounded flex items-center gap-1.5 border border-border/50">
+                                  <Image size={12} />
+                                  {trip.photoCount}
+                                </div>
                               </div>
-                            )}
+                              <div className="p-4 flex flex-col gap-1.5">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <MapPin size={14} className="text-warm flex-shrink-0" />
+                                  <h2 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors whitespace-nowrap">{trip.country}</h2>
+                                  {trip.description && (
+                                    <>
+                                      <span className="text-muted-foreground/30">|</span>
+                                      <MarqueeText text={trip.description} />
+                                    </>
+                                  )}
+                                </div>
+                                {trip.date && (
+                                  <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
+                                    <Calendar size={12} />
+                                    {trip.date}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </Link>
+                        ) : (() => {
+                          const isUpcoming = trip.dateRaw && new Date(trip.dateRaw + "T00:00:00") > new Date();
+                          return (
+                            <div className={`group relative flex flex-col bg-card border rounded-md overflow-hidden h-full ${isUpcoming ? "border-primary/30 border-dashed" : "border-border border-dashed"}`}>
+                              <div className={`relative aspect-[16/9] overflow-hidden ${isUpcoming ? "bg-primary/[0.03]" : "bg-muted/10"}`}>
+                                {isUpcoming ? (
+                                  <>
+                                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 320 180" fill="none">
+                                      <path d="M 60 140 Q 160 20 260 140" stroke="currentColor" className="text-primary/15" strokeWidth="1.5" strokeDasharray="4 4" />
+                                    </svg>
+                                    <div className="absolute top-[28%] left-1/2 -translate-x-1/2">
+                                      <Plane size={20} className="text-primary/40 -rotate-45" />
+                                    </div>
+                                    <div className="absolute inset-0 flex flex-col items-center justify-end pb-5 gap-1">
+                                      <span className="text-primary/50 text-[11px] font-medium tracking-widest uppercase">Can't wait!</span>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <>
+                                    <div className="absolute inset-6 border border-muted-foreground/15 rounded-sm">
+                                      <div className="absolute -top-px -left-px w-3 h-3 border-t border-l border-muted-foreground/30 rounded-tl-sm" />
+                                      <div className="absolute -top-px -right-px w-3 h-3 border-t border-r border-muted-foreground/30 rounded-tr-sm" />
+                                      <div className="absolute -bottom-px -left-px w-3 h-3 border-b border-l border-muted-foreground/30 rounded-bl-sm" />
+                                      <div className="absolute -bottom-px -right-px w-3 h-3 border-b border-r border-muted-foreground/30 rounded-br-sm" />
+                                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-px bg-muted-foreground/15" />
+                                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-4 w-px bg-muted-foreground/15" />
+                                    </div>
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2.5">
+                                      <div className="relative">
+                                        <Camera size={24} className="text-muted-foreground/30" />
+                                        <div className="absolute -top-1 -right-1.5 w-2 h-2 rounded-full bg-primary/40 animate-pulse" />
+                                      </div>
+                                      <span className="text-muted-foreground/40 text-[11px] font-medium tracking-widest uppercase">Still in the camera</span>
+                                    </div>
+                                  </>
+                                )}
+                              </div>
+                              <div className="p-5 flex-1 flex flex-col">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <MapPin size={14} className={`flex-shrink-0 ${isUpcoming ? "text-primary/50" : "text-warm/50"}`} />
+                                  <h2 className={`text-lg font-semibold ${isUpcoming ? "text-foreground/70" : "text-foreground/60"}`}>{trip.country}</h2>
+                                </div>
+                                {trip.description && <p className={`text-sm mb-3 line-clamp-2 flex-1 ${isUpcoming ? "text-muted-foreground/60" : "text-muted-foreground/50"}`}>{trip.description}</p>}
+                                {trip.date && (
+                                  <div className={`flex items-center gap-1.5 text-xs ${isUpcoming ? "text-primary/50" : "text-muted-foreground/50"}`}>
+                                    <Calendar size={12} />
+                                    {trip.date}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })()}
+                      </motion.div>
+                    </StaggerItem>
+                  ))}
+                </StaggerContainer>
+              ) : (
+                <StaggerContainer className="grid grid-cols-1 lg:grid-cols-2 gap-2" staggerDelay={0.04}>
+                  {sortedTrips.map((trip) => {
+                    const isUpcoming = trip.photoCount === 0 && trip.dateRaw && new Date(trip.dateRaw + "T00:00:00") > new Date();
+                    const isEmpty = trip.photoCount === 0;
+                    return (
+                      <StaggerItem key={trip.slug}>
+                        {trip.photoCount > 0 ? (
+                          <Link
+                            to={`/photography/${trip.slug}`}
+                            className="group flex items-center gap-4 bg-card border border-border rounded-md p-3 hover:border-primary/40 transition-colors duration-200"
+                          >
+                            <div className="relative w-16 h-16 rounded overflow-hidden flex-shrink-0">
+                              <PhotoImage src={trip.coverImage} alt={trip.country} className="w-full h-full object-cover" loading="lazy" aspectHint="1/1" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <MapPin size={13} className="text-warm flex-shrink-0" />
+                                <h2 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors truncate">{trip.country}</h2>
+                              </div>
+                              {trip.description && <p className="text-muted-foreground text-xs truncate mt-0.5">{trip.description}</p>}
+                            </div>
+                            <div className="flex items-center gap-4 flex-shrink-0 text-xs text-muted-foreground">
+                              {trip.date && (
+                                <span className="hidden sm:flex items-center gap-1">
+                                  <Calendar size={11} />
+                                  {trip.date}
+                                </span>
+                              )}
+                              <span className="flex items-center gap-1">
+                                <Image size={11} />
+                                {trip.photoCount}
+                              </span>
+                            </div>
+                          </Link>
+                        ) : (
+                          <div className={`flex items-center gap-4 border rounded-md p-3 ${isUpcoming ? "border-primary/30 border-dashed bg-primary/[0.02]" : "border-border border-dashed bg-card"}`}>
+                            <div className={`w-16 h-16 rounded flex items-center justify-center flex-shrink-0 ${isUpcoming ? "bg-primary/[0.05]" : "bg-muted/10"}`}>
+                              {isUpcoming ? (
+                                <Plane size={18} className="text-primary/40 -rotate-45" />
+                              ) : (
+                                <Camera size={18} className="text-muted-foreground/30" />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <MapPin size={13} className={isEmpty ? (isUpcoming ? "text-primary/50" : "text-warm/50") : "text-warm"} />
+                                <h2 className={`text-sm font-semibold truncate ${isUpcoming ? "text-foreground/70" : "text-foreground/60"}`}>{trip.country}</h2>
+                              </div>
+                              <p className={`text-xs mt-0.5 ${isUpcoming ? "text-primary/50" : "text-muted-foreground/40"}`}>
+                                {isUpcoming ? "Can't wait!" : "Still in the camera"}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-4 flex-shrink-0 text-xs text-muted-foreground/50">
+                              {trip.date && (
+                                <span className={`hidden sm:flex items-center gap-1 ${isUpcoming ? "text-primary/50" : ""}`}>
+                                  <Calendar size={11} />
+                                  {trip.date}
+                                </span>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </Link>
-                    </motion.div>
-                  </StaggerItem>
-                ))}
-              </StaggerContainer>
-            )}
+                        )}
+                      </StaggerItem>
+                    );
+                  })}
+                </StaggerContainer>
+              )}
           </motion.div>
         )}
 

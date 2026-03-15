@@ -27,6 +27,7 @@ export interface TripFolder {
   coverImage: string;
   description: string;
   date: string;
+  dateRaw: string;
   photoCount: number;
   favCount: number;
   photos: Photo[];
