@@ -9,13 +9,14 @@ import PhotoImage from "@/components/PhotoImage";
 import ExifMetaDisplay from "@/components/ExifMetaDisplay";
 import PhotoLightbox from "@/components/PhotoLightbox";
 import { FadeIn, BlurFadeIn, motion } from "@/components/MotionWrapper";
+import { PAGE_PADDING } from "@/config/layout";
 
 /* ── Skeleton ── */
 
 function TripGallerySkeleton() {
   const aspects = ["aspect-[3/4]", "aspect-[4/3]", "aspect-[1/1]", "aspect-[3/2]", "aspect-[2/3]", "aspect-[4/5]"];
   return (
-    <main className="max-w-7xl mx-auto px-6 py-8">
+    <main className={`max-w-7xl mx-auto ${PAGE_PADDING}`}>
       <div className="h-4 w-32 bg-muted/30 rounded animate-pulse mb-8" />
       <header className="mb-10 space-y-3">
         <div className="h-8 w-48 bg-muted/30 rounded animate-pulse" />
@@ -108,7 +109,7 @@ export default function TripGalleryPage() {
   };
 
   return (
-    <main className="max-w-7xl mx-auto px-6 py-8">
+    <main className={`max-w-7xl mx-auto ${PAGE_PADDING}`}>
       {/* Back link */}
       <FadeIn>
         <Link to="/photography" className="text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-2 text-sm mb-8">

@@ -1,9 +1,10 @@
-import { useState, useCallback, useEffect } from "react";
+import { useCallback, useEffect, useReducer } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useScroll, useSpring, motion, AnimatePresence } from "motion/react";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { usePageStore } from "@/stores/usePageStore";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
+import { PAGE_PADDING } from "@/config/layout";
 
 const smooth = [0.25, 0.1, 0.25, 1] as const;
 
@@ -29,21 +30,27 @@ export default function PageView({ pageId: propId, fetchUrl, title }: { pageId?:
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
 
-  const [markdown, setMarkdown] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  type State = { markdown: string | null; loading: boolean; error: string | null };
+  type Action = { type: "fetch" } | { type: "success"; markdown: string } | { type: "error"; error: string };
+  const [{ markdown, loading, error }, dispatch] = useReducer(
+    (_: State, action: Action): State => {
+      switch (action.type) {
+        case "fetch": return { markdown: null, loading: true, error: null };
+        case "success": return { markdown: action.markdown, loading: false, error: null };
+        case "error": return { markdown: null, loading: false, error: action.error };
+      }
+    },
+    { markdown: null, loading: false, error: null },
+  );
 
   const url = fetchUrl ?? (resolvedId ? `/api/notion/${resolvedId.trim().replace(/[^a-f0-9-]/gi, "")}` : null);
 
   useEffect(() => {
     if (!url) return;
-    setLoading(true);
-    setError(null);
-    setMarkdown(null);
+    dispatch({ type: "fetch" });
     fetchPage(url)
-      .then(setMarkdown)
-      .catch((err) => setError(err instanceof Error ? err.message : "Unknown error"))
-      .finally(() => setLoading(false));
+      .then((md) => dispatch({ type: "success", markdown: md }))
+      .catch((err) => dispatch({ type: "error", error: err instanceof Error ? err.message : "Unknown error" }));
   }, [url, fetchPage]);
 
   const handleContentClick = useCallback((e: React.MouseEvent) => {
@@ -65,7 +72,7 @@ export default function PageView({ pageId: propId, fetchUrl, title }: { pageId?:
         style={{ scaleX }}
       />
     )}
-    <div className="max-w-6xl mx-auto px-6 py-16">
+    <div className={`max-w-6xl mx-auto ${PAGE_PADDING}`}>
       <AnimatePresence mode="wait">
         {error && !loading && (
           <motion.div
@@ -87,7 +94,7 @@ export default function PageView({ pageId: propId, fetchUrl, title }: { pageId?:
             <h2 className="text-lg font-semibold text-foreground mb-1">Something went wrong</h2>
             <p className="text-sm text-muted-foreground mb-4 max-w-md">{error}</p>
             <button
-              onClick={() => { if (url) { setLoading(true); setError(null); fetchPage(url).then(setMarkdown).catch((e) => setError(e.message)).finally(() => setLoading(false)); } }}
+              onClick={() => { if (url) { dispatch({ type: "fetch" }); fetchPage(url).then((md) => dispatch({ type: "success", markdown: md })).catch((e) => dispatch({ type: "error", error: e.message })); } }}
               className="text-sm text-primary hover:text-primary/80 transition-colors"
             >
               Try again

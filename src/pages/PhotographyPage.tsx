@@ -8,6 +8,7 @@ import PhotoImage from "@/components/PhotoImage";
 import ExifMetaDisplay from "@/components/ExifMetaDisplay";
 import PhotoLightbox from "@/components/PhotoLightbox";
 import { FadeIn, StaggerContainer, StaggerItem, motion } from "@/components/MotionWrapper";
+import { PAGE_PADDING } from "@/config/layout";
 import { AnimatePresence } from "motion/react";
 
 type ViewMode = "destinations" | "featured";
@@ -108,7 +109,7 @@ export default function PhotographyPage() {
   const sortedTrips = [...trips].sort((a, b) => (a.photoCount === 0 ? 1 : 0) - (b.photoCount === 0 ? 1 : 0));
 
   return (
-    <main className="max-w-7xl mx-auto px-6 py-12">
+    <main className={`max-w-7xl mx-auto ${PAGE_PADDING}`}>
       {/* Page Header */}
       <FadeIn>
         <div className="mb-8">

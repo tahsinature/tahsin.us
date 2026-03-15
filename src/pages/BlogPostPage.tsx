@@ -7,6 +7,7 @@ import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { FadeIn, BlurFadeIn } from "@/components/MotionWrapper";
 import PlatformIcon from "@/components/PlatformIcon";
 import { platforms } from "@/config/platforms";
+import { PAGE_PADDING } from "@/config/layout";
 
 // Import all MDX files from per-post folders
 const mdxModules = import.meta.glob("../content/*/index.mdx", { eager: true }) as Record<string, { default: React.ComponentType; frontmatter?: Record<string, unknown> }>;
@@ -44,7 +45,7 @@ export default function BlogPostPage() {
       className="fixed top-16 left-0 right-0 h-[2px] bg-primary z-40 origin-left"
       style={{ scaleX }}
     />
-    <div className="max-w-3xl mx-auto px-6 py-8 w-full min-w-0">
+    <div className={`max-w-3xl mx-auto ${PAGE_PADDING} w-full min-w-0`}>
       {/* Back link */}
       <FadeIn>
         <Link to="/blog" className="text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-2 text-sm mb-8">

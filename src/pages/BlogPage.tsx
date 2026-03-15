@@ -6,6 +6,7 @@ import { blogPosts, categories } from "@/data/posts";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { FadeIn } from "@/components/MotionWrapper";
 import { AnimatePresence, motion } from "motion/react";
+import { PAGE_PADDING } from "@/config/layout";
 
 export default function BlogPage() {
   useDocumentTitle("Blog");
@@ -28,7 +29,7 @@ export default function BlogPage() {
   };
 
   return (
-    <main className="max-w-7xl mx-auto px-6 py-12">
+    <main className={`max-w-7xl mx-auto ${PAGE_PADDING}`}>
       {/* Page Header */}
       <FadeIn>
         <div className="mb-10">
