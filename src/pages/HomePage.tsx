@@ -16,9 +16,19 @@ import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 export default function HomePage() {
   useDocumentTitle();
   const recentPosts = blogPosts.slice(0, 3);
-  const favPhotos = usePhotographyStore((s) => s.favPhotos);
+  const { tripsStatus, fetchPhotos } = usePhotographyStore();
+  const [favPhotos, setFavPhotos] = useState<import("@/data/photography").Photo[]>([]);
+  const [photosLoading, setPhotosLoading] = useState(true);
   const previewPhotos = favPhotos.slice(0, 6);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  // Fetch only fav photos for the homepage preview
+  useEffect(() => {
+    if (tripsStatus !== "success") return;
+    fetchPhotos(undefined, { favOnly: true })
+      .then(setFavPhotos)
+      .finally(() => setPhotosLoading(false));
+  }, [tripsStatus, fetchPhotos]);
 
   return (
     <>
@@ -181,13 +191,21 @@ export default function HomePage() {
               </Link>
             </div>
           </FadeIn>
-          <StaggerContainer className="grid grid-cols-2 md:grid-cols-3 gap-3" staggerDelay={0.08}>
-            {previewPhotos.map((photo, i) => (
-              <StaggerItem key={i} variant="scale">
-                <PhotoCard photo={photo} index={i} onOpen={setLightboxIndex} />
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
+          {photosLoading ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="aspect-[4/3] rounded bg-muted/20 animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            <StaggerContainer className="grid grid-cols-2 md:grid-cols-3 gap-3" staggerDelay={0.08}>
+              {previewPhotos.map((photo, i) => (
+                <StaggerItem key={i} variant="scale">
+                  <PhotoCard photo={photo} index={i} onOpen={setLightboxIndex} />
+                </StaggerItem>
+              ))}
+            </StaggerContainer>
+          )}
         </section>
       </main>
 

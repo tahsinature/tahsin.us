@@ -1,15 +1,19 @@
 info:
-  name: ops
+  name: get-named-page
   type: http
-  seq: 3
+  seq: 7
 
 http:
-  method: POST
-  url: "{{backend_host}}/api/ops/cache/bust"
+  method: GET
+  url: "{{backend_host}}/api/pages/:name"
   headers:
     - name: Content-Type
       value: application/json
   auth: inherit
+  params:
+    path:
+      - name: name
+        value: about
 
 settings:
   encodeUrl: true

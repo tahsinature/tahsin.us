@@ -1,0 +1,24 @@
+info:
+  name: resolve-files
+  type: http
+  seq: 9
+
+http:
+  method: POST
+  url: "{{backend_host}}/api/notion/resolve-files"
+  headers:
+    - name: Content-Type
+      value: application/json
+  auth: inherit
+  body:
+    type: json
+    value: |
+      {
+        "blockIds": []
+      }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

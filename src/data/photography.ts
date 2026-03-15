@@ -30,6 +30,4 @@ export interface TripFolder {
   date: string;
   dateRaw: string;
   photoCount: number;
-  favCount: number;
-  photos: Photo[];
 }

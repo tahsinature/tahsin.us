@@ -10,3 +10,12 @@ request:
   auth:
     type: bearer
     token: "{{N_TOK}}"
+  variables:
+    - name: DS_TRIPS
+      value: 322960ad-d9d3-8024-9334-000b1088e996
+    - name: DS_PHOTOGRAPHS
+      value: 323960ad-d9d3-80af-8586-000b87acbf60
+    - name: PAGE_TRAVEL
+      value: 322960add9d3807283e7c9d28ec099e0
+    - name: HOST_NOTION
+      value: https://api.notion.com/v1

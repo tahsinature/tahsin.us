@@ -50,9 +50,7 @@ export function useImageColor(src: string): string | null {
       }
     };
 
-    // Proxy external images through our server to avoid CORS
-    const isExternal = src.startsWith("http") && !src.startsWith(window.location.origin);
-    img.src = isExternal ? `/api/image-proxy?url=${encodeURIComponent(src)}` : src;
+    img.src = src;
 
     return () => { cancelled = true; };
   }, [src]);

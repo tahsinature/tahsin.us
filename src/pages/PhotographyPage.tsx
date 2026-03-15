@@ -47,7 +47,8 @@ function FeaturedSkeleton() {
 export default function PhotographyPage() {
   useDocumentTitle("Photography");
   const [searchParams, setSearchParams] = useSearchParams();
-  const { trips, favPhotos, status, error, fetchPhotographs } = usePhotographyStore();
+  const { trips, tripsStatus: status, tripsError: error, fetchTrips, fetchPhotos } = usePhotographyStore();
+  const [favPhotos, setFavPhotos] = useState<import("@/data/photography").Photo[]>([]);
 
   const [view, setView] = useState<ViewMode>(() => {
     const v = searchParams.get("view");
@@ -59,12 +60,18 @@ export default function PhotographyPage() {
     return p !== null ? parseInt(p, 10) : null;
   });
 
-  // Staleness refresh — re-fetch if data older than 25 minutes
+  // Fetch fav photos when viewing featured tab
+  useEffect(() => {
+    if (view !== "featured" || status !== "success") return;
+    fetchPhotos(undefined, { favOnly: true }).then(setFavPhotos);
+  }, [view, status, fetchPhotos]);
+
+  // Staleness refresh
   useEffect(() => {
     const interval = setInterval(() => {
-      const { fetchedAt } = usePhotographyStore.getState();
-      if (fetchedAt && Date.now() - fetchedAt > 25 * 60 * 1000) {
-        usePhotographyStore.getState().fetchPhotographs();
+      const { tripsFetchedAt } = usePhotographyStore.getState();
+      if (tripsFetchedAt && Date.now() - tripsFetchedAt > 25 * 60 * 1000) {
+        usePhotographyStore.getState().fetchTrips();
       }
     }, 60_000);
     return () => clearInterval(interval);
@@ -168,7 +175,7 @@ export default function PhotographyPage() {
           <div className="text-center py-16">
             <p className="text-muted-foreground mb-4">Failed to load photographs: {error}</p>
             <button
-              onClick={() => fetchPhotographs()}
+              onClick={() => fetchTrips()}
               className="inline-flex items-center gap-2 px-4 py-2 rounded text-sm font-medium border border-border bg-card text-foreground hover:border-primary/40 transition-colors cursor-pointer"
             >
               <RefreshCw size={14} />

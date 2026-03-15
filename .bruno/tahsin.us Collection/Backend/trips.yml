@@ -1,0 +1,18 @@
+info:
+  name: trips
+  type: http
+  seq: 5
+
+http:
+  method: GET
+  url: "{{backend_host}}/api/trips"
+  headers:
+    - name: Content-Type
+      value: application/json
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

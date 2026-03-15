@@ -1,7 +1,8 @@
 import { Hono } from "hono";
 import { cached } from "@server/middleware/cache";
-import { getPhotographs } from "@server/controllers/photographs";
+import { getTrips, getPhotos } from "@server/controllers/photographs";
 
 export const photographRoutes = new Hono();
 
-photographRoutes.get("/photographs", cached({ ttl: 1800 }), getPhotographs);
+photographRoutes.get("/trips", cached({ ttl: 1800 }), getTrips);
+photographRoutes.get("/photos", cached({ ttl: 1800 }), getPhotos);

@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { Suspense, lazy, useEffect } from "react";
 import { siteConfig } from "@/config/site";
 import { usePhotographyStore } from "@/stores/usePhotographyStore";
+import { runPrefetches } from "@/lib/prefetch";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { MobileNavOverlay } from "@/components/layout/MobileNavOverlay";
@@ -21,11 +22,12 @@ const PageView = lazy(() => import("@/pages/PageView"));
 
 function App() {
   const location = useLocation();
-  const fetchPhotographs = usePhotographyStore((s) => s.fetchPhotographs);
+  const fetchTrips = usePhotographyStore((s) => s.fetchTrips);
 
   useEffect(() => {
-    fetchPhotographs();
-  }, [fetchPhotographs]);
+    runPrefetches();
+    fetchTrips();
+  }, [fetchTrips]);
 
   useEffect(() => {
     window.scrollTo(0, 0);

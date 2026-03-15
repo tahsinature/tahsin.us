@@ -1,15 +1,19 @@
 info:
-  name: /travel
+  name: get-notion-page
   type: http
-  seq: 4
+  seq: 8
 
 http:
   method: GET
-  url: "{{backend_host}}/api/travel"
+  url: "{{backend_host}}/api/notion/:pageId"
   headers:
     - name: Content-Type
       value: application/json
   auth: inherit
+  params:
+    path:
+      - name: pageId
+        value: ""
 
 settings:
   encodeUrl: true

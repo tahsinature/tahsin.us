@@ -3,13 +3,7 @@ import { Client } from "@notionhq/client";
 const TRIPS_DS_ID = process.env.PHOTOS_DS_ID ?? "";
 const PHOTOS_DS_ID = "323960ad-d9d3-80af-8586-000b87acbf60";
 
-export interface PhotoData {
-  src: string;
-  name: string;
-  caption: string;
-  isFav: boolean;
-  mediaType: "image" | "video" | "gif";
-}
+// ── Types ──
 
 export interface TripData {
   id: string;
@@ -20,14 +14,17 @@ export interface TripData {
   date: string;
   dateRaw: string;
   photoCount: number;
-  favCount: number;
-  photos: PhotoData[];
 }
 
-export interface PhotographsResponse {
-  trips: TripData[];
-  fetchedAt: number;
+export interface PhotoData {
+  src: string;
+  name: string;
+  caption: string;
+  isFav: boolean;
+  mediaType: "image" | "video" | "gif";
 }
+
+// ── Helpers ──
 
 function slugify(name: string): string {
   return name
@@ -83,12 +80,115 @@ function formatDate(date: { start: string; end: string | null } | null): { displ
   };
 }
 
-// ── Fetch photos for a specific trip ──
+// ── Fetch cover image for a trip ──
 
-async function fetchPhotosForTrip(
-  notion: Client,
-  tripId: string,
-): Promise<PhotoData[]> {
+async function fetchCoverImage(notion: Client, tripId: string): Promise<string> {
+  const res = await notion.dataSources.query({
+    data_source_id: PHOTOS_DS_ID,
+    filter_properties: ["Files", "Fav"],
+    filter: {
+      and: [
+        { property: "Trips", relation: { contains: tripId.replace(/-/g, "") } },
+        { property: "Files", files: { is_not_empty: true } },
+      ],
+    },
+    sorts: [{ property: "Fav", direction: "descending" }],
+    page_size: 1,
+  } as Parameters<typeof notion.dataSources.query>[0]);
+
+  const page = res.results[0];
+  if (!page) return "";
+  const props = (page as Record<string, unknown>).properties as Record<string, unknown>;
+  const files = (props.Files as { files: Array<{ file?: { url: string }; external?: { url: string } }> })?.files ?? [];
+  const firstFile = files[0];
+  return firstFile?.file?.url ?? firstFile?.external?.url ?? "";
+}
+
+// ── Fetch trips ──
+
+export async function fetchTrips(token: string): Promise<TripData[]> {
+  const notion = new Client({ auth: token });
+
+  const response = await notion.dataSources.query({
+    data_source_id: TRIPS_DS_ID,
+    sorts: [{ property: "Date", direction: "descending" }],
+  });
+
+  const slugCounts = new Map<string, number>();
+
+  interface TripMeta {
+    id: string;
+    slug: string;
+    name: string;
+    description: string;
+    dateDisplay: string;
+    dateRaw: string;
+    photoCount: number;
+  }
+
+  const metas: TripMeta[] = [];
+
+  for (const page of response.results) {
+    const props = (page as Record<string, unknown>).properties as Record<string, unknown>;
+
+    const nameField = props.Name as { title: Array<{ plain_text: string }> };
+    const name = nameField?.title?.[0]?.plain_text ?? "";
+    if (!name) continue;
+
+    const descField = props.Description as { rich_text: Array<{ plain_text: string }> };
+    const description = descField?.rich_text?.map((t) => t.plain_text).join("") ?? "";
+
+    const dateField = props.Date as { date: { start: string; end: string | null } | null };
+    const { display: dateDisplay, raw: dateRaw } = formatDate(dateField?.date ?? null);
+
+    const photosRelation = (props.Photos as { relation: Array<{ id: string }> })?.relation ?? [];
+
+    let slug = slugify(name);
+    const count = slugCounts.get(slug) ?? 0;
+    slugCounts.set(slug, count + 1);
+    if (count > 0) slug = `${slug}-${(page as { id: string }).id.slice(0, 8)}`;
+
+    metas.push({
+      id: (page as { id: string }).id,
+      slug,
+      name,
+      description,
+      dateDisplay,
+      dateRaw,
+      photoCount: photosRelation.length,
+    });
+  }
+
+  // Fetch cover images in parallel
+  const covers = await Promise.all(
+    metas.map((m) => (m.photoCount > 0 ? fetchCoverImage(notion, m.id) : Promise.resolve(""))),
+  );
+
+  return metas.map((m, i) => ({
+    id: m.id,
+    slug: m.slug,
+    name: m.name,
+    coverImage: covers[i],
+    description: m.description,
+    date: m.dateDisplay,
+    dateRaw: m.dateRaw,
+    photoCount: m.photoCount,
+  }));
+}
+
+// ── Fetch photos ──
+
+export async function fetchPhotos(token: string, tripId?: string, favOnly?: boolean): Promise<PhotoData[]> {
+  const notion = new Client({ auth: token });
+
+  const conditions: Record<string, unknown>[] = [
+    { property: "Files", files: { is_not_empty: true } },
+  ];
+  if (tripId) conditions.push({ property: "Trips", relation: { contains: tripId.replace(/-/g, "") } });
+  if (favOnly) conditions.push({ property: "Fav", checkbox: { equals: true } });
+
+  const filter: Record<string, unknown> = conditions.length === 1 ? conditions[0] : { and: conditions };
+
   const photos: PhotoData[] = [];
   let cursor: string | undefined;
 
@@ -96,12 +196,7 @@ async function fetchPhotosForTrip(
     const res = await notion.dataSources.query({
       data_source_id: PHOTOS_DS_ID,
       filter_properties: ["Name", "Files", "Caption", "Fav"],
-      filter: {
-        and: [
-          { property: "Trips", relation: { contains: tripId.replace(/-/g, "") } },
-          { property: "Files", files: { is_not_empty: true } },
-        ],
-      },
+      filter,
       ...(cursor ? { start_cursor: cursor } : {}),
     } as Parameters<typeof notion.dataSources.query>[0]);
 
@@ -130,92 +225,8 @@ async function fetchPhotosForTrip(
     cursor = res.has_more ? (res as { next_cursor?: string }).next_cursor : undefined;
   } while (cursor);
 
+  // Sort: favs first
+  photos.sort((a, b) => (a.isFav === b.isFav ? 0 : a.isFav ? -1 : 1));
+
   return photos;
-}
-
-// ── Main fetch ──
-
-export async function fetchPhotographs(token: string): Promise<PhotographsResponse> {
-  const notion = new Client({ auth: token });
-
-  // Step 1: Fetch all trips
-  const response = await notion.dataSources.query({
-    data_source_id: TRIPS_DS_ID,
-    sorts: [{ property: "Date", direction: "descending" }],
-  });
-
-  const slugCounts = new Map<string, number>();
-
-  // Step 2: Build trip metadata and collect photo relation IDs
-  const tripMetas: Array<{
-    id: string;
-    name: string;
-    description: string;
-    dateDisplay: string;
-    dateRaw: string;
-    photoRelationIds: string[];
-  }> = [];
-
-  for (const page of response.results) {
-    const props = (page as Record<string, unknown>).properties as Record<string, unknown>;
-
-    const nameField = props.Name as { title: Array<{ plain_text: string }> };
-    const name = nameField?.title?.[0]?.plain_text ?? "";
-    if (!name) continue;
-
-    const descField = props.Description as { rich_text: Array<{ plain_text: string }> };
-    const description = descField?.rich_text?.map((t) => t.plain_text).join("") ?? "";
-
-    const dateField = props.Date as { date: { start: string; end: string | null } | null };
-    const { display: dateDisplay, raw: dateRaw } = formatDate(dateField?.date ?? null);
-
-    const photosRelation = (props.Photos as { relation: Array<{ id: string }> })?.relation ?? [];
-
-    tripMetas.push({
-      id: (page as { id: string }).id,
-      name,
-      description,
-      dateDisplay,
-      dateRaw,
-      photoRelationIds: photosRelation.map((r) => r.id),
-    });
-  }
-
-  // Step 3: Fetch photos for all trips in parallel
-  const tripPhotos = await Promise.all(
-    tripMetas.map((trip) => fetchPhotosForTrip(notion, trip.id)),
-  );
-
-  // Step 4: Assemble trips
-  const trips: TripData[] = [];
-  for (let i = 0; i < tripMetas.length; i++) {
-    const meta = tripMetas[i];
-    const photos = tripPhotos[i];
-    let slug = slugify(meta.name);
-    const count = slugCounts.get(slug) ?? 0;
-    slugCounts.set(slug, count + 1);
-    if (count > 0) {
-      slug = `${slug}-${meta.id.slice(0, 8)}`;
-    }
-
-    // Sort: favs first
-    photos.sort((a, b) => (a.isFav === b.isFav ? 0 : a.isFav ? -1 : 1));
-
-    const favCount = photos.filter((p) => p.isFav).length;
-
-    trips.push({
-      id: meta.id,
-      slug,
-      name: meta.name,
-      coverImage: photos[0]?.src ?? "",
-      description: meta.description,
-      date: meta.dateDisplay,
-      dateRaw: meta.dateRaw,
-      photoCount: photos.length,
-      favCount,
-      photos,
-    });
-  }
-
-  return { trips, fetchedAt: Date.now() };
 }
