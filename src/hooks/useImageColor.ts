@@ -1,5 +1,16 @@
 import { useEffect, useState } from "react";
 
+/** Proxy external URLs through our image proxy to avoid CORS canvas tainting */
+const proxied = (url: string): string => {
+  try {
+    const u = new URL(url, window.location.origin);
+    if (u.origin === window.location.origin) return url;
+    return `/api/image-proxy?url=${encodeURIComponent(url)}`;
+  } catch {
+    return url;
+  }
+};
+
 /**
  * Extracts the dominant color from an image URL using a canvas.
  * Returns a hex color string or null while loading / on failure.
@@ -50,7 +61,7 @@ export function useImageColor(src: string): string | null {
       }
     };
 
-    img.src = src;
+    img.src = proxied(src);
 
     return () => { cancelled = true; };
   }, [src]);
