@@ -28,6 +28,37 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
+function CacheBustButton() {
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+
+  const bust = async () => {
+    setStatus("loading");
+    try {
+      const res = await fetch("/api/ops/cache/bust", { method: "POST" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      setStatus("success");
+      setTimeout(() => setStatus("idle"), 2000);
+    } catch {
+      setStatus("error");
+      setTimeout(() => setStatus("idle"), 3000);
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-3">
+      <button
+        onClick={bust}
+        disabled={status === "loading"}
+        className="px-3 py-1 text-xs rounded border border-border bg-muted/50 hover:bg-muted text-foreground transition-colors disabled:opacity-50 cursor-pointer"
+      >
+        {status === "loading" ? "Busting..." : "Bust Cache"}
+      </button>
+      {status === "success" && <span className="text-xs text-green-500">Cleared</span>}
+      {status === "error" && <span className="text-xs text-red-500">Failed</span>}
+    </div>
+  );
+}
+
 export default function DebugPage() {
   useDocumentTitle("Debug");
 
@@ -166,6 +197,12 @@ export default function DebugPage() {
         </BlurFadeIn>
 
         <BlurFadeIn delay={0.3}>
+          <Section title="Cache">
+            <CacheBustButton />
+          </Section>
+        </BlurFadeIn>
+
+        <BlurFadeIn delay={0.32}>
           <Section title="Local Storage">
             {Object.keys(localStorage).length === 0 ? (
               <span className="text-muted-foreground">(empty)</span>
