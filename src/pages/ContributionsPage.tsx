@@ -3,6 +3,7 @@ import { GitPullRequest, MessageSquare, AlertCircle, HelpCircle, FileText, Mic, 
 import { contributions, contributionTags, tagLabels, tagColors, projects, projectTagLabels, projectTagColors, type ContributionTag, type Contribution, type Project } from "@/data/contributions";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { FadeIn, StaggerContainer, StaggerItem, motion } from "@/components/MotionWrapper";
+import { PAGE_PADDING } from "@/config/layout";
 import { AnimatePresence } from "motion/react";
 
 /* ── Icon map for tags ── */
@@ -221,7 +222,7 @@ export default function ContributionsPage() {
   return (
     <main className="pb-20">
       {/* ─── Hero ─── */}
-      <section className="max-w-5xl mx-auto px-6 pt-16 pb-10 md:pt-24 md:pb-14">
+      <section className={`max-w-5xl mx-auto ${PAGE_PADDING} pb-10`}>
         <FadeIn>
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">Community &amp; Work</h1>
         </FadeIn>
@@ -232,7 +233,7 @@ export default function ContributionsPage() {
 
       {/* Featured Projects / Works */}
       {projects.length > 0 && (
-        <section className="max-w-5xl mx-auto px-6 mb-16">
+        <section className={`max-w-5xl mx-auto ${PAGE_PADDING} mb-16`}>
           <FadeIn>
             <div className="flex items-center gap-3 mb-8">
               <h2 className="text-primary uppercase tracking-[0.2em] text-xs font-bold">Projects &amp; Works</h2>
@@ -254,7 +255,7 @@ export default function ContributionsPage() {
       )}
 
       {/* Activity Log */}
-      <section className="max-w-4xl mx-auto px-6">
+      <section className={`max-w-4xl mx-auto ${PAGE_PADDING}`}>
         <FadeIn>
           <div className="flex items-center gap-3 mb-8">
             <h2 className="text-primary uppercase tracking-[0.2em] text-xs font-bold">Activity Log</h2>

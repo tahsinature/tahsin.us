@@ -20,6 +20,7 @@ import { siteConfig } from "@/config/site";
 import { getSocial } from "@/data/social-profiles";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { FadeIn, BlurFadeIn, SlideIn, StaggerContainer, StaggerItem, Float } from "@/components/MotionWrapper";
+import { PAGE_PADDING } from "@/config/layout";
 
 export default function AboutPage() {
   useDocumentTitle("About");
@@ -32,7 +33,7 @@ export default function AboutPage() {
   return (
     <main className="pb-20">
       {/* ─── Hero Section ─── */}
-      <section className="max-w-5xl mx-auto px-6 pt-16 pb-12 md:pt-24 md:pb-20">
+      <section className={`max-w-5xl mx-auto ${PAGE_PADDING} pb-12`}>
         <div className="grid md:grid-cols-[1fr_340px] gap-10 items-center">
           <div className="space-y-6">
             <BlurFadeIn>
@@ -75,7 +76,7 @@ export default function AboutPage() {
       </section>
 
       {/* ─── Bento Grid ─── */}
-      <section className="max-w-5xl mx-auto px-6">
+      <section className={`max-w-5xl mx-auto ${PAGE_PADDING}`}>
         <StaggerContainer className="columns-1 sm:columns-2 md:columns-3 gap-4 space-y-4" staggerDelay={0.07}>
 
           {/* Card: Interactive Map — full width */}
@@ -296,7 +297,7 @@ export default function AboutPage() {
       </section>
 
       {/* ─── Social Links ─── */}
-      <section className="max-w-5xl mx-auto px-6 mt-20">
+      <section className={`max-w-5xl mx-auto ${PAGE_PADDING} mt-20`}>
         <FadeIn>
           <div className="flex items-center gap-4 mb-2">
             <h2 className="text-primary uppercase tracking-[0.2em] text-xs font-bold whitespace-nowrap">Find me online</h2>
@@ -308,7 +309,7 @@ export default function AboutPage() {
       </section>
 
       {/* ─── Contact CTA ─── */}
-      <section className="max-w-5xl mx-auto px-6 mt-20">
+      <section className={`max-w-5xl mx-auto ${PAGE_PADDING} mt-20`}>
         <FadeIn>
           <ContactCTA />
         </FadeIn>

@@ -20,7 +20,7 @@ export function ThemeToggle() {
             initial={{ rotate: -90, scale: 0, opacity: 0 }}
             animate={{ rotate: 0, scale: 1, opacity: 1 }}
             exit={{ rotate: 90, scale: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+            transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
             className="absolute"
           >
             <SunIcon />
@@ -31,7 +31,7 @@ export function ThemeToggle() {
             initial={{ rotate: 90, scale: 0, opacity: 0 }}
             animate={{ rotate: 0, scale: 1, opacity: 1 }}
             exit={{ rotate: -90, scale: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+            transition={{ duration: 0.15, ease: [0.4, 0, 0.2, 1] }}
             className="absolute"
           >
             <MoonIcon />
