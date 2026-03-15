@@ -1,9 +1,22 @@
 import { useState, useCallback, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useScroll, useSpring, motion } from "motion/react";
+import { useScroll, useSpring, motion, AnimatePresence } from "motion/react";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { usePageStore } from "@/stores/usePageStore";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
+
+const smooth = [0.25, 0.1, 0.25, 1] as const;
+
+function SkeletonLine({ width, height = "h-4", delay }: { width: string; height?: string; delay: number }) {
+  return (
+    <motion.div
+      className={`${height} ${width} rounded bg-muted/40`}
+      initial={{ opacity: 0, x: -12 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.4, delay, ease: smooth }}
+    />
+  );
+}
 
 export default function PageView({ pageId: propId, fetchUrl, title }: { pageId?: string; fetchUrl?: string; title?: string } = {}) {
   useDocumentTitle(title ?? "Page");
@@ -26,6 +39,7 @@ export default function PageView({ pageId: propId, fetchUrl, title }: { pageId?:
     if (!url) return;
     setLoading(true);
     setError(null);
+    setMarkdown(null);
     fetchPage(url)
       .then(setMarkdown)
       .catch((err) => setError(err instanceof Error ? err.message : "Unknown error"))
@@ -52,49 +66,92 @@ export default function PageView({ pageId: propId, fetchUrl, title }: { pageId?:
       />
     )}
     <div className="max-w-6xl mx-auto px-6 py-16">
-      {error && !loading && (
-        <div className="flex flex-col items-center justify-center py-24 text-center">
-          <div className="h-12 w-12 rounded-full bg-muted/50 flex items-center justify-center mb-4">
-            <span className="text-xl text-muted-foreground">!</span>
-          </div>
-          <h2 className="text-lg font-semibold text-foreground mb-1">Something went wrong</h2>
-          <p className="text-sm text-muted-foreground mb-4 max-w-md">{error}</p>
-          <button
-            onClick={() => { if (url) { setLoading(true); setError(null); fetchPage(url).then(setMarkdown).catch((e) => setError(e.message)).finally(() => setLoading(false)); } }}
-            className="text-sm text-primary hover:text-primary/80 transition-colors"
+      <AnimatePresence mode="wait">
+        {error && !loading && (
+          <motion.div
+            key="error"
+            className="flex flex-col items-center justify-center py-24 text-center"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.3, ease: smooth }}
           >
-            Try again
-          </button>
-        </div>
-      )}
+            <motion.div
+              className="h-12 w-12 rounded-full bg-muted/50 flex items-center justify-center mb-4"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }}
+            >
+              <span className="text-xl text-muted-foreground">!</span>
+            </motion.div>
+            <h2 className="text-lg font-semibold text-foreground mb-1">Something went wrong</h2>
+            <p className="text-sm text-muted-foreground mb-4 max-w-md">{error}</p>
+            <button
+              onClick={() => { if (url) { setLoading(true); setError(null); fetchPage(url).then(setMarkdown).catch((e) => setError(e.message)).finally(() => setLoading(false)); } }}
+              className="text-sm text-primary hover:text-primary/80 transition-colors"
+            >
+              Try again
+            </button>
+          </motion.div>
+        )}
 
-      {loading && (
-        <div className="space-y-4 animate-pulse">
-          <div className="h-8 w-2/3 rounded bg-muted/50" />
-          <div className="h-4 w-full rounded bg-muted/30" />
-          <div className="h-4 w-5/6 rounded bg-muted/30" />
-          <div className="h-48 w-full rounded-lg bg-muted/30" />
-          <div className="h-4 w-4/5 rounded bg-muted/30" />
-          <div className="h-4 w-full rounded bg-muted/30" />
-          <div className="h-4 w-3/4 rounded bg-muted/30" />
-        </div>
-      )}
+        {loading && (
+          <motion.div
+            key="skeleton"
+            className="space-y-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.3, ease: smooth }}
+          >
+            <SkeletonLine width="w-2/3" height="h-8" delay={0} />
+            <SkeletonLine width="w-full" delay={0.05} />
+            <SkeletonLine width="w-5/6" delay={0.1} />
+            <motion.div
+              className="h-48 w-full rounded-lg bg-muted/30"
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={{ opacity: [0.3, 0.6, 0.3] }}
+              transition={{ opacity: { duration: 2, repeat: Infinity, ease: "easeInOut" }, scale: { duration: 0.5, delay: 0.15, ease: smooth } }}
+            />
+            <SkeletonLine width="w-4/5" delay={0.2} />
+            <SkeletonLine width="w-full" delay={0.25} />
+            <SkeletonLine width="w-3/4" delay={0.3} />
+          </motion.div>
+        )}
 
-      {markdown && !loading && (
-        <div onClick={handleContentClick}>
-          <MarkdownRenderer markdown={markdown} />
-        </div>
-      )}
+        {markdown && !loading && (
+          <motion.div
+            key="content"
+            onClick={handleContentClick}
+            initial={{ opacity: 0, y: 16, filter: "blur(4px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ duration: 0.5, ease: smooth }}
+          >
+            <MarkdownRenderer markdown={markdown} />
+          </motion.div>
+        )}
 
-      {!markdown && !loading && !error && (
-        <div className="flex flex-col items-center justify-center py-24 text-center">
-          <div className="h-12 w-12 rounded-full bg-muted/50 flex items-center justify-center mb-4">
-            <span className="text-xl text-muted-foreground">~</span>
-          </div>
-          <h2 className="text-lg font-semibold text-foreground mb-1">Nothing here yet</h2>
-          <p className="text-sm text-muted-foreground">This page is empty or doesn't exist.</p>
-        </div>
-      )}
+        {!markdown && !loading && !error && (
+          <motion.div
+            key="empty"
+            className="flex flex-col items-center justify-center py-24 text-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: smooth }}
+          >
+            <motion.div
+              className="h-12 w-12 rounded-full bg-muted/50 flex items-center justify-center mb-4"
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.15 }}
+            >
+              <span className="text-xl text-muted-foreground">~</span>
+            </motion.div>
+            <h2 className="text-lg font-semibold text-foreground mb-1">Nothing here yet</h2>
+            <p className="text-sm text-muted-foreground">This page is empty or doesn't exist.</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
     </>
   );
