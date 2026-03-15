@@ -18,6 +18,14 @@ const mapPhoto = (p: PhotoData, tripName?: string): Photo => ({
   isFav: p.isFav,
   mediaType: p.mediaType,
   tripName,
+  meta: p.exif ? {
+    camera: p.exif.camera ?? undefined,
+    lens: p.exif.lens ?? undefined,
+    focalLength: p.exif.focalLength ?? undefined,
+    aperture: p.exif.aperture ?? undefined,
+    shutterSpeed: p.exif.shutterSpeed ?? undefined,
+    iso: p.exif.iso ?? undefined,
+  } : undefined,
 });
 
 interface PhotographyState {

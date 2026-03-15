@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useRef } from "react";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { X, ChevronLeft, ChevronRight, Camera, Focus, Aperture, Gauge, SunDim, Crosshair, MapPin } from "lucide-react";
 import { AnimatePresence } from "motion/react";
 import { motion } from "@/components/MotionWrapper";
 import ExifMetaDisplay from "@/components/ExifMetaDisplay";
+import MarqueeText from "@/components/MarqueeText";
 import { useImageExif } from "@/hooks/useImageExif";
-import type { Photo } from "@/data/photography";
+import type { Photo, PhotoMeta } from "@/data/photography";
 
 interface PhotoLightboxProps {
   photos: Photo[];
@@ -32,7 +33,11 @@ export default function PhotoLightbox({ photos, index, onClose, onNext, onPrev }
 
 function LightboxOverlay({ photos, index, onClose, onNext, onPrev }: { photos: Photo[]; index: number; onClose: () => void; onNext: () => void; onPrev: () => void }) {
   const photo = photos[index];
-  const { meta } = useImageExif(photo.src, photo.meta);
+  const { meta, loading: exifLoading } = useImageExif(photo.src, photo.meta);
+  const [showCaption, setShowCaption] = useState(true);
+  const [showExifDetail, setShowExifDetail] = useState(false);
+  const showExifDetailRef = useRef(showExifDetail);
+  showExifDetailRef.current = showExifDetail;
 
   // Stable refs for callbacks
   const onCloseRef = useRef(onClose);
@@ -58,7 +63,10 @@ function LightboxOverlay({ photos, index, onClose, onNext, onPrev }: { photos: P
   // Keyboard + scroll lock + back button — mount only
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") handleClose();
+      if (e.key === "Escape") {
+        if (showExifDetailRef.current) { setShowExifDetail(false); return; }
+        handleClose();
+      }
       if (e.key === "ArrowRight") onNextRef.current();
       if (e.key === "ArrowLeft") onPrevRef.current();
     };
@@ -125,8 +133,29 @@ function LightboxOverlay({ photos, index, onClose, onNext, onPrev }: { photos: P
         <ChevronRight size={24} />
       </button>
 
-      {/* Image — sits above caption, centered */}
-      <div className="flex-1 min-h-0 flex items-center justify-center pt-12 md:pt-10">
+      {/* Caption — top bar, single line, leaves room for close button */}
+      <div className="shrink-0 h-10 flex items-center pl-4 md:pl-8 pr-14" onClick={(e) => e.stopPropagation()}>
+        {photo.alt && (
+          showCaption ? (
+            <div className="flex-1 min-w-0 group cursor-pointer" onClick={() => setShowCaption(false)} title="Click to hide">
+              <MarqueeText autoScroll delay={2} className="text-foreground/80 text-sm font-medium">
+                <span className="px-1">{photo.alt}</span>
+              </MarqueeText>
+            </div>
+          ) : (
+            <button
+              className="text-muted-foreground/30 hover:text-muted-foreground text-xs transition-colors cursor-pointer"
+              onClick={() => setShowCaption(true)}
+              title="Show caption"
+            >
+              Aa
+            </button>
+          )
+        )}
+      </div>
+
+      {/* Image */}
+      <div className="flex-1 min-h-0 flex items-center justify-center">
         <motion.img
           key={index}
           initial={{ opacity: 0, scale: 0.95 }}
@@ -139,18 +168,95 @@ function LightboxOverlay({ photos, index, onClose, onNext, onPrev }: { photos: P
         />
       </div>
 
-      {/* Caption — fixed zone at bottom, never overlapped */}
-      <div className="shrink-0 py-3 px-4 text-center z-10" onClick={(e) => e.stopPropagation()}>
-        <p className="text-foreground text-sm font-medium mb-1">{photo.alt}</p>
-        {meta && (
-          <div className="bg-card/80 backdrop-blur-sm border border-border rounded px-4 py-3 mt-2 max-w-lg mx-auto">
+      {/* Bottom bar — EXIF fills width, counter at end */}
+      <div className="shrink-0 h-10 flex items-center gap-4 pl-4 md:pl-8 pr-4 md:pr-8" onClick={(e) => e.stopPropagation()}>
+        {!exifLoading && meta ? (
+          <div
+            className="flex-1 min-w-0 group cursor-pointer"
+            onClick={() => setShowExifDetail(true)}
+            title="Click for details"
+          >
             <ExifMetaDisplay meta={meta} />
           </div>
+        ) : (
+          <div className="flex-1" />
         )}
-        <p className="text-muted-foreground text-xs mt-2">
-          {index + 1} / {photos.length}
-        </p>
+        <p className="text-muted-foreground text-xs tabular-nums shrink-0">{index + 1} / {photos.length}</p>
       </div>
+
+      {/* EXIF detail panel */}
+      {!exifLoading && meta && (
+        <AnimatePresence>
+          {showExifDetail && (
+            <ExifDetailPanel meta={meta} onClose={() => setShowExifDetail(false)} />
+          )}
+        </AnimatePresence>
+      )}
+    </motion.div>
+  );
+}
+
+/* ── EXIF Detail Panel ── */
+
+const exifFields: { key: keyof PhotoMeta; label: string; icon: typeof Camera; color: string }[] = [
+  { key: "camera", label: "Camera", icon: Camera, color: "text-accent" },
+  { key: "lens", label: "Lens", icon: Focus, color: "text-primary" },
+  { key: "focalLength", label: "Focal Length", icon: Crosshair, color: "text-accent" },
+  { key: "aperture", label: "Aperture", icon: Aperture, color: "text-accent" },
+  { key: "shutterSpeed", label: "Shutter Speed", icon: Gauge, color: "text-primary" },
+  { key: "iso", label: "ISO", icon: SunDim, color: "text-primary" },
+  { key: "location", label: "Location", icon: MapPin, color: "text-warm" },
+];
+
+function ExifDetailPanel({ meta, onClose }: { meta: PhotoMeta; onClose: () => void }) {
+  const present = exifFields.filter((f) => meta[f.key]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
+      className="absolute inset-0 z-20 flex items-center justify-center"
+      onClick={(e) => { e.stopPropagation(); onClose(); }}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 10, scale: 0.97 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className="bg-card/90 backdrop-blur-xl border border-border rounded-xl shadow-2xl w-[320px] overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-border/50">
+          <div className="flex items-center gap-2">
+            <Camera size={14} className="text-accent" />
+            <span className="text-foreground text-xs font-semibold uppercase tracking-wider">Shot Details</span>
+          </div>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* Fields */}
+        <div className="px-5 py-3 space-y-0.5">
+          {present.map((f) => {
+            const Icon = f.icon;
+            return (
+              <div key={f.key} className="flex items-center gap-3 py-2 border-b border-border/30 last:border-0">
+                <div className={`${f.color} shrink-0 w-7 h-7 rounded-lg bg-muted/50 flex items-center justify-center`}>
+                  <Icon size={14} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-muted-foreground text-[10px] uppercase tracking-wider leading-none mb-0.5">{f.label}</p>
+                  <p className="text-foreground text-sm font-medium truncate">{meta[f.key]}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </motion.div>
     </motion.div>
   );
 }

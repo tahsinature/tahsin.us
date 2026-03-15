@@ -1,5 +1,5 @@
 import { Client } from "@notionhq/client";
-import type { TripData, PhotoData, MediaType } from "@shared/api";
+import type { TripData, PhotoData, PhotoExif, MediaType } from "@shared/api";
 
 const TRIPS_DS_ID = process.env.PHOTOS_DS_ID ?? "";
 const PHOTOS_DS_ID = "323960ad-d9d3-80af-8586-000b87acbf60";
@@ -175,7 +175,7 @@ export async function fetchPhotos(token: string, tripId?: string, favOnly?: bool
   do {
     const res = await notion.dataSources.query({
       data_source_id: PHOTOS_DS_ID,
-      filter_properties: ["Name", "Files", "Caption", "Fav"],
+      filter_properties: ["Name", "Files", "Caption", "Fav", "EXIF"],
       filter,
       ...(cursor ? { start_cursor: cursor } : {}),
     } as Parameters<typeof notion.dataSources.query>[0]);
@@ -193,12 +193,19 @@ export async function fetchPhotos(token: string, tripId?: string, favOnly?: bool
       const src = firstFile.file?.url ?? firstFile.external?.url ?? "";
       if (!src) continue;
 
+      const exifText = (props.EXIF as { rich_text: Array<{ plain_text: string }> })?.rich_text?.[0]?.plain_text ?? "";
+      let exif: PhotoExif | null = null;
+      if (exifText) {
+        try { exif = JSON.parse(exifText); } catch { /* skip malformed */ }
+      }
+
       photos.push({
         src,
         name: name || firstFile.name,
         caption,
         isFav,
         mediaType: getMediaType(firstFile.name),
+        exif,
       });
     }
 

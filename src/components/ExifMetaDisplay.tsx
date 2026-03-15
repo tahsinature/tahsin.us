@@ -1,5 +1,6 @@
-import { Camera, Focus, Aperture, Gauge, MapPin } from "lucide-react";
+import { Camera, Focus, Aperture, Gauge, MapPin, SunDim, Crosshair } from "lucide-react";
 import type { PhotoMeta } from "@/data/photography";
+import MarqueeText from "@/components/MarqueeText";
 
 interface ExifMetaDisplayProps {
   meta: PhotoMeta | null;
@@ -44,33 +45,45 @@ export default function ExifMetaDisplay({ meta, compact = false }: ExifMetaDispl
         </p>
       )}
       {hasAnyTechnical && (
-        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-muted-foreground text-[11px]">
-          {meta.camera && (
-            <span className="flex items-center gap-1">
-              <Camera size={11} className="text-accent" />
-              {meta.camera}
-            </span>
-          )}
-          {meta.lens && (
-            <span className="flex items-center gap-1">
-              <Focus size={11} className="text-primary" />
-              {meta.lens}
-            </span>
-          )}
-          {meta.aperture && (
-            <span className="flex items-center gap-1">
-              <Aperture size={11} className="text-accent" />
-              {meta.aperture}
-            </span>
-          )}
-          {meta.shutterSpeed && (
-            <span className="flex items-center gap-1">
-              <Gauge size={11} className="text-primary" />
-              {meta.shutterSpeed}
-            </span>
-          )}
-          {meta.iso && <span>ISO {meta.iso}</span>}
-          {meta.focalLength && <span>{meta.focalLength}</span>}
+        <div className="group">
+          <MarqueeText autoScroll delay={2} className="flex items-center justify-center gap-x-4 text-muted-foreground text-[11px]">
+            {meta.camera && (
+              <span className="flex items-center gap-1 shrink-0">
+                <Camera size={11} className="text-accent" />
+                {meta.camera}
+              </span>
+            )}
+            {meta.lens && (
+              <span className="flex items-center gap-1 shrink-0">
+                <Focus size={11} className="text-primary" />
+                {meta.lens}
+              </span>
+            )}
+            {meta.focalLength && (
+              <span className="flex items-center gap-1 shrink-0">
+                <Crosshair size={11} className="text-accent" />
+                {meta.focalLength}
+              </span>
+            )}
+            {meta.aperture && (
+              <span className="flex items-center gap-1 shrink-0">
+                <Aperture size={11} className="text-accent" />
+                {meta.aperture}
+              </span>
+            )}
+            {meta.shutterSpeed && (
+              <span className="flex items-center gap-1 shrink-0">
+                <Gauge size={11} className="text-primary" />
+                {meta.shutterSpeed}
+              </span>
+            )}
+            {meta.iso && (
+              <span className="flex items-center gap-1 shrink-0">
+                <SunDim size={11} className="text-primary" />
+                ISO {meta.iso}
+              </span>
+            )}
+          </MarqueeText>
         </div>
       )}
     </>

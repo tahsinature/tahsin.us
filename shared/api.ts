@@ -34,12 +34,22 @@ export interface TripsResponse {
 
 export type MediaType = "image" | "video" | "gif";
 
+export interface PhotoExif {
+  camera?: string | null;
+  lens?: string | null;
+  focalLength?: string | null;
+  aperture?: string | null;
+  shutterSpeed?: string | null;
+  iso?: string | null;
+}
+
 export interface PhotoData {
   src: string;
   name: string;
   caption: string;
   isFav: boolean;
   mediaType: MediaType;
+  exif: PhotoExif | null;
 }
 
 export interface PhotosResponse {

@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { siteConfig } from "@/config/site";
 import { useThemeStore } from "@/stores/useThemeStore";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { BlurFadeIn } from "@/components/MotionWrapper";
+import PhotoLightbox from "@/components/PhotoLightbox";
+import { usePhotographyStore } from "@/stores/usePhotographyStore";
 import type { HealthResponse } from "@shared/api";
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -40,6 +42,19 @@ export default function DebugPage() {
       .then((data: HealthResponse) => setHealth(data))
       .catch(() => {});
   }, []);
+
+  // Fetch fav photos for lightbox test
+  const fetchPhotos = usePhotographyStore((s) => s.fetchPhotos);
+  const [favPhotos, setFavPhotos] = useState<ReturnType<typeof usePhotographyStore.getState>["photosCache"][string]>();
+  useEffect(() => {
+    fetchPhotos(undefined, { favOnly: true }).then((photos) => setFavPhotos({ photos, fetchedAt: Date.now() }));
+  }, [fetchPhotos]);
+  const photos = favPhotos?.photos ?? [];
+
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const closeLightbox = useCallback(() => setLightboxIndex(null), []);
+  const goNext = useCallback(() => setLightboxIndex((i) => (i !== null && i < photos.length - 1 ? i + 1 : i)), [photos.length]);
+  const goPrev = useCallback(() => setLightboxIndex((i) => (i !== null && i > 0 ? i - 1 : i)), []);
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-16">
@@ -124,6 +139,32 @@ export default function DebugPage() {
           </Section>
         </BlurFadeIn>
 
+        <BlurFadeIn delay={0.28}>
+          <Section title="Lightbox Test — Fav Photos">
+            {photos.length === 0 ? (
+              <span className="text-muted-foreground">Loading photos...</span>
+            ) : (
+              <>
+                <div className="grid grid-cols-4 gap-2">
+                  {photos.slice(0, 8).map((p, i) => (
+                    <button key={i} onClick={() => setLightboxIndex(i)} className="cursor-pointer">
+                      <img
+                        src={p.src}
+                        alt={p.alt}
+                        className="w-full aspect-square object-cover rounded border border-border hover:opacity-80 transition-opacity"
+                        loading="lazy"
+                      />
+                    </button>
+                  ))}
+                </div>
+                <p className="text-muted-foreground text-xs mt-2">
+                  {photos.length} photos — click any to open lightbox, use arrow keys to navigate
+                </p>
+              </>
+            )}
+          </Section>
+        </BlurFadeIn>
+
         <BlurFadeIn delay={0.3}>
           <Section title="Local Storage">
             {Object.keys(localStorage).length === 0 ? (
@@ -134,6 +175,14 @@ export default function DebugPage() {
           </Section>
         </BlurFadeIn>
       </div>
+
+      <PhotoLightbox
+        photos={photos}
+        index={lightboxIndex}
+        onClose={closeLightbox}
+        onNext={goNext}
+        onPrev={goPrev}
+      />
     </div>
   );
 }
