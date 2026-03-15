@@ -13,13 +13,12 @@
 import { useContext, useEffect, useRef, useState, useCallback, useMemo, type ReactNode } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { codeToHtml, type BundledLanguage } from "shiki";
+import { highlight } from "sugar-high";
 import { FileText, Download, Loader2, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import PhotoLightbox from "@/components/PhotoLightbox";
 import PhotoImage from "@/components/PhotoImage";
 import Mermaid from "@/components/Mermaid";
-import { useThemeStore } from "@/stores/useThemeStore";
 import type { Photo } from "@/data/photography";
 import { ImageViewerContext, FileResolverContext, isFileUri, extractBlockId, useResolvedSrc } from "@/components/directives/contexts";
 import { RenderDirective, RenderDirectiveError } from "@/components/directives/index";
@@ -80,35 +79,16 @@ function collectFileUris(segments: Segment[]): string[] {
   return uris;
 }
 
-/* ── Shiki code highlighting ── */
+/* ── Code highlighting (sugar-high) ── */
 
-const SHIKI_THEMES = { dark: "github-dark-dimmed", light: "github-light" } as const;
+function HighlightedCode({ code }: { code: string }) {
+  const html = useMemo(() => highlight(code), [code]);
 
-function HighlightedCode({ code, language }: { code: string; language: string }) {
-  const theme = useThemeStore((s) => s.theme);
-  const [html, setHtml] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    codeToHtml(code, { lang: language as BundledLanguage, theme: SHIKI_THEMES[theme] })
-      .then((r) => {
-        if (!cancelled) setHtml(r);
-      })
-      .catch(() => {
-        if (!cancelled) setHtml(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [code, language, theme]);
-
-  if (html) {
-    return <div className="rounded border border-border overflow-x-auto text-sm leading-relaxed [&_pre]:p-5 [&_pre]:m-0 [&_pre]:bg-[var(--code-bg)]!" dangerouslySetInnerHTML={{ __html: html }} />;
-  }
   return (
-    <pre className="bg-[var(--code-bg)] border border-border rounded p-5 overflow-x-auto text-sm leading-relaxed">
-      <code>{code}</code>
-    </pre>
+    <div
+      className="rounded border border-border overflow-x-auto text-sm leading-relaxed [&_pre]:p-5 [&_pre]:m-0 [&_pre]:bg-[var(--code-bg)]!"
+      dangerouslySetInnerHTML={{ __html: `<pre><code>${html}</code></pre>` }}
+    />
   );
 }
 
@@ -471,7 +451,7 @@ const mdComponents = {
     if (lang === "mermaid") {
       return <Mermaid chart={text} />;
     }
-    return <HighlightedCode code={text} language={lang} />;
+    return <HighlightedCode code={text} />;
   },
 };
 

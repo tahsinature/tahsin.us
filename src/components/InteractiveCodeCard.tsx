@@ -1,12 +1,8 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { X, ChevronRight, Sparkles, RotateCcw } from "lucide-react";
-import { codeToTokens, type ThemedToken, type BundledLanguage } from "shiki";
-import { useThemeStore } from "@/stores/useThemeStore";
+import { tokenize, SugarHigh } from "sugar-high";
 import { snippetsByLabel, type CodeSnippet } from "@/data/code-snippets";
-
-// ── Shiki theme mapping ─────────────────────────────────────────
-const SHIKI_THEMES = { dark: "github-dark-dimmed", light: "github-light" } as const;
 
 // ── Types ───────────────────────────────────────────────────────
 interface ColoredChar {
@@ -15,17 +11,19 @@ interface ColoredChar {
 }
 
 type Phase = "idle" | "loading" | "typing" | "running" | "done";
-// ── Shiki helpers ───────────────────────────────────────────────
-/** Flatten Shiki tokens into per-character color data. */
-function tokensToChars(tokens: ThemedToken[][]): ColoredChar[] {
+
+// ── Sugar-high helpers ──────────────────────────────────────────
+const TOKEN_CSS_VARS: Record<number, string> = Object.fromEntries(
+  (SugarHigh.TokenTypes as string[]).map((name, i) => [i, `var(--sh-${name})`]),
+);
+
+/** Flatten sugar-high tokens into per-character color data. */
+function tokensToChars(tokens: [number, string][]): ColoredChar[] {
   const chars: ColoredChar[] = [];
-  for (let i = 0; i < tokens.length; i++) {
-    if (i > 0) chars.push({ char: "\n", color: "" });
-    for (const token of tokens[i]) {
-      const color = token.color ?? "";
-      for (const ch of token.content) {
-        chars.push({ char: ch, color });
-      }
+  for (const [type, content] of tokens) {
+    const color = TOKEN_CSS_VARS[type] ?? "";
+    for (const ch of content) {
+      chars.push({ char: ch, color });
     }
   }
   return chars;
@@ -44,33 +42,14 @@ function groupChars(chars: ColoredChar[]): Array<{ text: string; color: string }
   return groups;
 }
 
-// ── Shiki highlight hook ────────────────────────────────────────
-function useShikiHighlight(snippet: CodeSnippet | undefined, theme: string) {
-  const [chars, setChars] = useState<ColoredChar[]>([]);
-  const [ready, setReady] = useState(false);
+// ── Highlight hook ──────────────────────────────────────────────
+function useHighlight(snippet: CodeSnippet | undefined) {
+  const chars = useMemo(() => {
+    if (!snippet) return [];
+    return tokensToChars(tokenize(snippet.code));
+  }, [snippet]);
 
-  useEffect(() => {
-    if (!snippet) return;
-    let cancelled = false;
-    // Reset ready state before async work via rAF to avoid synchronous setState in effect
-    requestAnimationFrame(() => {
-      if (!cancelled) setReady(false);
-    });
-
-    const shikiTheme = SHIKI_THEMES[theme as keyof typeof SHIKI_THEMES] ?? SHIKI_THEMES.dark;
-
-    codeToTokens(snippet.code, { lang: snippet.lang as BundledLanguage, theme: shikiTheme }).then(({ tokens }) => {
-      if (cancelled) return;
-      setChars(tokensToChars(tokens));
-      setReady(true);
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [snippet, theme]);
-
-  return { chars, ready };
+  return { chars, ready: chars.length > 0 };
 }
 
 // ── Component ───────────────────────────────────────────────────
@@ -137,10 +116,9 @@ export interface CodeTerminalModalProps {
 }
 
 export function CodeTerminalModal({ activeLang, onClose }: CodeTerminalModalProps) {
-  const theme = useThemeStore((s) => s.theme);
   const snippet = snippetsByLabel[activeLang];
 
-  const { chars: coloredChars, ready } = useShikiHighlight(snippet, theme);
+  const { chars: coloredChars, ready } = useHighlight(snippet);
 
   const [charIndex, setCharIndex] = useState(0);
   const [phase, setPhase] = useState<Phase>("loading");
