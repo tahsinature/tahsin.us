@@ -3,7 +3,6 @@ import { logger } from "hono/logger";
 import { serveStatic } from "hono/bun";
 import { cmsRoutes } from "@server/routes/cms";
 import { imageProxyRoutes } from "@server/routes/image-proxy";
-import { geoRoutes } from "@server/routes/geo";
 import { photographRoutes } from "@server/routes/photographs";
 import { opsRoutes } from "@server/routes/ops";
 import { registerErrorHandler } from "@server/lib/validation";
@@ -17,7 +16,6 @@ if (config.app.isDev) app.use(logger());
 // API routes
 app.route("/api", cmsRoutes);
 app.route("/api", imageProxyRoutes);
-app.route("/api", geoRoutes);
 app.route("/api", photographRoutes);
 app.route("/api", opsRoutes);
 
@@ -50,5 +48,6 @@ app.get(
 
 export default {
   port: 3000,
+  idleTimeout: 30,
   fetch: app.fetch,
 };

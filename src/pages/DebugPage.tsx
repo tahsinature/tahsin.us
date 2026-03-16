@@ -170,6 +170,13 @@ export default function DebugPage() {
               <div className="space-y-3">
                 <ConfigToggle label="debugMode" field="debugMode" value={appConfig.debugMode} />
                 <ConfigToggle label="maintenanceMode" field="maintenanceMode" value={appConfig.maintenanceMode} />
+                {appConfig.geo && (
+                  <div className="pt-2 border-t border-border/30 space-y-1">
+                    <Row label="ip" value={appConfig.geo.ip} />
+                    <Row label="location" value={[appConfig.geo.city, appConfig.geo.region, appConfig.geo.country].filter(Boolean).join(", ") || "Unknown"} />
+                    <Row label="coords" value={appConfig.geo.latitude && appConfig.geo.longitude ? `${appConfig.geo.latitude}, ${appConfig.geo.longitude}` : "N/A"} />
+                  </div>
+                )}
               </div>
             ) : (
               <span className="text-muted-foreground">Loading...</span>

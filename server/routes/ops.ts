@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import type { Context, Next } from "hono";
 import { cache } from "@server/lib/cache";
+import { lookupGeo } from "@server/lib/geo";
 import config from "@server/config";
 import { validateRequest } from "@server/lib/validation";
 import { updateAppConfigRequest } from "@shared/api";
@@ -15,13 +16,45 @@ const requireOpsSecret = async (c: Context, next: Next) => {
   return next();
 };
 
+/** Extract client IP from request headers */
+const getClientIp = (c: Context): string =>
+  c.req.header("x-forwarded-for")?.split(",")[0]?.trim() ||
+  c.req.header("x-real-ip") ||
+  "unknown";
+
+/** Fire-and-forget visit notification via PAM */
+const notifyVisit = (ip: string, city: string | null, country: string | null) => {
+  const location = [city, country].filter(Boolean).join(", ") || "Unknown location";
+  fetch(`${config.pam.url}/temp/notify`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      through: "telegram",
+      content: `🌐 New visit from ${location} (${ip})`,
+    }),
+  }).catch(() => {});
+};
+
+const VISIT_TTL = 1800; // 30 minutes
+
 export const opsRoutes = new Hono();
 
-/** App config — fetched by frontend before mount */
-opsRoutes.get("/ops/config", (c) => {
+/** App config + geo — fetched by frontend before mount */
+opsRoutes.get("/ops/config", async (c) => {
+  const ip = getClientIp(c);
+  const geo = await lookupGeo(ip);
+
+  // Visit notification (deduplicated by IP, 30 min window)
+  const visitKey = `visit:${ip}`;
+  if (!(await cache.has(visitKey))) {
+    await cache.set(visitKey, true, VISIT_TTL);
+    notifyVisit(ip, geo.city, geo.country);
+  }
+
   const res: AppConfig = {
     debugMode: config.frontend.debugMode,
     maintenanceMode: config.frontend.maintenanceMode,
+    geo,
   };
   return c.json(res);
 });
@@ -34,6 +67,7 @@ opsRoutes.put("/ops/config", requireOpsSecret, async (c) => {
   const res: AppConfig = {
     debugMode: config.frontend.debugMode,
     maintenanceMode: config.frontend.maintenanceMode,
+    geo: null,
   };
   return c.json(res);
 });

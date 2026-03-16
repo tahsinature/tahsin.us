@@ -54,7 +54,7 @@ export const useAppStore = create<AppState>()(
         } catch {
           // Fallback defaults if server is unreachable
           set({
-            config: { debugMode: false, maintenanceMode: false },
+            config: { debugMode: false, maintenanceMode: false, geo: null },
             configStatus: "error",
           });
         }

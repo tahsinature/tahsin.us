@@ -26,6 +26,7 @@ const processEnvSchema = zod.object({
     .optional()
     .default(false),
   OPS_SECRET: zod.string(),
+  PAM_URL: zod.string(),
 });
 
 const env = processEnvSchema.parse(process.env);
@@ -46,6 +47,9 @@ const config = {
   },
   ops: {
     secret: env.OPS_SECRET,
+  },
+  pam: {
+    url: env.PAM_URL,
   },
   frontend: {
     debugMode: env.FRONTEND_DEBUG_MODE,

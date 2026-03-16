@@ -9,9 +9,20 @@ export interface HealthResponse {
 
 // ── /api/ops/config ──
 
+export interface AppConfigGeo {
+  ip: string;
+  city: string | null;
+  region: string | null;
+  country: string | null;
+  countryCode: string | null;
+  latitude: number | null;
+  longitude: number | null;
+}
+
 export interface AppConfig {
   debugMode: boolean;
   maintenanceMode: boolean;
+  geo: AppConfigGeo | null;
 }
 
 // ── /api/ops/cache/bust ──
@@ -80,16 +91,6 @@ export interface ResolvedFile {
   blockId: string;
   url: string | null;
   name?: string;
-}
-
-// ── /api/geo ──
-
-export interface GeoResponse {
-  ip: string;
-  city: string;
-  region: string;
-  country: string;
-  [key: string]: unknown;
 }
 
 // ── Common error shape ──
