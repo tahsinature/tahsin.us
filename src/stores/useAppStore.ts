@@ -18,6 +18,7 @@ interface AppState {
   config: AppConfig | null;
   configStatus: "idle" | "loading" | "ready" | "error";
   fetchConfig: () => Promise<void>;
+  setConfig: (config: AppConfig) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -41,6 +42,7 @@ export const useAppStore = create<AppState>()(
       // ── Server config ──
       config: null,
       configStatus: "idle",
+      setConfig: (config) => set({ config }),
       fetchConfig: async () => {
         if (get().configStatus === "loading" || get().configStatus === "ready") return;
         set({ configStatus: "loading" });

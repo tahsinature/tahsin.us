@@ -2,6 +2,8 @@ import { Hono } from "hono";
 import type { Context, Next } from "hono";
 import { cache } from "@server/lib/cache";
 import config from "@server/config";
+import { validateRequest } from "@server/lib/validation";
+import { updateAppConfigRequest } from "@shared/api";
 import type { HealthResponse, CacheBustResponse, AppConfig, ApiError } from "@shared/api";
 
 /** Reject requests missing a valid OPS_SECRET bearer token */
@@ -26,18 +28,14 @@ opsRoutes.get("/ops/config", (c) => {
 
 /** Update app config at runtime */
 opsRoutes.put("/ops/config", requireOpsSecret, async (c) => {
-  try {
-    const body = await c.req.json<Partial<AppConfig>>();
-    if (body.debugMode !== undefined) config.frontend.debugMode = body.debugMode;
-    if (body.maintenanceMode !== undefined) config.frontend.maintenanceMode = body.maintenanceMode;
-    const res: AppConfig = {
-      debugMode: config.frontend.debugMode,
-      maintenanceMode: config.frontend.maintenanceMode,
-    };
-    return c.json(res);
-  } catch {
-    return c.json<ApiError>({ error: "Invalid request body" }, 400);
-  }
+  const { body } = await validateRequest(c, updateAppConfigRequest);
+  if (body.debugMode !== undefined) config.frontend.debugMode = body.debugMode;
+  if (body.maintenanceMode !== undefined) config.frontend.maintenanceMode = body.maintenanceMode;
+  const res: AppConfig = {
+    debugMode: config.frontend.debugMode,
+    maintenanceMode: config.frontend.maintenanceMode,
+  };
+  return c.json(res);
 });
 
 /** Health check */

@@ -6,7 +6,7 @@ import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { BlurFadeIn } from "@/components/MotionWrapper";
 import PhotoLightbox from "@/components/PhotoLightbox";
 import { usePhotographyStore } from "@/stores/usePhotographyStore";
-import type { HealthResponse } from "@shared/api";
+import type { HealthResponse, AppConfig, UpdateAppConfigBody } from "@shared/api";
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -24,6 +24,42 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
     <div className="flex gap-2">
       <span className="text-muted-foreground shrink-0">{label}:</span>
       <span className="text-foreground break-all">{typeof value === "boolean" ? (value ? "true" : "false") : value}</span>
+    </div>
+  );
+}
+
+function ConfigToggle({ label, field, value }: { label: string; field: keyof UpdateAppConfigBody; value: boolean }) {
+  const setConfig = useAppStore((s) => s.setConfig);
+  const [saving, setSaving] = useState(false);
+
+  const toggle = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch("/api/ops/config", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [field]: !value }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const updated: AppConfig = await res.json();
+      setConfig(updated);
+    } catch {
+      // ignore
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-muted-foreground">{label}</span>
+      <button
+        onClick={toggle}
+        disabled={saving}
+        className={`relative w-10 h-5 rounded-full transition-colors cursor-pointer disabled:opacity-50 ${value ? "bg-primary" : "bg-muted-foreground/30"}`}
+      >
+        <span className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white transition-transform ${value ? "translate-x-5" : ""}`} />
+      </button>
     </div>
   );
 }
@@ -131,10 +167,10 @@ export default function DebugPage() {
         <BlurFadeIn delay={0.07}>
           <Section title="Server Config">
             {appConfig ? (
-              <>
-                <Row label="debugMode" value={appConfig.debugMode} />
-                <Row label="maintenanceMode" value={appConfig.maintenanceMode} />
-              </>
+              <div className="space-y-3">
+                <ConfigToggle label="debugMode" field="debugMode" value={appConfig.debugMode} />
+                <ConfigToggle label="maintenanceMode" field="maintenanceMode" value={appConfig.maintenanceMode} />
+              </div>
             ) : (
               <span className="text-muted-foreground">Loading...</span>
             )}
@@ -192,18 +228,11 @@ export default function DebugPage() {
                 <div className="grid grid-cols-4 gap-2">
                   {photos.slice(0, 8).map((p, i) => (
                     <button key={i} onClick={() => setLightboxIndex(i)} className="cursor-pointer">
-                      <img
-                        src={p.src}
-                        alt={p.alt}
-                        className="w-full aspect-square object-cover rounded border border-border hover:opacity-80 transition-opacity"
-                        loading="lazy"
-                      />
+                      <img src={p.src} alt={p.alt} className="w-full aspect-square object-cover rounded border border-border hover:opacity-80 transition-opacity" loading="lazy" />
                     </button>
                   ))}
                 </div>
-                <p className="text-muted-foreground text-xs mt-2">
-                  {photos.length} photos — click any to open lightbox, use arrow keys to navigate
-                </p>
+                <p className="text-muted-foreground text-xs mt-2">{photos.length} photos — click any to open lightbox, use arrow keys to navigate</p>
               </>
             )}
           </Section>
@@ -226,13 +255,7 @@ export default function DebugPage() {
         </BlurFadeIn>
       </div>
 
-      <PhotoLightbox
-        photos={photos}
-        index={lightboxIndex}
-        onClose={closeLightbox}
-        onNext={goNext}
-        onPrev={goPrev}
-      />
+      <PhotoLightbox photos={photos} index={lightboxIndex} onClose={closeLightbox} onNext={goNext} onPrev={goPrev} />
     </div>
   );
 }

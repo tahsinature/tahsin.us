@@ -5,8 +5,18 @@ import { imageProxyRoutes } from "@server/routes/image-proxy";
 import { geoRoutes } from "@server/routes/geo";
 import { photographRoutes } from "@server/routes/photographs";
 import { opsRoutes } from "@server/routes/ops";
+import { ValidationError } from "@server/lib/validation";
+import type { ApiError } from "@shared/api";
 
 const app = new Hono();
+
+app.onError((err, c) => {
+  if (err instanceof ValidationError) {
+    return c.json<ApiError>({ error: err.issues.join(", ") }, 400);
+  }
+  console.error(err);
+  return c.json<ApiError>({ error: "Internal server error" }, 500);
+});
 
 // API routes
 app.route("/api", cmsRoutes);
