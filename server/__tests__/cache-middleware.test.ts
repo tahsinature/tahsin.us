@@ -3,8 +3,6 @@ import { Hono } from "hono";
 import { cached } from "@server/middleware/cache";
 import { cache } from "@server/lib/cache";
 
-// Ensure cache is enabled for tests
-process.env.CACHE_ENABLED = "true";
 
 describe("cache middleware", () => {
   let app: Hono;
@@ -86,13 +84,4 @@ describe("cache middleware", () => {
     expect((await res3.json()).count).toBe(2); // different key
   });
 
-  test("disabled cache passes through", async () => {
-    const original = process.env.CACHE_ENABLED;
-    process.env.CACHE_ENABLED = "false";
-
-    // Need to re-import to pick up env change — but since it reads at module load,
-    // we test by calling twice and seeing both hit the handler
-    // The module already read the env, so this tests the current state
-    process.env.CACHE_ENABLED = original;
-  });
 });
