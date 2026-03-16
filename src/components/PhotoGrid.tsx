@@ -1,5 +1,5 @@
 import PhotoImage from "@/components/PhotoImage";
-import ExifMetaDisplay from "@/components/ExifMetaDisplay";
+import { Camera } from "lucide-react";
 import { motion } from "@/components/MotionWrapper";
 import type { Photo } from "@/data/photography";
 
@@ -32,8 +32,13 @@ export default function PhotoGrid({ photos, onPhotoClick }: PhotoGridProps) {
                 <PhotoImage src={photo.src} alt={photo.alt} className="w-full h-full object-cover" loading="lazy" aspectHint={aspect} />
               </motion.div>
               <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-background/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-3">
-                <div>
-                  <ExifMetaDisplay meta={photo.meta ?? null} compact />
+                <div className="flex items-center gap-1.5">
+                  {photo.meta?.camera && (
+                    <>
+                      <Camera size={10} className="text-white/70 drop-shadow-lg flex-shrink-0" />
+                      <span className="text-white/70 text-xs drop-shadow-lg">{photo.meta.camera}</span>
+                    </>
+                  )}
                 </div>
                 <span className="text-white text-sm font-medium drop-shadow-lg">{photo.alt}</span>
               </div>

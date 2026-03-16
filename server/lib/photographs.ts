@@ -1,8 +1,9 @@
-import { Client } from "@notionhq/client";
 import type { TripData, PhotoData, PhotoExif, MediaType } from "@shared/api";
+import { cmsClient } from "@server/lib/cms";
+import config from "@server/config";
 
-const TRIPS_DS_ID = process.env.PHOTOS_DS_ID ?? "";
-const PHOTOS_DS_ID = "323960ad-d9d3-80af-8586-000b87acbf60";
+const TRIPS_DS_ID = config.cms.tripsDSId;
+const PHOTOS_DS_ID = config.cms.photosDSId;
 
 // ── Helpers ──
 
@@ -62,8 +63,8 @@ function formatDate(date: { start: string; end: string | null } | null): { displ
 
 // ── Fetch cover image for a trip ──
 
-async function fetchCoverImage(notion: Client, tripId: string): Promise<string> {
-  const res = await notion.dataSources.query({
+async function fetchCoverImage(tripId: string): Promise<string> {
+  const res = await cmsClient.dataSources.query({
     data_source_id: PHOTOS_DS_ID,
     filter_properties: ["Files", "Fav"],
     filter: {
@@ -74,7 +75,7 @@ async function fetchCoverImage(notion: Client, tripId: string): Promise<string> 
     },
     sorts: [{ property: "Fav", direction: "descending" }],
     page_size: 1,
-  } as Parameters<typeof notion.dataSources.query>[0]);
+  } as Parameters<typeof cmsClient.dataSources.query>[0]);
 
   const page = res.results[0];
   if (!page) return "";
@@ -86,10 +87,8 @@ async function fetchCoverImage(notion: Client, tripId: string): Promise<string> 
 
 // ── Fetch trips ──
 
-export async function fetchTrips(token: string): Promise<TripData[]> {
-  const notion = new Client({ auth: token });
-
-  const response = await notion.dataSources.query({
+export async function fetchTrips(): Promise<TripData[]> {
+  const response = await cmsClient.dataSources.query({
     data_source_id: TRIPS_DS_ID,
     sorts: [{ property: "Date", direction: "descending" }],
   });
@@ -140,9 +139,7 @@ export async function fetchTrips(token: string): Promise<TripData[]> {
   }
 
   // Fetch cover images in parallel
-  const covers = await Promise.all(
-    metas.map((m) => (m.photoCount > 0 ? fetchCoverImage(notion, m.id) : Promise.resolve(""))),
-  );
+  const covers = await Promise.all(metas.map((m) => (m.photoCount > 0 ? fetchCoverImage(m.id) : Promise.resolve(""))));
 
   return metas.map((m, i) => ({
     id: m.id,
@@ -158,12 +155,8 @@ export async function fetchTrips(token: string): Promise<TripData[]> {
 
 // ── Fetch photos ──
 
-export async function fetchPhotos(token: string, tripId?: string, favOnly?: boolean): Promise<PhotoData[]> {
-  const notion = new Client({ auth: token });
-
-  const conditions: Record<string, unknown>[] = [
-    { property: "Files", files: { is_not_empty: true } },
-  ];
+export async function fetchPhotos(tripId?: string, favOnly?: boolean): Promise<PhotoData[]> {
+  const conditions: Record<string, unknown>[] = [{ property: "Files", files: { is_not_empty: true } }];
   if (tripId) conditions.push({ property: "Trips", relation: { contains: tripId.replace(/-/g, "") } });
   if (favOnly) conditions.push({ property: "Fav", checkbox: { equals: true } });
 
@@ -173,12 +166,12 @@ export async function fetchPhotos(token: string, tripId?: string, favOnly?: bool
   let cursor: string | undefined;
 
   do {
-    const res = await notion.dataSources.query({
+    const res = await cmsClient.dataSources.query({
       data_source_id: PHOTOS_DS_ID,
       filter_properties: ["Name", "Files", "Caption", "Fav", "EXIF", "Trips", "Dimensions"],
       filter,
       ...(cursor ? { start_cursor: cursor } : {}),
-    } as Parameters<typeof notion.dataSources.query>[0]);
+    } as Parameters<typeof cmsClient.dataSources.query>[0]);
 
     for (const page of res.results) {
       const props = (page as Record<string, unknown>).properties as Record<string, unknown>;
@@ -196,7 +189,11 @@ export async function fetchPhotos(token: string, tripId?: string, favOnly?: bool
       const exifText = (props.EXIF as { rich_text: Array<{ plain_text: string }> })?.rich_text?.[0]?.plain_text ?? "";
       let exif: PhotoExif | null = null;
       if (exifText) {
-        try { exif = JSON.parse(exifText); } catch { /* skip malformed */ }
+        try {
+          exif = JSON.parse(exifText);
+        } catch {
+          /* skip malformed */
+        }
       }
 
       const tripRelation = (props.Trips as { relation: Array<{ id: string }> })?.relation ?? [];

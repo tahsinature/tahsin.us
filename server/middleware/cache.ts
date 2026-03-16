@@ -1,5 +1,6 @@
 import type { MiddlewareHandler } from "hono";
 import { cache } from "@server/lib/cache";
+import config from "@server/config";
 
 interface CacheMiddlewareOptions {
   /** TTL in seconds */
@@ -15,7 +16,7 @@ interface CacheMiddlewareOptions {
  */
 export function cached(opts: CacheMiddlewareOptions): MiddlewareHandler {
   return async (c, next) => {
-    if (process.env.CACHE_ENABLED === "false") return await next();
+    if (!config.cache.enabled) return await next();
 
     const url = new URL(c.req.url);
     const query = url.search ? url.search : "";

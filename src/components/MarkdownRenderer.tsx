@@ -692,7 +692,7 @@ export default function MarkdownRenderer({ markdown }: { markdown: string }) {
       if (!cancelled) setIsResolving(true);
     });
 
-    fetch("/api/notion/resolve-files", {
+    fetch("/api/cms/resolve-files", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ blockIds: Array.from(blockIdMap.keys()) }),

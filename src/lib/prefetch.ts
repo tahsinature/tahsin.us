@@ -23,7 +23,7 @@ export function runPrefetches() {
     if (cache.has(url)) continue;
 
     // Page URLs go through the page store (deduplication + shared cache)
-    if (url.startsWith("/api/pages/") || url.startsWith("/api/notion/")) {
+    if (url.startsWith("/api/pages/") || url.startsWith("/api/cms/")) {
       usePageStore.getState().prefetch(url);
       continue;
     }

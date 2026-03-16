@@ -1,5 +1,8 @@
 .PHONY: docker-build-run bundle-analyze upload-photos update-captions
 
+dev:
+	bun run dev
+
 build:
 	bun run build
 

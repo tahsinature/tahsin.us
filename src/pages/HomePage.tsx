@@ -6,7 +6,6 @@ import InteractiveCodeCard from "@/components/InteractiveCodeCard";
 import PhotoLightbox from "@/components/PhotoLightbox";
 import PhotoImage from "@/components/PhotoImage";
 import MarqueeText from "@/components/MarqueeText";
-import ExifMetaDisplay from "@/components/ExifMetaDisplay";
 import { FadeIn, StaggerContainer, StaggerItem, motion } from "@/components/MotionWrapper";
 import { blogPosts } from "@/data/posts";
 import { usePhotographyStore } from "@/stores/usePhotographyStore";
@@ -328,13 +327,19 @@ function PhotoCard({ photo, index, onOpen }: { photo: import("@/data/photography
         animate={{ opacity: active ? 1 : 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
       >
-        {/* EXIF — top */}
+        {/* Camera — top */}
         <motion.div
+          className="flex items-center gap-1.5"
           initial={false}
           animate={{ y: active ? 0 : -8, opacity: active ? 1 : 0 }}
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
         >
-          <ExifMetaDisplay meta={photo.meta ?? null} compact />
+          {photo.meta?.camera && (
+            <>
+              <Camera size={10} className="text-white/70 drop-shadow-lg flex-shrink-0" />
+              <span className="text-white/70 text-xs drop-shadow-lg">{photo.meta.camera}</span>
+            </>
+          )}
         </motion.div>
 
         {/* Trip + caption — bottom */}

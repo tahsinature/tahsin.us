@@ -62,7 +62,7 @@ export default function TripGalleryPage() {
 
   // Prefetch trip page content for "View Trip Details"
   useEffect(() => {
-    if (trip?.id) prefetch(`/api/notion/${trip.id}`);
+    if (trip?.id) prefetch(`/api/cms/${trip.id}`);
   }, [trip?.id, prefetch]);
 
   const isLoading = tripsStatus === "idle" || tripsStatus === "loading" || photosLoading;

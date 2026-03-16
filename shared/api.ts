@@ -59,15 +59,15 @@ export interface PhotosResponse {
   photos: PhotoData[];
 }
 
-// ── /api/pages/:name, /api/notion/:pageId ──
+// ── /api/pages/:name, /api/cms/:pageId ──
 
-export interface NotionPageResponse {
+export interface PageResponse {
   markdown: string;
   truncated: boolean;
   unknown_block_ids: string[];
 }
 
-// ── /api/notion/resolve-files ──
+// ── /api/cms/resolve-files ──
 
 export interface ResolveFilesRequest {
   blockIds: string[];

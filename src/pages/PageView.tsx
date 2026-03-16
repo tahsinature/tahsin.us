@@ -43,7 +43,7 @@ export default function PageView({ pageId: propId, fetchUrl, title }: { pageId?:
     { markdown: null, loading: false, error: null },
   );
 
-  const url = fetchUrl ?? (resolvedId ? `/api/notion/${resolvedId.trim().replace(/[^a-f0-9-]/gi, "")}` : null);
+  const url = fetchUrl ?? (resolvedId ? `/api/cms/${resolvedId.trim().replace(/[^a-f0-9-]/gi, "")}` : null);
 
   useEffect(() => {
     if (!url) return;
