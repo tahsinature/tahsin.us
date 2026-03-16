@@ -1,13 +1,10 @@
 .PHONY: docker-build-run bundle-analyze upload-photos update-captions sync-bruno-env
 
-test:
-	bun test
+test-everything:
+	bun test && bun run build
 
 dev:
 	bun run dev
-
-build:
-	bun run build
 
 docker-build-run:
 	docker build -t foo:latest .

@@ -27,6 +27,7 @@ COPY --from=build /app/tsconfig.json ./
 COPY --from=build /app/tsconfig.server.json ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/server ./server
+COPY --from=build /app/shared ./shared
 
 EXPOSE 3000
 
