@@ -24,7 +24,7 @@ export default function Footer() {
       {/* Top accent line */}
       <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
-      <Container className="py-12 md:py-16">
+      <Container className="pt-12 pb-6 md:pt-16 md:pb-8">
         <FadeIn>
           <div className="flex flex-col items-center text-center gap-6">
             {/* Nav links */}

@@ -1,7 +1,7 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "motion/react";
 import { Suspense, lazy, useEffect } from "react";
-import { siteConfig } from "@/config/site";
+import { useAppStore } from "@/stores/useAppStore";
 import { usePhotographyStore } from "@/stores/usePhotographyStore";
 import { runPrefetches } from "@/lib/prefetch";
 import Header from "@/components/Header";
@@ -23,6 +23,7 @@ const PageView = lazy(() => import("@/pages/PageView"));
 function App() {
   const location = useLocation();
   const fetchTrips = usePhotographyStore((s) => s.fetchTrips);
+  const appConfig = useAppStore((s) => s.config);
 
   useEffect(() => {
     runPrefetches();
@@ -33,7 +34,7 @@ function App() {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
-  if (siteConfig.maintenance.enabled) {
+  if (appConfig?.maintenanceMode) {
     return <MaintenancePage />;
   }
 
@@ -48,7 +49,7 @@ function App() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
-          className="flex-1"
+          className="flex-1 flex flex-col"
         >
           <Suspense fallback={<div className="flex-1" />}>
             <Routes location={location}>
@@ -60,7 +61,7 @@ function App() {
               <Route path="/travel" element={<PageView fetchUrl="/api/pages/travel" title="Travel" />} />
               <Route path="/photography" element={<PhotographyPage />} />
               <Route path="/photography/:slug" element={<TripGalleryPage />} />
-              {siteConfig.enableDebug && <Route path="/debug" element={<DebugPage />} />}
+              {appConfig?.debugMode && <Route path="/debug" element={<DebugPage />} />}
               <Route path="/page/:pageId" element={<PageView />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>

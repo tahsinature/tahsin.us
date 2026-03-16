@@ -1,4 +1,5 @@
 import PhotoImage from "@/components/PhotoImage";
+import MarqueeText from "@/components/MarqueeText";
 import { Camera } from "lucide-react";
 import { motion } from "@/components/MotionWrapper";
 import type { Photo } from "@/data/photography";
@@ -40,7 +41,10 @@ export default function PhotoGrid({ photos, onPhotoClick }: PhotoGridProps) {
                     </>
                   )}
                 </div>
-                <span className="text-white text-sm font-medium drop-shadow-lg">{photo.alt}</span>
+                <span className="text-white text-sm font-medium drop-shadow-lg hidden lg:block">{photo.alt}</span>
+                <div className="block lg:hidden min-w-0">
+                  <MarqueeText text={photo.alt} className="text-white text-xs font-medium drop-shadow-lg" />
+                </div>
               </div>
             </div>
           </motion.button>

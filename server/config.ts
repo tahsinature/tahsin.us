@@ -15,6 +15,17 @@ const processEnvSchema = zod.object({
     .transform((val) => val === "true")
     .optional()
     .default(true),
+  FRONTEND_DEBUG_MODE: zod
+    .string()
+    .transform((val) => val === "true")
+    .optional()
+    .default(false),
+  MAINTENANCE_MODE: zod
+    .string()
+    .transform((val) => val === "true")
+    .optional()
+    .default(false),
+  OPS_SECRET: zod.string(),
 });
 
 const env = processEnvSchema.parse(process.env);
@@ -29,6 +40,13 @@ const config = {
   },
   cache: {
     enabled: env.CACHE_ENABLED,
+  },
+  ops: {
+    secret: env.OPS_SECRET,
+  },
+  frontend: {
+    debugMode: env.FRONTEND_DEBUG_MODE,
+    maintenanceMode: env.MAINTENANCE_MODE,
   },
 };
 

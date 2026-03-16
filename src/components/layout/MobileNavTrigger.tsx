@@ -1,7 +1,7 @@
-import { useMobileNavStore } from "@/stores/useMobileNavStore";
+import { useAppStore } from "@/stores/useAppStore";
 
 export function MobileNavTrigger() {
-  const setOpen = useMobileNavStore((s) => s.setOpen);
+  const setOpen = useAppStore((s) => s.setMobileNavOpen);
 
   return (
     <button

@@ -1,14 +1,18 @@
 info:
-  name: cache-bust
+  name: get-notion-page
   type: http
   seq: 7
 
 http:
-  method: POST
-  url: "{{backend_host}}/api/ops/cache/bust"
+  method: GET
+  url: "{{backend_host}}/api/notion/:pageId"
   headers:
     - name: Content-Type
       value: application/json
+  params:
+    - name: pageId
+      value: 323960add9d38019b85fd0aab9c10ec6
+      type: path
   auth: inherit
 
 settings:

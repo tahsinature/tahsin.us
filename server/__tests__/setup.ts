@@ -4,3 +4,4 @@ process.env.TRAVEL_PID = "test-travel-pid";
 process.env.PHOTOS_DS_ID = "test-photos-ds-id";
 process.env.TRIPS_DS_ID = "test-trips-ds-id";
 process.env.CACHE_ENABLED = "true";
+process.env.OPS_SECRET = "test-ops-secret";

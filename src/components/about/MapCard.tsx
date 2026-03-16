@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { useThemeStore } from "@/stores/useThemeStore";
+import { useAppStore } from "@/stores/useAppStore";
 
 const MY_LOCATION = { lat: 42.98, lng: -81.25 };
 const MY_LABEL = "London, Canada";
@@ -84,7 +84,7 @@ export default function MapCard() {
   const mapInstance = useRef<L.Map | null>(null);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
   const [message, setMessage] = useState<string | null>(null);
-  const theme = useThemeStore((s) => s.theme);
+  const theme = useAppStore((s) => s.theme);
 
   // Swap tile layer when theme changes
   useEffect(() => {

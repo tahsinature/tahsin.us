@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useThemeStore } from "@/stores/useThemeStore";
+import { useAppStore } from "@/stores/useAppStore";
 
 const THEME_CONFIG = {
   dark: {
@@ -64,7 +64,7 @@ export default function Mermaid({ chart, caption }: MermaidProps) {
   const [svg, setSvg] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const hasRendered = useRef(false);
-  const theme = useThemeStore((s) => s.theme);
+  const theme = useAppStore((s) => s.theme);
 
   useEffect(() => {
     let cancelled = false;

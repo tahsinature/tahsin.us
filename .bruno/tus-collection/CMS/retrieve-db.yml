@@ -8,7 +8,7 @@ http:
   url: https://api.notion.com/v1/databases/:database_id
   params:
     - name: database_id
-      value: 322960add9d38024b272c54f85cbb876
+      value: "{{process.env.PHOTOS_DS_ID}}"
       type: path
   auth: inherit
 

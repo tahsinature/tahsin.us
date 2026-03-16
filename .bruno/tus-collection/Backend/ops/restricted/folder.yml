@@ -1,0 +1,9 @@
+info:
+  name: restricted
+  type: folder
+  seq: 1
+
+request:
+  auth:
+    type: bearer
+    token: "{{process.env.OPS_SECRET}}"

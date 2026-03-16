@@ -1,4 +1,4 @@
-.PHONY: docker-build-run bundle-analyze upload-photos update-captions
+.PHONY: docker-build-run bundle-analyze upload-photos update-captions sync-bruno-env
 
 test:
 	bun test
@@ -22,3 +22,6 @@ upload-photos:
 
 update-captions:
 	claude $(if $(YOLO),--dangerously-skip-permissions) "Read scripts/notion/update-captions.ts file content and read the instruction and run the file."
+
+sync-bruno-env:
+	ln -sf ../../.env .bruno/tus-collection/.env

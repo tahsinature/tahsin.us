@@ -5,22 +5,29 @@ info:
 
 http:
   method: POST
-  url: "{{HOST_NOTION}}/data_sources/:data-source-id/query?filter_properties[]=Name&filter_properties[]=Files&filter_properties[]=Caption&filter_properties[]=Fav"
+  url: "{{HOST_NOTION}}/data_sources/:data-source-id/query?filter_properties[]=Trips"
   params:
     - name: filter_properties[]
       value: Name
       type: query
+      disabled: true
     - name: filter_properties[]
       value: Files
       type: query
+      disabled: true
     - name: filter_properties[]
       value: Caption
       type: query
+      disabled: true
     - name: filter_properties[]
       value: Fav
       type: query
+      disabled: true
+    - name: filter_properties[]
+      value: Trips
+      type: query
     - name: data-source-id
-      value: "{{DS_PHOTOGRAPHS}}"
+      value: "{{process.env.PHOTOS_DS_ID}}"
       type: path
   body:
     type: json

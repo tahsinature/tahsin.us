@@ -7,6 +7,13 @@ export interface HealthResponse {
   uptime: number;
 }
 
+// ── /api/ops/config ──
+
+export interface AppConfig {
+  debugMode: boolean;
+  maintenanceMode: boolean;
+}
+
 // ── /api/ops/cache/bust ──
 
 export interface CacheBustResponse {

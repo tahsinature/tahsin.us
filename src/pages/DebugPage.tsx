@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { siteConfig } from "@/config/site";
-import { useThemeStore } from "@/stores/useThemeStore";
+import { useAppStore } from "@/stores/useAppStore";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { BlurFadeIn } from "@/components/MotionWrapper";
 import PhotoLightbox from "@/components/PhotoLightbox";
@@ -63,7 +63,8 @@ export default function DebugPage() {
   useDocumentTitle("Debug");
 
   const location = useLocation();
-  const theme = useThemeStore((s) => s.theme);
+  const theme = useAppStore((s) => s.theme);
+  const appConfig = useAppStore((s) => s.config);
   const nav = navigator;
 
   const [health, setHealth] = useState<HealthResponse | null>(null);
@@ -123,8 +124,20 @@ export default function DebugPage() {
             <Row label="name" value={siteConfig.name.full} />
             <Row label="heroPattern" value={siteConfig.heroPattern} />
             <Row label="enableNewsletter" value={siteConfig.enableNewsletter} />
-            <Row label="enableDebug" value={siteConfig.enableDebug} />
-            <Row label="maintenance.enabled" value={siteConfig.maintenance.enabled} />
+          </Section>
+        </BlurFadeIn>
+
+        {/* ── Server Config ── */}
+        <BlurFadeIn delay={0.07}>
+          <Section title="Server Config">
+            {appConfig ? (
+              <>
+                <Row label="debugMode" value={appConfig.debugMode} />
+                <Row label="maintenanceMode" value={appConfig.maintenanceMode} />
+              </>
+            ) : (
+              <span className="text-muted-foreground">Loading...</span>
+            )}
           </Section>
         </BlurFadeIn>
 

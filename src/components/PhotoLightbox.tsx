@@ -170,17 +170,13 @@ function LightboxOverlay({ photos, index, onClose, onNext, onPrev }: { photos: P
 
       {/* Bottom bar — EXIF fills width, counter at end */}
       <div className="shrink-0 h-10 flex items-center gap-4 pl-4 md:pl-8 pr-4 md:pr-8" onClick={(e) => e.stopPropagation()}>
-        {!exifLoading && meta ? (
-          <div
-            className="flex-1 min-w-0 group cursor-pointer"
-            onClick={() => setShowExifDetail(true)}
-            title="Click for details"
-          >
-            <ExifMetaDisplay meta={meta} />
-          </div>
-        ) : (
-          <div className="flex-1" />
-        )}
+        <div
+          className="flex-1 min-w-0 group cursor-pointer"
+          onClick={() => meta && setShowExifDetail(true)}
+          title={meta ? "Click for details" : undefined}
+        >
+          <ExifMetaDisplay meta={meta} />
+        </div>
         <p className="text-muted-foreground text-xs tabular-nums shrink-0">{index + 1} / {photos.length}</p>
       </div>
 

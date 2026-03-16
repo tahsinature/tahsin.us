@@ -4,23 +4,28 @@ import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 import { ThemeToggle } from "./ThemeToggle";
-import { useMobileNavStore } from "@/stores/useMobileNavStore";
+import { useAppStore } from "@/stores/useAppStore";
 import Logo from "@/components/Logo";
 import { siteConfig } from "@/config/site";
 import { getSocial } from "@/data/social-profiles";
 
-const NAV_ITEMS = [
+const BASE_NAV_ITEMS = [
   { label: "Blog", href: "/blog" },
   { label: "Community", href: "/contributions" },
   { label: "Travel", href: "/travel" },
   { label: "Photography", href: "/photography" },
   { label: "About", href: "/about" },
-  ...(siteConfig.enableDebug ? [{ label: "Debug", href: "/debug" }] : []),
 ];
 
 export function MobileNavOverlay() {
-  const { open, setOpen } = useMobileNavStore();
+  const open = useAppStore((s) => s.mobileNavOpen);
+  const setOpen = useAppStore((s) => s.setMobileNavOpen);
+  const debugMode = useAppStore((s) => s.config?.debugMode);
   const location = useLocation();
+
+  const navItems = debugMode
+    ? [...BASE_NAV_ITEMS, { label: "Debug", href: "/debug" }]
+    : BASE_NAV_ITEMS;
 
   useEffect(() => {
     if (open) {
@@ -76,7 +81,7 @@ export function MobileNavOverlay() {
 
         {/* Navigation Links */}
         <nav className="flex-1 flex flex-col justify-center -mt-12">
-          {NAV_ITEMS.map((item, i) => (
+          {navItems.map((item, i) => (
             <motion.div
               key={item.href}
               initial={{ opacity: 0, x: -24 }}

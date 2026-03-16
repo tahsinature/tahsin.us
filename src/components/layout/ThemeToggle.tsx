@@ -1,10 +1,10 @@
-import { useThemeStore } from "@/stores/useThemeStore";
+import { useAppStore } from "@/stores/useAppStore";
 import { motion, AnimatePresence } from "motion/react";
 import { SunIcon, MoonIcon } from "@/components/SVGs";
 
 export function ThemeToggle() {
-  const theme = useThemeStore((s) => s.theme);
-  const toggleTheme = useThemeStore((s) => s.toggleTheme);
+  const theme = useAppStore((s) => s.theme);
+  const toggleTheme = useAppStore((s) => s.toggleTheme);
   const isDark = theme === "dark";
 
   return (

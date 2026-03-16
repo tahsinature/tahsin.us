@@ -1,29 +1,35 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, useScroll, useMotionValueEvent } from "motion/react";
 import { cn } from "@/lib/utils";
 import Logo from "@/components/Logo";
 import { siteConfig } from "@/config/site";
+import { useAppStore } from "@/stores/useAppStore";
 import { Container } from "@/components/shared/Container";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { MobileNavTrigger } from "@/components/layout/MobileNavTrigger";
 
-const NAV_ITEMS = [
+const BASE_NAV_ITEMS = [
   { label: "Blog", to: "/blog" },
   { label: "Community", to: "/contributions" },
   { label: "Travel", to: "/travel" },
   { label: "Photography", to: "/photography" },
   { label: "About", to: "/about" },
-  ...(siteConfig.enableDebug ? [{ label: "Debug", to: "/debug" }] : []),
 ];
 
 export default function Header() {
   const location = useLocation();
+  const debugMode = useAppStore((s) => s.config?.debugMode);
   const [scrolled, setScrolled] = useState(false);
   const { scrollY } = useScroll();
   const navRef = useRef<HTMLElement>(null);
   const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const [pillStyle, setPillStyle] = useState<{ left: number; width: number } | null>(null);
+
+  const NAV_ITEMS = useMemo(
+    () => debugMode ? [...BASE_NAV_ITEMS, { label: "Debug", to: "/debug" }] : BASE_NAV_ITEMS,
+    [debugMode],
+  );
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setScrolled(latest > 20);
