@@ -80,55 +80,44 @@ function ContributionCard({ c, isLast }: { c: Contribution; isLast: boolean }) {
   );
 }
 
-/* ── Project card ── */
+/* ── Project card (compact horizontal layout) ── */
 function ProjectCard({ project }: { project: Project }) {
   const [expanded, setExpanded] = useState(false);
-  const [hovered, setHovered] = useState(false);
 
   return (
     <motion.div
-      className="group bg-card border border-border rounded-xl overflow-hidden h-full"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      animate={hovered
-        ? { borderColor: "var(--color-primary)", boxShadow: "0 8px 30px rgba(0,0,0,0.18)" }
-        : { borderColor: "var(--color-border)", boxShadow: "0 0 0 rgba(0,0,0,0)" }
-      }
-      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="group relative bg-card border border-border rounded-lg overflow-hidden flex flex-col sm:flex-row h-full hover:border-primary/40 transition-colors duration-300"
+      whileHover={{ y: -2 }}
+      transition={{ duration: 0.2 }}
     >
-      {/* Screenshot */}
+      {/* Thumbnail */}
       {project.screenshot && (
-        <div className="relative overflow-hidden h-48 md:h-56">
-          <motion.img
+        <div className="relative overflow-hidden sm:w-40 md:w-48 shrink-0 h-32 sm:h-auto">
+          <img
             src={project.screenshot}
             alt={`${project.title} screenshot`}
-            className="absolute inset-0 w-full h-full object-cover object-top"
+            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             loading="lazy"
-            animate={{ scale: hovered ? 1.05 : 1 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-card/20 hidden sm:block" />
         </div>
       )}
 
-      <div className="p-5 md:p-6">
-        {/* Top row: tag + period */}
-        <div className="flex items-center gap-2 mb-3">
-          <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full border ${projectTagColors[project.tag]}`}>{projectTagLabels[project.tag]}</span>
+      <div className="flex-1 p-4 min-w-0 flex flex-col">
+        {/* Meta row */}
+        <div className="flex items-center gap-2 mb-2 flex-wrap">
+          <span className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded border ${projectTagColors[project.tag]}`}>{projectTagLabels[project.tag]}</span>
           {project.featured && (
-            <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30">
-              <Star size={10} fill="currentColor" />
-              Featured
-            </span>
+            <Star size={12} className="text-primary fill-primary" />
           )}
-          {project.period && <span className="ml-auto text-muted-foreground text-xs tabular-nums">{project.period}</span>}
+          {project.period && <span className="text-muted-foreground/60 text-[11px] tabular-nums ml-auto">{project.period}</span>}
         </div>
 
         {/* Title */}
-        <h3 className="text-foreground font-bold text-lg mb-2 leading-tight">{project.title}</h3>
+        <h3 className="text-foreground font-semibold text-sm mb-1 leading-snug">{project.title}</h3>
 
         {/* Description */}
-        <p className="text-muted-foreground text-sm leading-relaxed mb-3">{project.description}</p>
+        <p className="text-muted-foreground text-xs leading-relaxed mb-2 line-clamp-2">{project.description}</p>
 
         {/* Expandable writeup */}
         {project.writeup && (
@@ -142,56 +131,40 @@ function ProjectCard({ project }: { project: Project }) {
                   transition={{ duration: 0.3 }}
                   className="overflow-hidden"
                 >
-                  <p className="text-muted-foreground text-sm leading-relaxed mb-3 border-l-2 border-primary/30 pl-3">{project.writeup}</p>
+                  <p className="text-muted-foreground text-xs leading-relaxed mb-2 border-l-2 border-primary/30 pl-2.5">{project.writeup}</p>
                 </motion.div>
               )}
             </AnimatePresence>
-            <button onClick={() => setExpanded(!expanded)} className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors mb-3">
-              {expanded ? "Show less" : "Read more"}
+            <button onClick={() => setExpanded(!expanded)} className="inline-flex items-center gap-1 text-[11px] text-muted-foreground/60 hover:text-primary transition-colors mb-2 cursor-pointer">
+              {expanded ? "Less" : "More"}
               <motion.span animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                <ChevronDown size={12} />
+                <ChevronDown size={10} />
               </motion.span>
             </button>
           </>
         )}
 
-        {/* Tech stack */}
-        {project.techStack && project.techStack.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mb-4">
-            {project.techStack.map((tech) => (
-              <span key={tech} className="text-xs bg-secondary border border-border rounded px-2 py-0.5 text-muted-foreground">
-                {tech}
-              </span>
-            ))}
+        {/* Bottom: tech + links */}
+        <div className="mt-auto flex items-center gap-3 flex-wrap">
+          {project.techStack && project.techStack.length > 0 && (
+            <div className="flex flex-wrap gap-1 flex-1 min-w-0">
+              {project.techStack.map((tech) => (
+                <span key={tech} className="text-[10px] text-muted-foreground/50 font-mono border border-border/50 rounded-full px-1.5 py-px">{tech}</span>
+              ))}
+            </div>
+          )}
+          <div className="flex items-center gap-2.5 shrink-0">
+            {project.repoUrl && (
+              <a href={project.repoUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground/40 hover:text-foreground transition-colors">
+                <Github size={13} />
+              </a>
+            )}
+            {project.liveUrl && (
+              <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground/40 hover:text-foreground transition-colors">
+                <Globe size={13} />
+              </a>
+            )}
           </div>
-        )}
-
-        {/* Links */}
-        <div className="flex items-center gap-3">
-          {project.repoUrl && (
-            <a
-              href={project.repoUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground
-                         hover:text-foreground transition-colors"
-            >
-              <Github size={14} />
-              Source
-            </a>
-          )}
-          {project.liveUrl && (
-            <a
-              href={project.liveUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground
-                         hover:text-foreground transition-colors"
-            >
-              <Globe size={14} />
-              Live
-            </a>
-          )}
         </div>
       </div>
     </motion.div>
@@ -244,9 +217,9 @@ export default function ContributionsPage() {
             </div>
           </FadeIn>
 
-          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-5" staggerDelay={0.1}>
-            {projects.map((p) => (
-              <StaggerItem key={p.id} variant="scale" className={p.featured ? "md:col-span-2" : ""}>
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-3" staggerDelay={0.08}>
+            {projects.map((p, i) => (
+              <StaggerItem key={p.id} variant="scale" className={projects.length % 2 !== 0 && i === projects.length - 1 ? "md:col-span-2" : ""}>
                 <ProjectCard project={p} />
               </StaggerItem>
             ))}
