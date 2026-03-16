@@ -5,10 +5,15 @@ const processEnvSchema = zod.object({
   TRAVEL_PID: zod.string(),
   PHOTOS_DS_ID: zod.string(),
   TRIPS_DS_ID: zod.string(),
-  CACHE_ENABLED: zod.string().transform((val) => val === "true"),
+  CACHE_ENABLED: zod
+    .string()
+    .transform((val) => val === "true")
+    .optional()
+    .default(false),
   TRIP_PUBLISHED_ONLY: zod
     .string()
     .transform((val) => val === "true")
+    .optional()
     .default(true),
 });
 
