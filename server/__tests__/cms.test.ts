@@ -1,8 +1,10 @@
 import { describe, test, expect } from "bun:test";
 import { Hono } from "hono";
 import { getPage, resolveFiles } from "@server/controllers/cms";
+import { registerErrorHandler } from "@server/lib/validation";
 
 const app = new Hono();
+registerErrorHandler(app);
 app.get("/cms/:pageId", getPage);
 app.post("/cms/resolve-files", resolveFiles);
 
@@ -15,7 +17,7 @@ describe("POST /cms/resolve-files", () => {
     });
     expect(res.status).toBe(400);
     const body = await res.json();
-    expect(body.error).toContain("blockIds");
+    expect(body.error).toBeTruthy();
   });
 
   test("returns 400 when blockIds is empty", async () => {

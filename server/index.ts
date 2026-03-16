@@ -1,22 +1,18 @@
 import { Hono } from "hono";
+import { logger } from "hono/logger";
 import { serveStatic } from "hono/bun";
 import { cmsRoutes } from "@server/routes/cms";
 import { imageProxyRoutes } from "@server/routes/image-proxy";
 import { geoRoutes } from "@server/routes/geo";
 import { photographRoutes } from "@server/routes/photographs";
 import { opsRoutes } from "@server/routes/ops";
-import { ValidationError } from "@server/lib/validation";
-import type { ApiError } from "@shared/api";
+import { registerErrorHandler } from "@server/lib/validation";
+import config from "@server/config";
 
 const app = new Hono();
+registerErrorHandler(app);
 
-app.onError((err, c) => {
-  if (err instanceof ValidationError) {
-    return c.json<ApiError>({ error: err.issues.join(", ") }, 400);
-  }
-  console.error(err);
-  return c.json<ApiError>({ error: "Internal server error" }, 500);
-});
+if (config.app.isDev) app.use(logger());
 
 // API routes
 app.route("/api", cmsRoutes);

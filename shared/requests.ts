@@ -22,9 +22,11 @@ export type UpdateAppConfigBody = RequestBody<typeof updateAppConfigRequest>;
 // ── POST /api/cms/resolve-files ──
 
 export const resolveFilesRequest = z.object({
-  body: z.object({
-    blockIds: z.array(z.string()),
-  }),
+  body: z
+    .object({
+      blockIds: z.array(z.string()).min(1, "blockIds must not be empty"),
+    })
+    .strict(),
 });
 
 export type ResolveFilesBody = RequestBody<typeof resolveFilesRequest>;

@@ -31,6 +31,9 @@ const processEnvSchema = zod.object({
 const env = processEnvSchema.parse(process.env);
 
 const config = {
+  app: {
+    isDev: process.env.NODE_ENV !== "production",
+  },
   cms: {
     token: env.N_TOK,
     travelPID: env.TRAVEL_PID,

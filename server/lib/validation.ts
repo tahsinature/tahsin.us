@@ -1,4 +1,5 @@
-import type { Context } from "hono";
+import type { Context, Hono } from "hono";
+import type { ApiError } from "@shared/api";
 import type { z } from "zod";
 
 export class ValidationError extends Error {
@@ -34,4 +35,15 @@ export const validateRequest = async <T extends RequestSchema>(c: Context, schem
   if (!parsed.success) throw new ValidationError(parsed.error.issues.map((i) => i.message));
 
   return parsed.data;
+};
+
+/** Register the global error handler on a Hono app. */
+export const registerErrorHandler = (app: Hono) => {
+  app.onError((err, c) => {
+    if (err instanceof ValidationError) {
+      return c.json<ApiError>({ error: err.issues.join(", ") }, 400);
+    }
+    console.error(err);
+    return c.json<ApiError>({ error: "Internal server error" }, 500);
+  });
 };

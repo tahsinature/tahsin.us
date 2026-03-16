@@ -7,15 +7,10 @@ export async function getGeo(c: Context) {
     c.req.header("x-real-ip") ||
     "unknown";
 
-  try {
-    const res = await fetch(`https://ipapi.co/${ip === "unknown" || ip === "127.0.0.1" || ip === "::1" ? "" : `${ip}/`}json/`);
-    if (!res.ok) {
-      return c.json<ApiError>({ error: `Upstream returned ${res.status}` }, 502);
-    }
-    const data = await res.json() as GeoResponse;
-    return c.json<GeoResponse>(data);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    return c.json<ApiError>({ error: message }, 502);
+  const res = await fetch(`https://ipapi.co/${ip === "unknown" || ip === "127.0.0.1" || ip === "::1" ? "" : `${ip}/`}json/`);
+  if (!res.ok) {
+    return c.json<ApiError>({ error: `Upstream returned ${res.status}` }, 502);
   }
+  const data = (await res.json()) as GeoResponse;
+  return c.json<GeoResponse>(data);
 }
