@@ -1,80 +1,50 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { motion, useScroll, useMotionValueEvent } from "motion/react";
 import { cn } from "@/lib/utils";
 import Logo from "@/components/Logo";
 import { siteConfig } from "@/config/site";
-import { useAppStore } from "@/stores/useAppStore";
 import { Container } from "@/components/shared/Container";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { MobileNavTrigger } from "@/components/layout/MobileNavTrigger";
-
-const BASE_NAV_ITEMS = [
-  { label: "Blog", to: "/blog" },
-  { label: "Community", to: "/contributions" },
-  { label: "Travel", to: "/travel" },
-  { label: "Photography", to: "/photography" },
-  { label: "About", to: "/about" },
-];
+import { useNavItems, useIsActiveRoute } from "@/data/navigation";
 
 export default function Header() {
-  const location = useLocation();
-  const debugMode = useAppStore((s) => s.config?.debugMode);
+  const NAV_ITEMS = useNavItems();
+  const isActive = useIsActiveRoute();
   const [scrolled, setScrolled] = useState(false);
   const { scrollY } = useScroll();
   const navRef = useRef<HTMLElement>(null);
   const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const [pillStyle, setPillStyle] = useState<{ left: number; width: number } | null>(null);
 
-  const NAV_ITEMS = useMemo(
-    () => debugMode ? [...BASE_NAV_ITEMS, { label: "Debug", to: "/debug" }] : BASE_NAV_ITEMS,
-    [debugMode],
-  );
-
   useMotionValueEvent(scrollY, "change", (latest) => {
     setScrolled(latest > 20);
   });
 
-  const isActive = (to: string) => {
-    if (to === "/blog")
-      return (
-        location.pathname === "/blog" ||
-        location.pathname.startsWith("/post/")
-      );
-    if (to === "/photography")
-      return location.pathname.startsWith("/photography");
-    if (to === "/contributions")
-      return location.pathname === "/contributions";
-    if (to === "/debug")
-      return location.pathname.startsWith("/debug");
-    return location.pathname === to;
-  };
-
   const activeIndex = NAV_ITEMS.findIndex((item) => isActive(item.to));
 
-  const measurePill = useCallback(() => {
-    if (activeIndex === -1 || !navRef.current) {
-      setPillStyle(null);
-      return;
-    }
-    const el = itemRefs.current[activeIndex];
-    if (!el || !navRef.current) return;
-    const navRect = navRef.current.getBoundingClientRect();
-    const elRect = el.getBoundingClientRect();
-    setPillStyle({
-      left: elRect.left - navRect.left,
-      width: elRect.width,
-    });
-  }, [activeIndex]);
-
   useEffect(() => {
-    measurePill();
-    // Re-measure after fonts load (can shift text widths)
-    document.fonts.ready.then(measurePill);
-    // Re-measure on resize
-    window.addEventListener("resize", measurePill);
-    return () => window.removeEventListener("resize", measurePill);
-  }, [measurePill]);
+    const measure = () => {
+      if (activeIndex === -1 || !navRef.current) {
+        setPillStyle(null);
+        return;
+      }
+      const el = itemRefs.current[activeIndex];
+      if (!el || !navRef.current) return;
+      const navRect = navRef.current.getBoundingClientRect();
+      const elRect = el.getBoundingClientRect();
+      setPillStyle({
+        left: elRect.left - navRect.left,
+        width: elRect.width,
+      });
+    };
+
+    requestAnimationFrame(measure);
+    document.fonts.ready.then(measure);
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [activeIndex]);
 
   return (
     <motion.header
@@ -83,35 +53,21 @@ export default function Header() {
       transition={{ duration: 0.3, ease: "easeOut" }}
       className={cn(
         "sticky top-0 z-50 w-full backdrop-blur-md transition-all duration-300",
-        scrolled
-          ? "bg-background/50 shadow-[0_1px_12px_rgba(0,0,0,0.04)] dark:shadow-[0_1px_12px_rgba(0,0,0,0.2)]"
-          : "bg-transparent",
+        scrolled ? "bg-background/50 shadow-[0_1px_12px_rgba(0,0,0,0.04)] dark:shadow-[0_1px_12px_rgba(0,0,0,0.2)]" : "bg-transparent",
       )}
     >
       <Container>
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link
-            to="/"
-            className="flex items-center gap-2.5 shrink-0 group"
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          >
-            <motion.div
-              whileHover={{ rotate: 12 }}
-              transition={{ type: "spring", stiffness: 300, damping: 15 }}
-            >
+          <Link to="/" className="flex items-center gap-2.5 shrink-0 group" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+            <motion.div whileHover={{ rotate: 12 }} transition={{ type: "spring", stiffness: 300, damping: 15 }}>
               <Logo size={32} className="flex-shrink-0" />
             </motion.div>
-            <span className="font-semibold text-lg tracking-tight group-hover:text-primary transition-colors duration-300">
-              {siteConfig.name.brand}
-            </span>
+            <span className="font-semibold text-lg tracking-tight group-hover:text-primary transition-colors duration-300">{siteConfig.name.brand}</span>
           </Link>
 
           {/* Desktop Nav — Segmented Control */}
-          <nav
-            ref={navRef}
-            className="hidden md:flex items-center gap-0.5 rounded-xl bg-muted/50 p-1 ring-1 ring-border/20 relative"
-          >
+          <nav ref={navRef} className="hidden md:flex items-center gap-0.5 rounded-xl bg-muted/50 p-1 ring-1 ring-border/20 relative">
             {/* Sliding pill */}
             {pillStyle && (
               <motion.span
@@ -128,12 +84,12 @@ export default function Header() {
                 <Link
                   key={item.to}
                   to={item.to}
-                  ref={(el) => { itemRefs.current[i] = el; }}
+                  ref={(el) => {
+                    itemRefs.current[i] = el;
+                  }}
                   className={cn(
                     "relative z-10 px-4 py-1.5 text-sm font-medium transition-colors rounded-lg",
-                    active
-                      ? "text-primary"
-                      : "text-muted-foreground hover:text-foreground",
+                    active ? "text-primary" : "text-muted-foreground hover:text-foreground",
                   )}
                 >
                   {item.label}

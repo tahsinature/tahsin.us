@@ -22,3 +22,24 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+
+examples:
+  - name: full object
+    request:
+      url: "{{backend_host}}/api/ops/config"
+      method: PUT
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "debugMode": true
+          }
+    response:
+      status: 200
+      statusText: OK
+      body:
+        type: text
+        data: ""

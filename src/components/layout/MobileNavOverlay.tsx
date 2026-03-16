@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
@@ -8,24 +8,13 @@ import { useAppStore } from "@/stores/useAppStore";
 import Logo from "@/components/Logo";
 import { siteConfig } from "@/config/site";
 import { getSocial } from "@/data/social-profiles";
-
-const BASE_NAV_ITEMS = [
-  { label: "Blog", href: "/blog" },
-  { label: "Community", href: "/contributions" },
-  { label: "Travel", href: "/travel" },
-  { label: "Photography", href: "/photography" },
-  { label: "About", href: "/about" },
-];
+import { useNavItems, useIsActiveRoute } from "@/data/navigation";
 
 export function MobileNavOverlay() {
   const open = useAppStore((s) => s.mobileNavOpen);
   const setOpen = useAppStore((s) => s.setMobileNavOpen);
-  const debugMode = useAppStore((s) => s.config?.debugMode);
-  const location = useLocation();
-
-  const navItems = debugMode
-    ? [...BASE_NAV_ITEMS, { label: "Debug", href: "/debug" }]
-    : BASE_NAV_ITEMS;
+  const navItems = useNavItems();
+  const isActive = useIsActiveRoute();
 
   useEffect(() => {
     if (open) {
@@ -49,14 +38,6 @@ export function MobileNavOverlay() {
 
   if (!open) return null;
 
-  const isActive = (href: string) => {
-    if (href === "/blog")
-      return (
-        location.pathname === "/blog" ||
-        location.pathname.startsWith("/post/")
-      );
-    return location.pathname.startsWith(href);
-  };
 
   return (
     <div
@@ -83,7 +64,7 @@ export function MobileNavOverlay() {
         <nav className="flex-1 flex flex-col justify-center -mt-12">
           {navItems.map((item, i) => (
             <motion.div
-              key={item.href}
+              key={item.to}
               initial={{ opacity: 0, x: -24 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{
@@ -93,11 +74,11 @@ export function MobileNavOverlay() {
               }}
             >
               <Link
-                to={item.href}
+                to={item.to}
                 onClick={() => setOpen(false)}
                 className={cn(
                   "group flex items-center justify-between py-4 border-b border-border/15 transition-colors",
-                  isActive(item.href)
+                  isActive(item.to)
                     ? "text-primary"
                     : "text-muted-foreground active:text-foreground",
                 )}
@@ -105,7 +86,7 @@ export function MobileNavOverlay() {
                 <span className="text-[2rem] sm:text-4xl font-semibold tracking-tight">
                   {item.label}
                 </span>
-                {isActive(item.href) && (
+                {isActive(item.to) && (
                   <span className="h-2 w-2 rounded-full bg-primary" />
                 )}
               </Link>
