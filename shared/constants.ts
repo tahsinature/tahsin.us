@@ -3,7 +3,7 @@
 export const NavTab = {
   Blog: "Blog",
   Community: "Community",
-  Travel: "Travel",
+  // Travel: "Travel",
   Photography: "Photography",
   About: "About",
   Debug: "Debug",

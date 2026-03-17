@@ -7,7 +7,7 @@ test-integration:
 	bun run test:script
 
 test-everything:
-	bun run test:unit && bun run test:script && bun run build
+	bun test:unit && bun run build
 
 dev:
 	bun run dev
