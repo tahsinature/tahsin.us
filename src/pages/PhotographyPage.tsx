@@ -128,7 +128,7 @@ export default function PhotographyPage() {
         <div className="flex items-center gap-2 mb-10">
           <motion.button
             onClick={() => setView("destinations")}
-            className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium border transition-all ${
+            className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded text-xs sm:text-sm font-medium border transition-all whitespace-nowrap ${
               view === "destinations"
                 ? "bg-primary/10 border-primary/40 text-primary"
                 : "bg-card border-border text-muted-foreground hover:text-foreground hover:border-primary/20"
@@ -136,12 +136,12 @@ export default function PhotographyPage() {
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
           >
-            <Globe size={15} />
+            <Globe size={14} className="sm:!size-[15px]" />
             By Destination
           </motion.button>
           <motion.button
             onClick={() => setView("featured")}
-            className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium border transition-all ${
+            className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded text-xs sm:text-sm font-medium border transition-all whitespace-nowrap ${
               view === "featured"
                 ? "bg-primary/10 border-primary/40 text-primary"
                 : "bg-card border-border text-muted-foreground hover:text-foreground hover:border-primary/20"
@@ -149,7 +149,7 @@ export default function PhotographyPage() {
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
           >
-            <Sparkles size={15} />
+            <Sparkles size={14} className="sm:!size-[15px]" />
             Best Shots
           </motion.button>
 
@@ -261,41 +261,42 @@ export default function PhotographyPage() {
                                       <path d="M 60 140 Q 160 20 260 140" stroke="currentColor" className="text-primary/15" strokeWidth="1.5" strokeDasharray="4 4" />
                                     </svg>
                                     <div className="absolute top-[28%] left-1/2 -translate-x-1/2">
-                                      <Plane size={20} className="text-primary/40 -rotate-45" />
+                                      <Plane size={16} className="sm:!size-5 text-primary/40 -rotate-45" />
                                     </div>
-                                    <div className="absolute inset-0 flex flex-col items-center justify-end pb-5 gap-1">
-                                      <span className="text-primary/50 text-[11px] font-medium tracking-widest uppercase">Can't wait!</span>
+                                    <div className="absolute inset-0 flex flex-col items-center justify-end pb-3 sm:pb-5 gap-1">
+                                      <span className="text-primary/50 text-[9px] sm:text-[11px] font-medium tracking-widest uppercase">Can't wait!</span>
                                     </div>
                                   </>
                                 ) : (
                                   <>
-                                    <div className="absolute inset-6 border border-muted-foreground/15 rounded-sm">
-                                      <div className="absolute -top-px -left-px w-3 h-3 border-t border-l border-muted-foreground/30 rounded-tl-sm" />
-                                      <div className="absolute -top-px -right-px w-3 h-3 border-t border-r border-muted-foreground/30 rounded-tr-sm" />
-                                      <div className="absolute -bottom-px -left-px w-3 h-3 border-b border-l border-muted-foreground/30 rounded-bl-sm" />
-                                      <div className="absolute -bottom-px -right-px w-3 h-3 border-b border-r border-muted-foreground/30 rounded-br-sm" />
-                                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-px bg-muted-foreground/15" />
-                                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-4 w-px bg-muted-foreground/15" />
+                                    <div className="absolute inset-3 sm:inset-6 border border-muted-foreground/15 rounded-sm">
+                                      <div className="absolute -top-px -left-px w-2 sm:w-3 h-2 sm:h-3 border-t border-l border-muted-foreground/30 rounded-tl-sm" />
+                                      <div className="absolute -top-px -right-px w-2 sm:w-3 h-2 sm:h-3 border-t border-r border-muted-foreground/30 rounded-tr-sm" />
+                                      <div className="absolute -bottom-px -left-px w-2 sm:w-3 h-2 sm:h-3 border-b border-l border-muted-foreground/30 rounded-bl-sm" />
+                                      <div className="absolute -bottom-px -right-px w-2 sm:w-3 h-2 sm:h-3 border-b border-r border-muted-foreground/30 rounded-br-sm" />
+                                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 sm:w-4 h-px bg-muted-foreground/15" />
+                                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-3 sm:h-4 w-px bg-muted-foreground/15" />
                                     </div>
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2.5">
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 sm:gap-2.5">
                                       <div className="relative">
-                                        <Camera size={24} className="text-muted-foreground/30" />
-                                        <div className="absolute -top-1 -right-1.5 w-2 h-2 rounded-full bg-primary/40 animate-pulse" />
+                                        <Camera size={18} className="sm:!size-6 text-muted-foreground/30" />
+                                        <div className="absolute -top-1 -right-1.5 w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-primary/40 animate-pulse" />
                                       </div>
-                                      <span className="text-muted-foreground/40 text-[11px] font-medium tracking-widest uppercase">Still in the camera</span>
+                                      <span className="text-muted-foreground/40 text-[8px] sm:text-[11px] font-medium tracking-widest uppercase">Still in the camera</span>
                                     </div>
                                   </>
                                 )}
                               </div>
-                              <div className="p-5 flex-1 flex flex-col">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <MapPin size={14} className={`flex-shrink-0 ${isUpcoming ? "text-primary/50" : "text-warm/50"}`} />
-                                  <h2 className={`text-lg font-semibold ${isUpcoming ? "text-foreground/70" : "text-foreground/60"}`}>{trip.country}</h2>
+                              <div className="p-2.5 sm:p-5 flex-1 flex flex-col">
+                                <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
+                                  <MapPin size={14} className={`flex-shrink-0 hidden sm:block ${isUpcoming ? "text-primary/50" : "text-warm/50"}`} />
+                                  <h2 className={`text-sm sm:text-lg font-semibold truncate ${isUpcoming ? "text-foreground/70" : "text-foreground/60"}`}>{trip.country}</h2>
                                 </div>
-                                {trip.description && <p className={`text-sm mb-3 line-clamp-2 flex-1 ${isUpcoming ? "text-muted-foreground/60" : "text-muted-foreground/50"}`}>{trip.description}</p>}
-                                {trip.date && (
-                                  <div className={`flex items-center gap-1.5 text-xs ${isUpcoming ? "text-primary/50" : "text-muted-foreground/50"}`}>
-                                    <Calendar size={12} />
+                                {trip.description && <p className={`text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2 flex-1 hidden sm:block ${isUpcoming ? "text-muted-foreground/60" : "text-muted-foreground/50"}`}>{trip.description}</p>}
+                                {SHOW_TRIP_DATE && trip.date && (
+                                  <div className={`flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs ${isUpcoming ? "text-primary/50" : "text-muted-foreground/50"}`}>
+                                    <Calendar size={10} className="sm:hidden" />
+                                    <Calendar size={12} className="hidden sm:block" />
                                     {trip.date}
                                   </div>
                                 )}
