@@ -1,11 +1,4 @@
-/**
- * CMS fetching logic.
- * Uses the markdown endpoint for single-call page retrieval.
- */
-import { Client } from "@notionhq/client";
-import config from "@server/config";
-
-export const cmsClient = new Client({ auth: config.cms.token });
+import client from "./client";
 
 export interface PageMarkdown {
   markdown: string;
@@ -14,7 +7,7 @@ export interface PageMarkdown {
 }
 
 export async function fetchPageMarkdown(pageId: string): Promise<PageMarkdown> {
-  const res = await cmsClient.pages.retrieveMarkdown({ page_id: pageId });
+  const res = await client.pages.retrieveMarkdown({ page_id: pageId });
   return {
     markdown: res.markdown,
     truncated: res.truncated,
@@ -36,7 +29,7 @@ export async function resolveFileBlocks(blockIds: string[]): Promise<ResolvedFil
   const results = await Promise.all(
     blockIds.map(async (blockId) => {
       try {
-        const block = (await cmsClient.blocks.retrieve({ block_id: blockId })) as Record<string, unknown>;
+        const block = (await client.blocks.retrieve({ block_id: blockId })) as Record<string, unknown>;
         const type = block.type as string;
         const data = block[type] as { type?: string; file?: { url: string }; external?: { url: string }; name?: string } | undefined;
         const url = data?.type === "file" ? data.file?.url : data?.external?.url;
