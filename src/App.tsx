@@ -10,13 +10,14 @@ import { MobileNavOverlay } from "@/components/layout/MobileNavOverlay";
 import MaintenancePage from "@/pages/MaintenancePage";
 import HomePage from "@/pages/HomePage";
 import NotFoundPage from "@/pages/NotFoundPage";
+import PageSkeleton from "@/components/PageSkeleton";
 
+const AboutPage = lazy(() => import("@/pages/AboutPage"));
 const BlogPage = lazy(() => import("@/pages/BlogPage"));
 const BlogPostPage = lazy(() => import("@/pages/BlogPostPage"));
+const ContributionsPage = lazy(() => import("@/pages/ContributionsPage"));
 const PhotographyPage = lazy(() => import("@/pages/PhotographyPage"));
 const TripGalleryPage = lazy(() => import("@/pages/TripGalleryPage"));
-const AboutPage = lazy(() => import("@/pages/AboutPage"));
-const ContributionsPage = lazy(() => import("@/pages/ContributionsPage"));
 const DebugPage = lazy(() => import("@/pages/DebugPage"));
 const PageView = lazy(() => import("@/pages/PageView"));
 
@@ -51,7 +52,7 @@ function App() {
           transition={{ duration: 0.3, ease: "easeInOut" }}
           className="flex-1 flex flex-col"
         >
-          <Suspense fallback={<div className="flex-1" />}>
+          <Suspense fallback={<PageSkeleton />}>
             <Routes location={location}>
               <Route path="/" element={<HomePage />} />
               <Route path="/about" element={<AboutPage />} />

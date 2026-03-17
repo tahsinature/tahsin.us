@@ -8,16 +8,6 @@ import { PAGE_PADDING } from "@/config/layout";
 
 const smooth = [0.25, 0.1, 0.25, 1] as const;
 
-function SkeletonLine({ width, height = "h-4", delay }: { width: string; height?: string; delay: number }) {
-  return (
-    <motion.div
-      className={`${height} ${width} rounded bg-muted/40`}
-      initial={{ opacity: 0, x: -12 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.4, delay, ease: smooth }}
-    />
-  );
-}
 
 export default function PageView({ pageId: propId, fetchUrl, title }: { pageId?: string; fetchUrl?: string; title?: string } = {}) {
   useDocumentTitle(title ?? "Page");
@@ -40,7 +30,7 @@ export default function PageView({ pageId: propId, fetchUrl, title }: { pageId?:
         case "error": return { markdown: null, loading: false, error: action.error };
       }
     },
-    { markdown: null, loading: false, error: null },
+    { markdown: null, loading: true, error: null },
   );
 
   const url = fetchUrl ?? (resolvedId ? `/api/cms/${resolvedId.trim().replace(/[^a-f0-9-]/gi, "")}` : null);
