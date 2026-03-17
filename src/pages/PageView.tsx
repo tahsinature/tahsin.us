@@ -72,7 +72,7 @@ export default function PageView({ pageId: propId, fetchUrl, title }: { pageId?:
         style={{ scaleX }}
       />
     )}
-    <div className={`max-w-6xl mx-auto ${PAGE_PADDING}`}>
+    <div className={`w-full max-w-6xl mx-auto ${PAGE_PADDING}`}>
       <AnimatePresence mode="wait">
         {error && !loading && (
           <motion.div
@@ -105,24 +105,46 @@ export default function PageView({ pageId: propId, fetchUrl, title }: { pageId?:
         {loading && (
           <motion.div
             key="skeleton"
-            className="space-y-4"
+            className="space-y-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.3, ease: smooth }}
           >
-            <SkeletonLine width="w-2/3" height="h-8" delay={0} />
-            <SkeletonLine width="w-full" delay={0.05} />
-            <SkeletonLine width="w-5/6" delay={0.1} />
-            <motion.div
-              className="h-48 w-full rounded-lg bg-muted/30"
-              initial={{ opacity: 0, scale: 0.97 }}
-              animate={{ opacity: [0.3, 0.6, 0.3] }}
-              transition={{ opacity: { duration: 2, repeat: Infinity, ease: "easeInOut" }, scale: { duration: 0.5, delay: 0.15, ease: smooth } }}
-            />
-            <SkeletonLine width="w-4/5" delay={0.2} />
-            <SkeletonLine width="w-full" delay={0.25} />
-            <SkeletonLine width="w-3/4" delay={0.3} />
+            {/* Hero section */}
+            <div className="rounded-lg border border-border overflow-hidden animate-pulse">
+              <div className="flex items-center gap-3 px-4 py-3">
+                <div className="h-4 w-4 rounded bg-muted" />
+                <div className="h-5 w-48 rounded bg-muted" />
+              </div>
+              <div className="h-44 bg-muted/60" />
+            </div>
+
+            {/* 3-column cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="rounded-lg border border-border overflow-hidden animate-pulse" style={{ animationDelay: `${i * 200}ms` }}>
+                  <div className="h-32 bg-muted/60" />
+                  <div className="p-3 space-y-2">
+                    <div className="h-4 w-3/5 rounded bg-muted" />
+                    <div className="h-3 w-4/5 rounded bg-muted/70" />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 2-column cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[0, 1].map((i) => (
+                <div key={i} className="rounded-lg border border-border overflow-hidden animate-pulse" style={{ animationDelay: `${400 + i * 200}ms` }}>
+                  <div className="h-28 bg-muted/60" />
+                  <div className="p-3 space-y-2">
+                    <div className="h-4 w-2/5 rounded bg-muted" />
+                    <div className="h-3 w-3/4 rounded bg-muted/70" />
+                  </div>
+                </div>
+              ))}
+            </div>
           </motion.div>
         )}
 
