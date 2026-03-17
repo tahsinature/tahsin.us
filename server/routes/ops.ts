@@ -5,7 +5,7 @@ import { lookupGeo } from "@server/lib/geo";
 import config from "@server/config";
 import { validateRequest } from "@server/lib/validation";
 import { updateAppConfigRequest } from "@shared/api";
-import type { HealthResponse, CacheBustResponse, AppConfig, ApiError } from "@shared/api";
+import type { NavTab, HealthResponse, CacheBustResponse, AppConfig, ApiError } from "@shared/api";
 
 /** Reject requests missing a valid OPS_SECRET bearer token */
 const requireOpsSecret = async (c: Context, next: Next) => {
@@ -52,8 +52,8 @@ opsRoutes.get("/ops/config", async (c) => {
   }
 
   const res: AppConfig = {
-    debugMode: config.frontend.debugMode,
     maintenanceMode: config.frontend.maintenanceMode,
+    activeTabs: config.frontend.activeTabs,
     geo,
   };
   return c.json(res);
@@ -62,11 +62,11 @@ opsRoutes.get("/ops/config", async (c) => {
 /** Update app config at runtime */
 opsRoutes.put("/ops/config", requireOpsSecret, async (c) => {
   const { body } = await validateRequest(c, updateAppConfigRequest);
-  if (body.debugMode !== undefined) config.frontend.debugMode = body.debugMode;
   if (body.maintenanceMode !== undefined) config.frontend.maintenanceMode = body.maintenanceMode;
+  if (body.activeTabs !== undefined) config.frontend.activeTabs = body.activeTabs as NavTab[];
   const res: AppConfig = {
-    debugMode: config.frontend.debugMode,
     maintenanceMode: config.frontend.maintenanceMode,
+    activeTabs: config.frontend.activeTabs,
     geo: null,
   };
   return c.json(res);

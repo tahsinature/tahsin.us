@@ -1,8 +1,9 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "motion/react";
-import { Suspense, lazy, useEffect } from "react";
+import { Suspense, lazy, useEffect, createElement } from "react";
 import { useAppStore } from "@/stores/useAppStore";
 import { usePhotographyStore } from "@/stores/usePhotographyStore";
+import { TAB_CONFIGS, useActiveTabs } from "@/data/navigation";
 import { runPrefetches } from "@/lib/prefetch";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -12,19 +13,13 @@ import HomePage from "@/pages/HomePage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import PageSkeleton from "@/components/PageSkeleton";
 
-const AboutPage = lazy(() => import("@/pages/AboutPage"));
-const BlogPage = lazy(() => import("@/pages/BlogPage"));
-const BlogPostPage = lazy(() => import("@/pages/BlogPostPage"));
-const ContributionsPage = lazy(() => import("@/pages/ContributionsPage"));
-const PhotographyPage = lazy(() => import("@/pages/PhotographyPage"));
-const TripGalleryPage = lazy(() => import("@/pages/TripGalleryPage"));
-const DebugPage = lazy(() => import("@/pages/DebugPage"));
 const PageView = lazy(() => import("@/pages/PageView"));
 
 function App() {
   const location = useLocation();
   const fetchTrips = usePhotographyStore((s) => s.fetchTrips);
   const appConfig = useAppStore((s) => s.config);
+  const activeTabs = useActiveTabs();
 
   useEffect(() => {
     runPrefetches();
@@ -34,6 +29,12 @@ function App() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
+
+  const configStatus = useAppStore((s) => s.configStatus);
+
+  if (configStatus !== "ready" && configStatus !== "error") {
+    return null;
+  }
 
   if (appConfig?.maintenanceMode) {
     return <MaintenancePage />;
@@ -55,14 +56,9 @@ function App() {
           <Suspense fallback={<PageSkeleton />}>
             <Routes location={location}>
               <Route path="/" element={<HomePage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/contributions" element={<ContributionsPage />} />
-              <Route path="/blog" element={<BlogPage />} />
-              <Route path="/post/:slug" element={<BlogPostPage />} />
-              <Route path="/travel" element={<PageView fetchUrl="/api/pages/travel" title="Travel" />} />
-              <Route path="/photography" element={<PhotographyPage />} />
-              <Route path="/photography/:slug" element={<TripGalleryPage />} />
-              {appConfig?.debugMode && <Route path="/debug" element={<DebugPage />} />}
+              {TAB_CONFIGS.filter((c) => (activeTabs as string[]).includes(c.tab)).flatMap((c) =>
+                c.routes.map((r) => <Route key={r.path} path={r.path} element={createElement(r.element, r.props)} />),
+              )}
               <Route path="/page/:pageId" element={<PageView />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>

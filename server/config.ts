@@ -1,4 +1,6 @@
 import zod from "zod";
+import { DEFAULT_ACTIVE_TABS } from "@shared/constants";
+import type { NavTab } from "@shared/constants";
 
 const processEnvSchema = zod.object({
   N_TOK: zod.string(),
@@ -15,11 +17,6 @@ const processEnvSchema = zod.object({
     .transform((val) => val === "true")
     .optional()
     .default(true),
-  FRONTEND_DEBUG_MODE: zod
-    .string()
-    .transform((val) => val === "true")
-    .optional()
-    .default(false),
   MAINTENANCE_MODE: zod
     .string()
     .transform((val) => val === "true")
@@ -52,8 +49,8 @@ const config = {
     url: env.PAM_URL,
   },
   frontend: {
-    debugMode: env.FRONTEND_DEBUG_MODE,
     maintenanceMode: env.MAINTENANCE_MODE,
+    activeTabs: [...DEFAULT_ACTIVE_TABS] as NavTab[],
   },
 };
 

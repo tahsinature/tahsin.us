@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { DEFAULT_ACTIVE_TABS } from "@shared/api";
 import type { AppConfig } from "@shared/api";
 
 type Theme = "dark" | "light";
@@ -19,6 +20,7 @@ interface AppState {
   configStatus: "idle" | "loading" | "ready" | "error";
   fetchConfig: () => Promise<void>;
   setConfig: (config: AppConfig) => void;
+
 }
 
 export const useAppStore = create<AppState>()(
@@ -54,7 +56,7 @@ export const useAppStore = create<AppState>()(
         } catch {
           // Fallback defaults if server is unreachable
           set({
-            config: { debugMode: false, maintenanceMode: false, geo: null },
+            config: { maintenanceMode: false, activeTabs: [...DEFAULT_ACTIVE_TABS], geo: null },
             configStatus: "error",
           });
         }

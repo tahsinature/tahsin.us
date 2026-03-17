@@ -1,5 +1,7 @@
 /** Shared response types — interfaces for API responses and data shapes. */
 
+import type { NavTab } from "./constants";
+
 // ── /api/ops/health ──
 
 export interface HealthResponse {
@@ -20,8 +22,8 @@ export interface AppConfigGeo {
 }
 
 export interface AppConfig {
-  debugMode: boolean;
   maintenanceMode: boolean;
+  activeTabs: NavTab[];
   geo: AppConfigGeo | null;
 }
 

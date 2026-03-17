@@ -6,7 +6,8 @@ import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { BlurFadeIn } from "@/components/MotionWrapper";
 import PhotoLightbox from "@/components/PhotoLightbox";
 import { usePhotographyStore } from "@/stores/usePhotographyStore";
-import type { HealthResponse, AppConfig, UpdateAppConfigBody } from "@shared/api";
+import { NAV_TABS, DEFAULT_ACTIVE_TABS } from "@shared/api";
+import type { NavTab, HealthResponse, AppConfig, UpdateAppConfigBody } from "@shared/api";
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -95,6 +96,45 @@ function CacheBustButton() {
   );
 }
 
+function TabToggle({ label }: { label: NavTab }) {
+  const activeTabs = useAppStore((s) => s.config?.activeTabs) ?? DEFAULT_ACTIVE_TABS;
+  const setConfig = useAppStore((s) => s.setConfig);
+  const enabled = activeTabs.includes(label);
+  const [saving, setSaving] = useState(false);
+
+  const toggle = async () => {
+    setSaving(true);
+    const next = enabled ? activeTabs.filter((t) => t !== label) : [...activeTabs, label];
+    try {
+      const res = await fetch("/api/ops/config", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ activeTabs: next }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const updated: AppConfig = await res.json();
+      setConfig(updated);
+    } catch {
+      // ignore
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-muted-foreground">{label}</span>
+      <button
+        onClick={toggle}
+        disabled={saving}
+        className={`relative w-10 h-5 rounded-full transition-colors cursor-pointer disabled:opacity-50 ${enabled ? "bg-primary" : "bg-muted-foreground/30"}`}
+      >
+        <span className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white transition-transform ${enabled ? "translate-x-5" : ""}`} />
+      </button>
+    </div>
+  );
+}
+
 export default function DebugPage() {
   useDocumentTitle("Debug");
 
@@ -131,6 +171,17 @@ export default function DebugPage() {
       </BlurFadeIn>
 
       <div className="space-y-4">
+        {/* ── Navigation Tabs ── */}
+        <BlurFadeIn delay={0.01}>
+          <Section title="Navigation Tabs">
+            <div className="space-y-3">
+              {NAV_TABS.map((tab) => (
+                <TabToggle key={tab} label={tab} />
+              ))}
+            </div>
+          </Section>
+        </BlurFadeIn>
+
         {/* ── Quick Links ── */}
         <BlurFadeIn delay={0.02}>
           <Section title="Pages">
@@ -168,7 +219,6 @@ export default function DebugPage() {
           <Section title="Server Config">
             {appConfig ? (
               <div className="space-y-3">
-                <ConfigToggle label="debugMode" field="debugMode" value={appConfig.debugMode} />
                 <ConfigToggle label="maintenanceMode" field="maintenanceMode" value={appConfig.maintenanceMode} />
                 {appConfig.geo && (
                   <div className="pt-2 border-t border-border/30 space-y-1">

@@ -1,6 +1,7 @@
 /** Shared request schemas — Zod schemas for API request validation. */
 
 import { z } from "zod";
+import { NAV_TABS } from "./constants";
 
 // ── Helper type: extract body type from a request schema ──
 
@@ -11,8 +12,8 @@ export type RequestBody<T extends z.ZodObject<{ body: z.ZodTypeAny }>> = z.infer
 export const updateAppConfigRequest = z.object({
   body: z
     .object({
-      debugMode: z.boolean().optional(),
       maintenanceMode: z.boolean().optional(),
+      activeTabs: z.array(z.enum(NAV_TABS as [string, ...string[]])).optional(),
     })
     .strict(),
 });
