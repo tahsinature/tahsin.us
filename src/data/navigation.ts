@@ -1,72 +1,39 @@
 import { lazy, type ComponentType } from "react";
 import { useLocation } from "react-router-dom";
 import { useAppStore } from "@/stores/useAppStore";
-import { NavTab, DEFAULT_ACTIVE_TABS } from "@shared/api";
+import { DEFAULT_ACTIVE_TABS, TAB_ROUTES } from "@shared/api";
 
 export interface NavItem {
   label: string;
   to: string;
 }
 
-export interface RouteEntry {
-  path: string;
-  element: ComponentType<{ fetchUrl?: string; title?: string }>;
-  props?: Record<string, string>;
-}
-
 export interface TabConfig {
-  tab: NavTab;
+  tab: string;
   navTo: string;
-  routes: RouteEntry[];
+  routes: { path: string; element: ComponentType<Record<string, string>>; props?: Record<string, string> }[];
 }
 
-const AboutPage = lazy(() => import("@/pages/AboutPage"));
-const BlogPage = lazy(() => import("@/pages/BlogPage"));
-const BlogPostPage = lazy(() => import("@/pages/BlogPostPage"));
-const ContributionsPage = lazy(() => import("@/pages/ContributionsPage"));
-const PhotographyPage = lazy(() => import("@/pages/PhotographyPage"));
-const TripGalleryPage = lazy(() => import("@/pages/TripGalleryPage"));
-const PageView = lazy(() => import("@/pages/PageView"));
-const DebugPage = lazy(() => import("@/pages/DebugPage"));
+const PAGE_COMPONENTS: Record<string, ComponentType<Record<string, string>>> = {
+  AboutPage: lazy(() => import("@/pages/AboutPage")),
+  BlogPage: lazy(() => import("@/pages/BlogPage")),
+  BlogPostPage: lazy(() => import("@/pages/BlogPostPage")),
+  ContributionsPage: lazy(() => import("@/pages/ContributionsPage")),
+  PhotographyPage: lazy(() => import("@/pages/PhotographyPage")),
+  TripGalleryPage: lazy(() => import("@/pages/TripGalleryPage")),
+  PageView: lazy(() => import("@/pages/PageView")),
+  DebugPage: lazy(() => import("@/pages/DebugPage")),
+};
 
-export const TAB_CONFIGS: TabConfig[] = [
-  {
-    tab: NavTab.Blog,
-    navTo: "/blog",
-    routes: [
-      { path: "/blog", element: BlogPage },
-      { path: "/post/:slug", element: BlogPostPage },
-    ],
-  },
-  {
-    tab: NavTab.Community,
-    navTo: "/contributions",
-    routes: [{ path: "/contributions", element: ContributionsPage }],
-  },
-  {
-    tab: NavTab.Travel,
-    navTo: "/travel",
-    routes: [{ path: "/travel", element: PageView, props: { fetchUrl: "/api/pages/travel", title: "Travel" } }],
-  },
-  {
-    tab: NavTab.Photography,
-    navTo: "/photography",
-    routes: [
-      { path: "/photography", element: PhotographyPage },
-      { path: "/photography/:slug", element: TripGalleryPage },
-    ],
-  },
-  {
-    tab: NavTab.About,
-    navTo: "/about",
-    routes: [{ path: "/about", element: AboutPage }],
-  },
-  {
-    tab: NavTab.Debug,
-    navTo: "/debug",
-    routes: [{ path: "/debug", element: DebugPage }],
-  },
-];
+export const TAB_CONFIGS: TabConfig[] = TAB_ROUTES.map((def) => ({
+  tab: def.tab,
+  navTo: def.navTo,
+  routes: def.routes.map((r) => ({
+    path: r.path,
+    element: PAGE_COMPONENTS[r.page],
+    props: r.props,
+  })),
+}));
 
 export const useActiveTabs = () => {
   return useAppStore((s) => s.config?.activeTabs) ?? DEFAULT_ACTIVE_TABS;

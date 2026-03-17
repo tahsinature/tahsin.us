@@ -1,5 +1,5 @@
 import zod from "zod";
-import { DEFAULT_ACTIVE_TABS } from "@shared/constants";
+import { DEFAULT_ACTIVE_TABS } from "@shared/config";
 import type { NavTab } from "@shared/constants";
 
 const processEnvSchema = zod.object({
