@@ -13,6 +13,8 @@ import { AnimatePresence } from "motion/react";
 
 type ViewMode = "destinations" | "featured";
 
+const SHOW_TRIP_DATE = false;
+
 /* ── Skeleton Loaders ── */
 
 function DestinationsSkeleton() {
@@ -155,12 +157,14 @@ export default function PhotographyPage() {
             <div className="ml-auto flex items-center border border-border rounded overflow-hidden">
               <button
                 onClick={() => setLayout("grid")}
+                title="Grid view"
                 className={`p-1.5 transition-colors ${layout === "grid" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}
               >
                 <LayoutGrid size={14} />
               </button>
               <button
                 onClick={() => setLayout("list")}
+                title="List view"
                 className={`p-1.5 transition-colors ${layout === "list" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}
               >
                 <List size={14} />
@@ -201,7 +205,7 @@ export default function PhotographyPage() {
             ) : status === "success" && trips.length === 0 ? (
               <p className="text-muted-foreground text-center py-16">No destinations yet.</p>
             ) : layout === "grid" ? (
-                <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" staggerDelay={0.08}>
+                <StaggerContainer className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6" staggerDelay={0.08}>
                   {sortedTrips.map((trip) => (
                     <StaggerItem key={trip.slug} variant="scale">
                       <motion.div whileHover="hover" className="h-full">
@@ -220,25 +224,26 @@ export default function PhotographyPage() {
                                   <PhotoImage src={trip.coverImage} alt={trip.country} className="w-full h-full object-cover" loading="lazy" aspectHint="16/9" />
                                 </motion.div>
                                 <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-transparent to-transparent" />
-                                <div className="absolute top-3 right-3 bg-background/70 backdrop-blur-sm text-muted-foreground text-xs px-2.5 py-1 rounded flex items-center gap-1.5 border border-border/50">
+                                <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-background/70 backdrop-blur-sm text-muted-foreground text-[10px] sm:text-xs px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded flex items-center gap-1 sm:gap-1.5 border border-border/50">
                                   <Image size={12} />
                                   {trip.photoCount}
                                 </div>
                               </div>
-                              <div className="p-4 flex flex-col gap-1.5">
-                                <div className="flex items-center gap-2 min-w-0">
-                                  <MapPin size={14} className="text-warm flex-shrink-0" />
-                                  <h2 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors whitespace-nowrap">{trip.country}</h2>
+                              <div className="p-2.5 sm:p-4 flex flex-col gap-1 sm:gap-1.5">
+                                <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                                  <MapPin size={14} className="text-warm flex-shrink-0 hidden sm:block" />
+                                  <h2 className="text-sm sm:text-lg font-semibold text-foreground group-hover:text-primary transition-colors truncate">{trip.country}</h2>
                                   {trip.description && (
-                                    <>
+                                    <span className="hidden sm:contents">
                                       <span className="text-muted-foreground/30">|</span>
                                       <MarqueeText text={trip.description} className="text-muted-foreground text-sm" />
-                                    </>
+                                    </span>
                                   )}
                                 </div>
-                                {trip.date && (
-                                  <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
-                                    <Calendar size={12} />
+                                {SHOW_TRIP_DATE && trip.date && (
+                                  <div className="flex items-center gap-1 sm:gap-1.5 text-muted-foreground text-[10px] sm:text-xs">
+                                    <Calendar size={10} className="sm:hidden" />
+                                    <Calendar size={12} className="hidden sm:block" />
                                     {trip.date}
                                   </div>
                                 )}
