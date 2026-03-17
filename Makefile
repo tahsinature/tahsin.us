@@ -1,7 +1,13 @@
-.PHONY: docker-build-run bundle-analyze upload-photos update-captions sync-bruno-env
+.PHONY: docker-build-run bundle-analyze upload-photos update-captions sync-bruno-env test test-unit test-integration test-everything
+
+test-unit:
+	bun run test:unit
+
+test-integration:
+	bun run test:script
 
 test-everything:
-	bun test && bun run build
+	bun run test:unit && bun run test:script && bun run build
 
 dev:
 	bun run dev

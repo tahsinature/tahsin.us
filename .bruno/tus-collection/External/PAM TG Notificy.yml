@@ -1,17 +1,18 @@
 info:
-  name: resolve-files
+  name: PAM TG Notificy
   type: http
-  seq: 7
+  seq: 1
 
 http:
   method: POST
-  url: "{{backend_host}}/api/notion/resolve-files"
-  headers:
-    - name: Content-Type
-      value: application/json
+  url: https://pam.tahsin.us/temp/notify
   body:
     type: json
-    data: ""
+    data: |-
+      {
+        "through": "telegram",
+        "content": "hey"
+      }
   auth: inherit
 
 settings:
