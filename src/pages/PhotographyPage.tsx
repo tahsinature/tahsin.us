@@ -19,7 +19,7 @@ const SHOW_TRIP_DATE = false;
 
 function DestinationsSkeleton() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
       {Array.from({ length: 6 }).map((_, i) => (
         <div key={i} className="bg-card border border-border rounded-md overflow-hidden animate-pulse">
           <div className="aspect-[16/9] bg-muted/30" />
@@ -111,7 +111,7 @@ export default function PhotographyPage() {
   const sortedTrips = [...trips].sort((a, b) => (a.photoCount === 0 ? 1 : 0) - (b.photoCount === 0 ? 1 : 0));
 
   return (
-    <main className={`max-w-7xl mx-auto ${PAGE_PADDING}`}>
+    <main className={`w-full max-w-7xl mx-auto ${PAGE_PADDING}`}>
       {/* Page Header */}
       <FadeIn>
         <div className="mb-8">
