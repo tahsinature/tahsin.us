@@ -9,10 +9,15 @@ import rehypeMdxImportMedia from "rehype-mdx-import-media";
 import path from "path";
 import { isShortLinkPath } from "./shared/short-links";
 import { injectShortLinkMetadata } from "./shared/short-link-metadata";
+import { injectFaviconLinks } from "./shared/favicons";
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
+    {
+      name: "configured-favicon",
+      transformIndexHtml: injectFaviconLinks,
+    },
     {
       name: "short-link-metadata",
       transformIndexHtml(html, context) {

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Tahsin — Favicon study</title>
+<link id="tab-icon" rel="icon" type="image/png" href="assets/01-32.png">
+<style>
+:root{color-scheme:dark;--bg:#101315;--panel:#191e21;--ink:#e9ece9;--muted:#a0aaa9;--line:#30373a;--accent:#e9c46a;font-family:Arial,sans-serif}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink)}body.light{color-scheme:light;--bg:#f3f0e8;--panel:#fffdf7;--ink:#202627;--muted:#606b68;--line:#d4d8ce;--accent:#806113}main{max-width:1420px;margin:auto;padding:54px 28px 110px}.eyebrow{font:11px monospace;letter-spacing:.2em;color:var(--accent);text-transform:uppercase}h1{font-family:Georgia,serif;font-size:clamp(42px,6vw,76px);font-weight:400;letter-spacing:-.045em;margin:20px 0}header p{color:var(--muted);max-width:650px;line-height:1.7;margin:0}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:32px 0;padding:18px 0;border-block:1px solid var(--line)}.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}button{font:inherit;font-size:12px;padding:10px 14px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--ink);cursor:pointer}button:hover{border-color:var(--accent)}button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--bg)}.count{font:11px monospace;color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:20px}.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}.card.selected{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}.card[hidden]{display:none}.card-head{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;font:11px monospace;color:var(--muted)}.badge{font:9px monospace;color:var(--accent)}.hero{display:grid;place-items:center;padding:14px 20px 24px}.hero img{width:152px;height:152px;border-radius:10px}.card h2{font-size:15px;font-weight:500;margin:0 18px 16px}.samples{display:grid;grid-template-columns:1fr 1fr;margin:0 16px;border:1px solid var(--line);border-radius:5px;overflow:hidden}.sample{padding:12px;display:flex;align-items:center;justify-content:center;gap:14px}.sample.dark{background:#161b22;color:#dce2e9}.sample.light{background:#f6f4ee;color:#343b40}.sample img{object-fit:contain;flex-shrink:0}.sample span{font:9px monospace;opacity:.65}.card-actions{display:flex;gap:8px;padding:16px}.card-actions button{flex:1;padding-inline:8px;font-size:11px}.shortlist{position:fixed;bottom:0;left:0;right:0;background:var(--panel);border-top:1px solid var(--line);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 -8px 24px #0002}.shortlist p{font-size:12px;margin:0;line-height:1.6;max-width:75%}.shortlist strong{color:var(--accent);font-weight:500}#notice{color:var(--muted);font:11px monospace;margin-left:12px}.empty{color:var(--muted);padding:40px;text-align:center;grid-column:1/-1}a{color:inherit}.note{margin-top:28px;font-size:12px;color:var(--muted);line-height:1.7}@media(max-width:560px){main{padding:28px 16px 130px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.hero{padding:8px 8px 18px}.hero img{width:112px;height:112px}.card h2{font-size:12px;margin-inline:12px}.card-head{padding:12px}.samples{margin:0 8px}.sample{padding:9px;gap:7px}.sample span{display:none}.card-actions{padding:10px 8px;gap:5px}.card-actions button{font-size:10px;padding:9px 4px}.shortlist{padding:12px 16px}.shortlist p{max-width:65%}}@media(prefers-reduced-motion:no-preference){button,.card{transition:border-color .15s,background .15s}}
+</style>
+</head>
+<body>
+<main>
+<header><div class="eyebrow">Tahsin · Identity exploration</div><h1>A small mark.<br>A lot of character.</h1><p>Your nine shortlisted designs. Interlocked MT is currently selected. Compare the silhouette, check it at real tab size, and shortlist the ones that feel like you.</p></header>
+<div class="toolbar"><span class="count" id="count">Loading designs…</span><div class="actions"><button id="filter" aria-pressed="false">Shortlist only</button><button id="theme">Light background</button></div></div>
+<section id="designs" class="grid" aria-label="Favicon designs"></section>
+<p class="note">Each card shows 16px and 32px samples on dark and light backgrounds. “Try in tab” changes only this page’s tab icon. Tell me your chosen number when you’re ready; your website’s current favicon stays in place.</p>
+<noscript><p>Enable JavaScript to load the comparison gallery.</p></noscript>
+</main>
+<div class="shortlist"><p id="selection" aria-live="polite">Your shortlist is empty.</p><div class="actions"><button id="copy">Copy shortlist</button><span id="notice" role="status"></span></div></div>
+<script>
+const selected=new Set((location.hash.match(/^#picks=([\d,]+)$/)?.[1]??'').split(',').filter(Boolean).map(Number));
+let designs=[];
+let showSelected=false;
+const grid=document.querySelector('#designs');
+function number(id){return String(id).padStart(2,'0')}
+function update(){
+ document.querySelectorAll('.card').forEach(card=>{const id=Number(card.dataset.id);card.classList.toggle('selected',selected.has(id));card.hidden=showSelected&&!selected.has(id);card.querySelector('[data-select]').setAttribute('aria-pressed',String(selected.has(id)));card.querySelector('[data-select]').textContent=selected.has(id)?'Shortlisted ✓':'Shortlist'});
+ const picks=[...selected].sort((a,b)=>a-b);
+ document.querySelector('#selection').textContent=picks.length?'Your shortlist: '+picks.map(id=>'#'+number(id)+' '+designs.find(d=>d.id===id)?.name).join(' · '):'Your shortlist is empty.';
+ document.querySelector('#count').textContent=designs.length+' saved designs · '+picks.length+' shortlisted';
+ history.replaceState(null,'',location.pathname+location.search+(picks.length?'#picks='+picks.join(','):''));
+ grid.querySelector('.empty')?.remove();
+ if(showSelected&&!picks.length){const p=document.createElement('p');p.className='empty';p.textContent='Shortlist a few designs to compare them here.';grid.append(p)}
+}
+fetch('designs.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error();return r.json()}).then(items=>{
+ designs=items;
+ for(const design of designs){
+  const n=number(design.id),card=document.createElement('article');card.className='card';card.dataset.id=design.id;
+  card.innerHTML=`<div class="card-head"><span>#${n}</span>${design.current?'<span class="badge">CURRENT</span>':''}</div><div class="hero"><img src="assets/${n}.png" width="152" height="152" alt="${design.name} favicon design" loading="lazy"></div><h2>${design.name}</h2><div class="samples"><div class="sample dark"><img src="assets/${n}-16.png" width="16" height="16" alt="16 pixel preview"><img src="assets/${n}-32.png" width="32" height="32" alt="32 pixel preview"></div><div class="sample light"><img src="assets/${n}-16.png" width="16" height="16" alt="16 pixel preview"><img src="assets/${n}-32.png" width="32" height="32" alt="32 pixel preview"></div></div><div class="card-actions"><button data-preview>Try in tab</button><button data-select aria-pressed="false">Shortlist</button></div>`;
+  card.querySelector('[data-preview]').addEventListener('click',()=>{document.querySelector('#tab-icon').href=`assets/${n}-32.png`;document.title=`#${n} ${design.name} — Tahsin`;document.querySelector('#notice').textContent='Tab preview: #'+n});
+  card.querySelector('[data-select]').addEventListener('click',()=>{selected.has(design.id)?selected.delete(design.id):selected.add(design.id);update()});
+  grid.append(card);
+ }
+ for(const id of selected){if(!designs.some(d=>d.id===id))selected.delete(id)}
+ update();
+}).catch(()=>{document.querySelector('#count').textContent='Could not load designs. Please refresh.'});
+document.querySelector('#filter').addEventListener('click',e=>{showSelected=!showSelected;e.currentTarget.setAttribute('aria-pressed',String(showSelected));update()});
+document.querySelector('#theme').addEventListener('click',e=>{document.body.classList.toggle('light');e.currentTarget.textContent=document.body.classList.contains('light')?'Dark background':'Light background'});
+document.querySelector('#copy').addEventListener('click',async()=>{const text=document.querySelector('#selection').textContent;try{await navigator.clipboard.writeText(text);document.querySelector('#notice').textContent='Copied'}catch{document.querySelector('#notice').textContent='Select and copy the shortlist text'}});
+</script>
+</body>
+</html>
