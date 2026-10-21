@@ -15,7 +15,7 @@ import BookshelfIllustration from "@/components/about/BookshelfIllustration";
 import WorkspaceIllustration from "@/components/about/WorkspaceIllustration";
 import LanguagesIllustration from "@/components/about/LanguagesIllustration";
 import SuitcaseIllustration from "@/components/about/SuitcaseIllustration";
-import MapCard from "@/components/about/MapCard";
+import LocationCard from "@/components/about/LocationCard";
 import { workExperiences, skills } from "@/data/about";
 import { siteConfig } from "@/config/site";
 import { getSocial } from "@/data/social-profiles";
@@ -80,10 +80,10 @@ export default function AboutPage() {
       <section className={`max-w-5xl mx-auto ${PAGE_PADDING}`}>
         <StaggerContainer className="columns-1 sm:columns-2 md:columns-3 gap-4 space-y-4" staggerDelay={0.07}>
 
-          {/* Card: Interactive Map — full width */}
+          {/* Card: Home base */}
           <StaggerItem variant="scale" className="break-inside-avoid">
             <BentoCard className="relative overflow-hidden !p-0">
-              <MapCard />
+              <LocationCard />
             </BentoCard>
           </StaggerItem>
 

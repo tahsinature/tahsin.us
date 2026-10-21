@@ -3,6 +3,31 @@ import type { ShortLinkTheme } from "@shared/short-links";
 
 type IconProps = SVGProps<SVGSVGElement>;
 
+export function LocationMapIllustration(props: IconProps) {
+  return (
+    <svg viewBox="0 0 360 200" fill="none" aria-hidden="true" {...props}>
+      <g stroke="currentColor" strokeWidth="1" opacity=".15">
+        <path d="M-20 27L380 120M-20 64L380 157M-20 101L380 194M-20 138L380 231" />
+        <path d="M35-25L-15 225M86-25L36 225M137-25L87 225M188-25L138 225M239-25L189 225M290-25L240 225M341-25L291 225M392-25L342 225" />
+      </g>
+      <g fill="currentColor" opacity=".06">
+        <path d="M96 49L125 56L121 78L91 71Z" />
+        <path d="M247 82L279 89L274 114L242 107Z" />
+        <path d="M151 100L184 108L178 135L145 127Z" />
+        <path d="M297 58L331 66L326 90L292 82Z" />
+      </g>
+      <path d="M-20 140C30 138 48 96 88 106S144 162 180 142S198 66 240 59S289 104 313 74S340 25 380 32" stroke="currentColor" strokeWidth="13" opacity=".12" strokeLinecap="round" />
+      <path d="M-20 140C30 138 48 96 88 106S144 162 180 142S198 66 240 59S289 104 313 74S340 25 380 32" stroke="currentColor" strokeWidth="1" opacity=".3" />
+      <path d="M65 165C110 169 135 69 222 77" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 5" opacity=".5" strokeLinecap="round" />
+      <circle cx="222" cy="77" r="36" stroke="currentColor" opacity=".09" />
+      <circle cx="222" cy="77" r="24" stroke="currentColor" opacity=".17" />
+      <circle cx="222" cy="77" r="12" fill="currentColor" opacity=".1" />
+      <path d="M30 26V40M23 33H37" stroke="currentColor" opacity=".4" />
+      <path d="M318 149V163M311 156H325" stroke="currentColor" opacity=".3" />
+    </svg>
+  );
+}
+
 export const SunIcon = (props: IconProps) => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <circle cx="12" cy="12" r="4" />
