@@ -12,25 +12,31 @@ import MaintenancePage from "@/pages/MaintenancePage";
 import HomePage from "@/pages/HomePage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import PageSkeleton from "@/components/PageSkeleton";
+import ShortLinkPage from "@/pages/ShortLinkPage";
+import { isShortLinkPath } from "@shared/short-links";
 
 const PageView = lazy(() => import("@/pages/PageView"));
 
 function App() {
   const location = useLocation();
+  const isShortLink = isShortLinkPath(location.pathname);
   const fetchTrips = usePhotographyStore((s) => s.fetchTrips);
   const appConfig = useAppStore((s) => s.config);
   const activeTabs = useActiveTabs();
 
   useEffect(() => {
+    if (isShortLink) return;
     runPrefetches();
     fetchTrips();
-  }, [fetchTrips]);
+  }, [fetchTrips, isShortLink]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
   const configStatus = useAppStore((s) => s.configStatus);
+
+  if (isShortLink) return <ShortLinkPage />;
 
   if (configStatus !== "ready" && configStatus !== "error") {
     return null;

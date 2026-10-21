@@ -3,6 +3,47 @@
 @import "shadcn/tailwind.css";
 @plugin "@tailwindcss/typography";
 
+/* Short links have a quiet, independent identity, in both site color modes. */
+.short-link-page {
+  --short-accent: #76c8b5;
+  --short-surface: #172b2b;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  background: var(--background);
+  color: var(--foreground);
+}
+.short-link-page[data-theme="meeting"] {
+  --short-accent: #99b8f6;
+  --short-surface: #1d293f;
+}
+.light .short-link-page {
+  --short-accent: #306e61;
+  --short-surface: #d6e3dc;
+}
+.light .short-link-page[data-theme="meeting"] {
+  --short-accent: #42669a;
+  --short-surface: #d9e0ec;
+}
+.short-link-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 24px 72px;
+  text-align: center;
+}
+.short-link-illustration { width: min(300px, 75vw); color: var(--short-accent); margin-bottom: 24px; }
+.short-link-orbit { stroke: var(--short-accent); stroke-opacity: .16; }
+.short-link-illustration-fill { fill: var(--short-surface); }
+.short-link-status { fill: var(--background); stroke: var(--short-accent); stroke-width: 2; }
+.short-link-eyebrow { color: var(--short-accent); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; font-weight: 500; }
+.short-link-main h1 { max-width: 650px; margin: 18px 0; font-size: clamp(30px, 4.5vw, 48px); line-height: 1.14; letter-spacing: -.035em; font-weight: 500; text-wrap: balance; }
+.short-link-description { max-width: 440px; color: var(--muted-foreground); font-size: 16px; line-height: 1.75; text-wrap: pretty; }
+.short-link-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 30px; }
+.short-link-footer { padding: 24px; text-align: center; font-size: 11px; color: var(--muted-foreground); }
+
 /* Wotfard Font Faces */
 @font-face {
   font-family: "Wotfard";

@@ -7,6 +7,7 @@ import { photographRoutes } from "@server/routes/photographs";
 import { opsRoutes } from "@server/routes/ops";
 import { registerErrorHandler } from "@server/lib/validation";
 import config from "@server/config";
+import { createShortLinkRoutes } from "@server/routes/short-links";
 
 const app = new Hono();
 registerErrorHandler(app);
@@ -18,6 +19,10 @@ app.route("/api", cmsRoutes);
 app.route("/api", imageProxyRoutes);
 app.route("/api", photographRoutes);
 app.route("/api", opsRoutes);
+
+// Short-link landing pages need metadata in the original HTML response.
+const indexHtml = Bun.file("./dist/index.html");
+app.route("/", createShortLinkRoutes(() => indexHtml.text()));
 
 // Static assets with long-term caching (hashed filenames)
 app.use(
