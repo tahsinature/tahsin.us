@@ -36,7 +36,7 @@ function App() {
 
   const configStatus = useAppStore((s) => s.configStatus);
 
-  if (isShortLink) return <ShortLinkPage />;
+  if (isShortLink) return <ShortLinkPage key={location.pathname + location.search} />;
 
   if (configStatus !== "ready" && configStatus !== "error") {
     return null;

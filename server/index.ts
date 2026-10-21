@@ -8,6 +8,7 @@ import { opsRoutes } from "@server/routes/ops";
 import { registerErrorHandler } from "@server/lib/validation";
 import config from "@server/config";
 import { createShortLinkRoutes } from "@server/routes/short-links";
+import { createShortLinkResolutionRoutes } from "@server/routes/short-link-resolution";
 
 const app = new Hono();
 registerErrorHandler(app);
@@ -19,6 +20,7 @@ app.route("/api", cmsRoutes);
 app.route("/api", imageProxyRoutes);
 app.route("/api", photographRoutes);
 app.route("/api", opsRoutes);
+app.route("/api", createShortLinkResolutionRoutes());
 
 // Short-link landing pages need metadata in the original HTML response.
 const indexHtml = Bun.file("./dist/index.html");

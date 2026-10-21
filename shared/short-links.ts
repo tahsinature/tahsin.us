@@ -21,7 +21,17 @@ export type ShortLinkOverride = Partial<Omit<ShortLinkContent, "preview">> & {
 export const shortLinkConfig = {
   origin: "https://tahsin.us",
   shortOrigin: "https://url.tahsin.us",
+  /** "portal" retries on the current host; "short-link" visits Short.io directly. */
+  retryMode: "portal" as "portal" | "short-link",
   siteName: "Shared links",
+  handoff: {
+    durationMs: 5000,
+    label: "A little closer",
+    title: "Good things are connected.",
+    description: "Finding the next stop on your journey.",
+    readyTitle: "You’re connected.",
+    readyDescription: "Your next stop is ready. Taking you there now.",
+  },
   themes: {
     general: {
       theme: "general",
@@ -79,6 +89,12 @@ export function getShortLinkRetryUrl(pathname: string, search = ""): string | nu
   if (segments.some((segment) => segment === "." || segment === "..")) return null;
   const path = segments.map(encodeURIComponent).join("/");
   return `${shortLinkConfig.shortOrigin}/${path}`;
+}
+
+export function getShortLinkRetryHref(pathname: string, search = ""): string | null {
+  const originalUrl = getShortLinkRetryUrl(pathname, search);
+  if (!originalUrl) return null;
+  return shortLinkConfig.retryMode === "portal" ? `${pathname}${search}` : originalUrl;
 }
 
 export function resolveShortLink(pathname: string, search = ""): ShortLinkContent {

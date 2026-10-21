@@ -1,9 +1,24 @@
 import { describe, expect, test } from "bun:test";
-import { getShortLinkRetryUrl, resolveShortLink, shortLinkConfig, isShortLinkPath } from "@shared/short-links";
+import { getShortLinkRetryHref, getShortLinkRetryUrl, resolveShortLink, shortLinkConfig, isShortLinkPath } from "@shared/short-links";
 import { injectShortLinkMetadata } from "@shared/short-link-metadata";
 import { createShortLinkRoutes } from "@server/routes/short-links";
 
 describe("short link fallback", () => {
+  test("retry mode can stay on the current host or open the original short link", () => {
+    const previousMode = shortLinkConfig.retryMode;
+    try {
+      shortLinkConfig.retryMode = "portal";
+      expect(getShortLinkRetryHref("/short/Team-Zoom")).toBe("/short/Team-Zoom");
+      expect(getShortLinkRetryHref("/short/404", "?slug=Team-Zoom")).toBe("/short/404?slug=Team-Zoom");
+      expect(getShortLinkRetryHref("/short/404")).toBeNull();
+      shortLinkConfig.retryMode = "short-link";
+      expect(getShortLinkRetryHref("/short/Team-Zoom")).toBe("https://url.tahsin.us/Team-Zoom");
+      expect(getShortLinkRetryHref("/short/404", "?slug=Team-Zoom")).toBe("https://url.tahsin.us/Team-Zoom");
+      expect(getShortLinkRetryHref("/short/404")).toBeNull();
+    } finally {
+      shortLinkConfig.retryMode = previousMode;
+    }
+  });
   test("retries the original short domain, preserving case and encoding slug characters", () => {
     expect(getShortLinkRetryUrl("/short/Team-Zoom")).toBe("https://url.tahsin.us/Team-Zoom");
     expect(getShortLinkRetryUrl("/short/team/Zoom")).toBe("https://url.tahsin.us/team/Zoom");

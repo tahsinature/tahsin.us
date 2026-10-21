@@ -4,6 +4,25 @@
 Open Graph / Twitter metadata. Ordinary invalid routes keep the existing 404.
 Fallbacks describe unavailable access without promising a future meeting.
 
+Visitors can share `https://tahsin.us/short/<slug>` directly. The browser shows a
+Three.js portal while the server checks the corresponding Short.io link. After
+about 5 seconds, an available link opens its destination automatically; a
+missing link settles into the themed fallback. A temporary lookup failure gets
+its own message and a retry link. `/short` and
+the generic `/short/404` skip the lookup because they have no original slug.
+
+The lookup uses a four-second timeout and manual HEAD requests only to the
+configured short domain. It follows up to five aliases on that domain, stops
+before visiting the final meeting URL, and rejects redirects into this app’s
+`/short` routes to avoid loops. Protected/cloaked links serving HTTP 200 open the
+original short URL so their own access screen can run. Results are not cached;
+a newly configured destination is available on the next visit.
+
+The original HTML still includes the configured sharing metadata. Navigation
+runs in the browser, so crawlers do not need to execute the lookup to read the
+title, description, or thumbnail. Actual WhatsApp previews still need testing
+after deployment.
+
 ## Configuration
 
 Edit `shared/short-links.ts`. The page and server use the same resolver:
@@ -40,12 +59,29 @@ made absolute using it. Two 1200×630 PNG designs are included in
 PNG/JPEG URL. A configuration change requires rebuilding and redeploying the
 app. No admin editor or Short.io account changes are included.
 
+`handoff` configures the transition wording and `durationMs` (5000 by default).
+The route line fills once over that same duration; a quick successful lookup
+does not complete the line early. Reduced motion shows a static filled line.
+Three.js loads only for the handoff, renders at a capped pixel ratio/frame rate,
+and releases its resources when the page leaves. Reduced motion uses a static
+portal without loading Three.js; unsupported WebGL also has a static fallback.
+
 ## Short.io setup
 
 The short domain is `https://url.tahsin.us` (`shortOrigin` in the configuration).
-“Try again” opens that domain with the original slug, without the `/short`
-prefix: `/short/Team-Zoom` retries `https://url.tahsin.us/Team-Zoom`.
-Capitalization is preserved. Fallback query parameters are not forwarded.
+`retryMode` controls “Try again”:
+
+- `"portal"` (default): reloads the current `/short/...` path on the current
+  host, preserving its query string, replaying the portal and checking the link
+  again. Local debugging stays on localhost instead of visiting production.
+- `"short-link"`: opens `shortOrigin` with the original slug, without the
+  `/short` prefix. `/short/Team-Zoom` retries
+  `https://url.tahsin.us/Team-Zoom`. Capitalization is preserved; fallback query
+  parameters are not forwarded.
+
+The backend lookup always uses `shortOrigin` in either mode. Keep it pointing
+at the real short-link service, or a dedicated staging short domain. `origin`
+is the public website address used for preview metadata, not the retry host.
 The retry link is hidden when no original slug is available, including the
 generic `/short/404`. There is no automatic retry or redirect loop.
 
@@ -55,9 +91,10 @@ destination, then replace its destination with the real meeting URL when ready.
 A missing-link fallback fixed at `https://tahsin.us/short/404` cannot reveal the
 original short slug to this app. It will show the general fallback. To select a
 theme or exact override, the incoming URL must carry the slug, either as
-`/short/project-zoom` or `/short/404?slug=project-zoom`. Confirm the forwarding
-capabilities in your Short.io setup; the app does not assume that the missing
-path is automatically forwarded. Do not infer the slug from the referrer.
+`/short/project-zoom` or `/short/404?slug=project-zoom`. Set Short.io’s Page not
+found redirect to `https://tahsin.us/short/$1` to forward the missing path.
+If a wildcard `*` link overrides that setting, update its destination too.
+Do not infer the slug from the referrer.
 
 Short.io also supports a wildcard `*` short link that replaces the basic
 non-existing-link redirect and allows regular link features:
@@ -69,7 +106,7 @@ https://docs.short.io/articles/features/features/how-to-set-up-social-media-prev
 
 ## Verification
 
-Run `bun run build`, `bun test server/__tests__/short-links.test.ts`, and
+Run `bun run build`, `bun run test:unit`, and
 `bun run lint`. Vite development and the production Hono server both insert
 metadata into the initial HTML. `vite preview` alone uses the static build and
 does not run the production metadata route; use `bun server/index.ts` to test it.
