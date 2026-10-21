@@ -20,7 +20,7 @@ export function getShortLinkMetadata(pathname: string, search = "") {
       { property: "og:url", content: url.href },
       { property: "og:image", content: image },
       { property: "og:image:alt", content: preview.imageAlt },
-      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: preview.title },
       { name: "twitter:description", content: preview.description },
       { name: "twitter:image", content: image },

@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { getShortLinkRetryHref, getShortLinkRetryUrl, resolveShortLink, shortLinkConfig, isShortLinkPath } from "@shared/short-links";
 import { injectShortLinkMetadata } from "@shared/short-link-metadata";
 import { createShortLinkRoutes } from "@server/routes/short-links";
+import { getFaviconAssets } from "@shared/favicons";
 
 describe("short link fallback", () => {
   test("retry mode can stay on the current host or open the original short link", () => {
@@ -70,12 +71,18 @@ describe("short link fallback", () => {
     expect(response.headers.get("cache-control")).toBe("no-cache");
     expect(response.headers.get("x-robots-tag")).toBe("noindex, nofollow");
     expect(html).toContain('<title>Meeting details</title>');
-    expect(html).toContain('property="og:image" content="https://tahsin.us/short-link-previews/meeting.png"');
-    expect(html).toContain('name="twitter:card" content="summary_large_image"');
+    const previewImage = `https://tahsin.us${getFaviconAssets().png}`;
+    expect(html).toContain(`property="og:image" content="${previewImage}"`);
+    expect(html).toContain(`name="twitter:image" content="${previewImage}"`);
+    expect(html).toContain('name="twitter:card" content="summary"');
     expect(html).toContain('https://tahsin.us/short/404?slug=team-zoom');
     expect(html).not.toContain("Personal bio");
     expect(html).not.toContain("utm_source");
-    expect((await app.request("http://localhost/short")).status).toBe(200);
+    const generalResponse = await app.request("http://localhost/short");
+    expect(generalResponse.status).toBe(200);
+    const generalHtml = await generalResponse.text();
+    expect(generalHtml).toContain(`property="og:image" content="${previewImage}"`);
+    expect(generalHtml).toContain('name="twitter:card" content="summary"');
     expect((await app.request("http://localhost/shorter")).status).toBe(404);
     expect((await app.request("http://localhost/blog")).status).toBe(404);
   });

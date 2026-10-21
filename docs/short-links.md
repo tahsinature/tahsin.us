@@ -54,8 +54,10 @@ Unspecified fields inherit from the selected theme. These settings are public;
 do not put meeting passwords, private join URLs, or secrets here.
 
 Set `origin` to the publicly accessible website origin. Preview image URLs are
-made absolute using it. Two 1200×630 PNG designs are included in
-`public/short-link-previews/`. Replace them or point any theme/link at a public
+made absolute using it. Both themes reuse the square logo selected in
+`shared/favicons.ts`, with a Twitter summary card for a compact preview.
+The 1200×630 PNG designs in `public/short-link-previews/` remain available
+as optional per-link images. You can also point any theme/link at a public
 PNG/JPEG URL. A configuration change requires rebuilding and redeploying the
 app. No admin editor or Short.io account changes are included.
 

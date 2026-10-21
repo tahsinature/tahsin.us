@@ -1,3 +1,5 @@
+import { getFaviconAssets } from "./favicons";
+
 export type ShortLinkTheme = "general" | "meeting";
 
 export interface ShortLinkContent {
@@ -41,8 +43,8 @@ export const shortLinkConfig = {
       preview: {
         title: "Shared link",
         description: "Open this link for the latest destination and updates.",
-        image: "/short-link-previews/general.png",
-        imageAlt: "Shared link — a simple chain illustration",
+        image: getFaviconAssets().png,
+        imageAlt: "Tahsin logo",
       },
     },
     meeting: {
@@ -53,8 +55,8 @@ export const shortLinkConfig = {
       preview: {
         title: "Meeting details",
         description: "Open this link for meeting access and updates.",
-        image: "/short-link-previews/meeting.png",
-        imageAlt: "Meeting details — a simple video camera illustration",
+        image: getFaviconAssets().png,
+        imageAlt: "Tahsin logo",
       },
     },
   } satisfies Record<ShortLinkTheme, ShortLinkContent>,
