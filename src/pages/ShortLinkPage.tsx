@@ -2,7 +2,7 @@ import { useLocation } from "react-router-dom";
 import { RotateCw } from "lucide-react";
 import { getShortLinkRetryUrl, resolveShortLink } from "@shared/short-links";
 import { useShortLinkMetadata } from "@/hooks/useShortLinkMetadata";
-import ShortLinkIllustration from "@/components/ShortLinkIllustration";
+import { ShortLinkIllustration } from "@/components/SVGs";
 import { buttonVariants } from "@/components/ui/button";
 
 export default function ShortLinkPage() {
