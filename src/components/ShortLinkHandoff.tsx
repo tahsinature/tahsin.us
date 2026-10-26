@@ -4,6 +4,7 @@ import { shortLinkConfig } from "@shared/short-links";
 import type { ShortLinkTheme } from "@shared/short-links";
 import type { ShortLinkHandoffState } from "@/hooks/useShortLinkDestination";
 import ShortLinkPortal from "@/components/ShortLinkPortal";
+import ShortLinkRoute from "@/components/ShortLinkRoute";
 import { buttonVariants } from "@/components/ui/button";
 
 export default function ShortLinkHandoff({ state, theme }: { state: ShortLinkHandoffState; theme: ShortLinkTheme }) {
@@ -22,17 +23,7 @@ export default function ShortLinkHandoff({ state, theme }: { state: ShortLinkHan
           {ready ? copy.readyTitle : copy.title}
         </motion.h1>
         <p className="short-transit-description">{ready ? copy.readyDescription : copy.description}</p>
-        <div className="short-transit-route">
-          <span>tahsin.us</span>
-          <span className="short-transit-route-line" aria-hidden="true">
-            <motion.i
-              initial={reducedMotion ? false : { width: "0%" }}
-              animate={{ width: "100%" }}
-              transition={{ duration: reducedMotion ? 0 : copy.durationMs / 1000, ease: "linear" }}
-            />
-          </span>
-          <span>{destination ? new URL(destination).hostname.replace(/^www\./, "") : "Finding your destination"}</span>
-        </div>
+        <ShortLinkRoute destination={destination} reducedMotion={reducedMotion} />
         <p className="short-transit-status">{ready ? <Check className="size-3" aria-hidden="true" /> : <span className="short-transit-dot" aria-hidden="true" />}{ready ? "Destination found · Opening shortly" : "Looking up your link"}</p>
       </div>
       <div className="short-transit-continue">
