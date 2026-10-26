@@ -10,7 +10,7 @@ export function createShortLinkResolutionRoutes(fetchLink?: ShortLinkFetch) {
     const pathname = c.req.query("path") ?? "";
     const search = c.req.query("search") ?? "";
     if (!isShortLinkPath(pathname) || pathname.length > 2048 || search.length > 4096) {
-      return c.json({ error: "A valid /short/ path is required" }, 400);
+      return c.json({ error: "A valid /short/ or /s/ path is required" }, 400);
     }
     const result = await findShortLinkDestination(pathname, search, fetchLink, c.req.header("user-agent"));
     return c.json(result);

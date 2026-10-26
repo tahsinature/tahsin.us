@@ -11,5 +11,7 @@ export function createShortLinkRoutes(readHtml: () => Promise<string>) {
   };
   routes.get("/short", handle);
   routes.get("/short/*", handle);
+  routes.get("/s", handle);
+  routes.get("/s/*", handle);
   return routes;
 }

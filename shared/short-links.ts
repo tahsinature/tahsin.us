@@ -27,7 +27,7 @@ export const shortLinkConfig = {
   retryMode: "portal" as "portal" | "short-link",
   siteName: "Shared links",
   handoff: {
-    durationMs: 5000,
+    durationMs: 3000,
     label: "A little closer",
     title: "Good things are connected.",
     description: "Finding the next stop on your journey.",
@@ -62,19 +62,19 @@ export const shortLinkConfig = {
   } satisfies Record<ShortLinkTheme, ShortLinkContent>,
   // Match whole words separated by punctuation, spaces, or slashes.
   meetingKeywords: ["zoom", "meet", "meeting", "teams", "webex", "call"],
-  // Keys are decoded, lowercase slugs without /short/. Exact overrides win.
+  // Keys are decoded, lowercase slugs without /short/ or /s/. Exact overrides win.
   // zoom: { preview: { title: "Project catch-up", image: "/my-preview.png" } },
   links: {} as Record<string, ShortLinkOverride>,
 };
 
 export function isShortLinkPath(pathname: string): boolean {
-  return pathname === "/short" || pathname.startsWith("/short/");
+  return /^\/(?:short|s)(?:\/|$)/.test(pathname);
 }
 
 function getShortLinkSlug(pathname: string, search: string): string {
   const forwardedSlug = new URLSearchParams(search).get("slug");
   if (forwardedSlug) return forwardedSlug.replace(/^\/+|\/+$/g, "");
-  const value = pathname.replace(/^\/short\/?/, "");
+  const value = pathname.replace(/^\/(?:short|s)(?:\/|$)/, "");
   try {
     return decodeURIComponent(value).replace(/^\/+|\/+$/g, "");
   } catch {
@@ -85,7 +85,7 @@ function getShortLinkSlug(pathname: string, search: string): string {
 export function getShortLinkRetryUrl(pathname: string, search = ""): string | null {
   if (!isShortLinkPath(pathname)) return null;
   const slug = getShortLinkSlug(pathname, search);
-  // /short/404 is the generic fallback, not the original short-link slug.
+  // /short/404 and /s/404 are generic fallbacks, not original short-link slugs.
   if (!slug || slug === "404") return null;
   const segments = slug.split("/");
   if (segments.some((segment) => segment === "." || segment === "..")) return null;
@@ -100,7 +100,7 @@ export function getShortLinkRetryHref(pathname: string, search = ""): string | n
 }
 
 export function resolveShortLink(pathname: string, search = ""): ShortLinkContent {
-  // A fixed fallback can also receive /short/404?slug=team-zoom.
+  // Either prefix can receive a forwarded slug, such as /s/404?slug=team-zoom.
   const slug = getShortLinkSlug(pathname, search).toLowerCase();
   const override = Object.hasOwn(shortLinkConfig.links, slug) ? shortLinkConfig.links[slug] : undefined;
   const words = slug.split(/[^\p{L}\p{N}]+/u);
